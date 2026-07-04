@@ -1,0 +1,59 @@
+# ════════════════════════════════════════════════════════════════════════
+#  project.config.yaml — THE SEAM (DIP contract for the harness CORE)
+# ════════════════════════════════════════════════════════════════════════
+#
+#  Single store of every PROJECT/SISTEMA/TECH-specific value the harness CORE
+#  reads. The CORE names ZERO concrete tech/sistema/locale/engine/live-env;
+#  it reads these abstract SLOTS. Fill them for THIS product (devhub).
+#
+#  Doctor: python3 scripts/harness_config.py --doctor
+#  Sentinel for an unfilled slot: __FILL_ME__
+#
+#  Kit: harness@prenter-marketplace v0.5.3 (plugin, pinned — see CLAUDE.md)
+#  Bootstrap: /harness:bootstrap 2026-07-04 · detection sweep: repo greenfield
+#  (cero manifests/lockfiles) → detectable slots quedaron __FILL_ME__ salvo
+#  los firmados por Chris en la sesión de bootstrap.
+# ════════════════════════════════════════════════════════════════════════
+
+meta:
+  product: devhub
+  config_version: 1
+  description: "Aplicación de escritorio multiplataforma — proceso, arquitectura y documentación as code"
+  # firmado Chris 2026-07-04 (bootstrap sweep) · provenance: README.md L1-4 / VISION.md §Identidad
+
+# sistemas[] · market/product instances. Single-sistema = list with ONE entry.
+# firmado Chris 2026-07-04 (bootstrap sweep) · provenance: CLAUDE.md «Producto standalone»
+sistemas:
+  loop_order: [devhub]
+  active:
+    - slug: devhub
+      status: active
+
+# toolchain · lint/format/typecheck/test/build commands — quoted VERBATIM from
+# the repo's own build files (go.mod / package.json / Makefile). Greenfield:
+# no build files yet → fill when the first manifest lands.
+toolchain: __FILL_ME__
+
+# locale · user-facing language rule the copy gates enforce.
+locale: __FILL_ME__
+
+# engine_prefix · where SHARED/reusable code lives (anti-duplication grep target).
+engine_prefix: __FILL_ME__
+
+# live_verify_infra · how a story is exercised LIVE before `done`.
+live_verify_infra: __FILL_ME__
+
+# design_system_ref · UI-composition canon (or `none` for non-UI products).
+design_system_ref: __FILL_ME__
+
+# domain_modules · the business modules the process talks about.
+domain_modules: __FILL_ME__
+
+# agent_roster · worker roles (builder/auditor split) stories route to.
+agent_roster: __FILL_ME__
+
+# value_stream · stages the product map derives zones from.
+value_stream: __FILL_ME__
+
+# wip_caps · work-in-progress limits the closure gates enforce.
+wip_caps: __FILL_ME__
