@@ -1,4 +1,4 @@
-# DevHub — Visión de producto
+# DevStudio — Visión de producto
 
 > Norte vivo del producto. Registro de decisiones: [`LEDGER.md`](./LEDGER.md) (fichas `DH-NN`).
 > Este repo nació de la graduación de la célula P2 del monorepo `prenter-harness` (2026-07-04);
@@ -6,7 +6,7 @@
 
 ## Identidad
 
-**DevHub es una aplicación para construir y mantener software basado en PROCESO y ARQUITECTURA.**
+**DevStudio es una aplicación para construir y mantener software basado en PROCESO y ARQUITECTURA.**
 
 No es un tracker de tickets ni un facilitador de sesiones de IA: es la consola donde una
 organización ejecuta su ciclo de desarrollo completo — con el proceso, la arquitectura y la

@@ -1,4 +1,4 @@
-# DevHub
+# DevStudio
 
 Aplicación de escritorio multiplataforma para **construir y mantener software basado en
 proceso y arquitectura** — proceso as code, arquitectura as code, documentación as code.

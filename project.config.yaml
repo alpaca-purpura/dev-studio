@@ -4,7 +4,7 @@
 #
 #  Single store of every PROJECT/SISTEMA/TECH-specific value the harness CORE
 #  reads. The CORE names ZERO concrete tech/sistema/locale/engine/live-env;
-#  it reads these abstract SLOTS. Fill them for THIS product (devhub).
+#  it reads these abstract SLOTS. Fill them for THIS product (dev-studio).
 #
 #  Doctor: python3 scripts/harness_config.py --doctor
 #  Sentinel for an unfilled slot: __FILL_ME__
@@ -16,7 +16,7 @@
 # ════════════════════════════════════════════════════════════════════════
 
 meta:
-  product: devhub
+  product: dev-studio
   config_version: 1
   description: "Aplicación de escritorio multiplataforma — proceso, arquitectura y documentación as code"
   # firmado Chris 2026-07-04 (bootstrap sweep) · provenance: README.md L1-4 / VISION.md §Identidad
@@ -24,9 +24,9 @@ meta:
 # sistemas[] · market/product instances. Single-sistema = list with ONE entry.
 # firmado Chris 2026-07-04 (bootstrap sweep) · provenance: CLAUDE.md «Producto standalone»
 sistemas:
-  loop_order: [devhub]
+  loop_order: [dev-studio]
   active:
-    - slug: devhub
+    - slug: dev-studio
       status: active
 
 # toolchain · lint/format/typecheck/test/build commands — quoted VERBATIM from

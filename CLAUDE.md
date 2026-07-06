@@ -1,4 +1,4 @@
-# DevHub — construir y mantener software basado en proceso y arquitectura
+# DevStudio — construir y mantener software basado en proceso y arquitectura
 
 Producto standalone (graduado del monorepo `prenter-harness`, 2026-07-04). Norte =
 [`VISION.md`](./VISION.md) · registro = [`LEDGER.md`](./LEDGER.md) (fichas `DH-NN`, arranca en

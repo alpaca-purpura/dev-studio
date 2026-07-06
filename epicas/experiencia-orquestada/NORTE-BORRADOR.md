@@ -30,7 +30,7 @@ la par, apalancándose de un repositorio (Github) como conector entre todos."
   experiencia + modelo de "organización" y del conector GitHub (¿qué sincroniza el repo?) +
   auditoría de herencia (orden del port). Candidato de método: skill `service-design-doing`
   (blueprint frontstage/backstage + inventario de interfaces).
-- **F1 · Esqueleto de la app**: shell de escritorio (binario `devhub` nuevo, limpio) + driver
+- **F1 · Esqueleto de la app**: shell de escritorio (binario `dev-studio` nuevo, limpio) + driver
   CLI-nativo (la story que DH-10 dejó lista) + primera pantalla del journey.
 - **F2+ · Port por rebanadas**: cada rebanada = una pieza de la herencia re-entrando por la
   puerta de la experiencia (spec congelada por fase, checkpoint de forks, verificación en

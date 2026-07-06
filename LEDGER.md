@@ -1,4 +1,4 @@
-# Ledger — DevHub (fichas DH-NN)
+# Ledger — DevStudio (fichas DH-NN)
 
 > Registro de decisiones de ESTE producto. Mismo formato/disciplina que la casa prenter-harness.
 > **Continuidad:** DH-01..DH-11 viven en `prenter-harness/products/devhub/LEDGER.md` (la
@@ -19,7 +19,7 @@ aplicación cuyo objetivo es construir y mantener software basado en proceso y a
 donde usamos arquitectura as code, proceso as code, software documentation as code, etc. Este
 nuevo repositorio debe nacer limpio, con la nueva visión, y como arneses de construcción vamos
 a usar los del KIT DEV (plugin), pero lo iremos evolucionando conforme avanzamos." Forks
-firmados por AskUserQuestion: nombre **DevHub** (repo `devhub`, binario `devhub` — cierra de
+firmados por AskUserQuestion: nombre **DevStudio** (repo `dev-studio`, binario `dev-studio` — cierra de
 nacimiento la deuda del rename DH-01) · **graduación** con célula del monorepo = fuente
 CONGELADA read-only del port gradual (mecánica I-69 adelantada deliberadamente: sin clientes
 aún) · repo GitHub **privado en alpacapurpura** desde el día 0.
@@ -30,7 +30,7 @@ multi-usuario/multi-rol; GitHub = conector) + este ledger + épica «Experiencia
 (borrador de norte, F0 pendiente de firma EN este repo) + kit dev instalado como plugin desde
 el marketplace (`alpacapurpura/prenter-marketplace`). Decisiones técnicas heredadas que siguen
 vigentes: DH-10 (conexión CC = driver CLI-nativo, BYO licencia, SIN API) · descriptor de
-proceso I-77 (contrato de ecosistema — el kit lo shipea, DevHub lo interpreta) · binario Go +
+proceso I-77 (contrato de ecosistema — el kit lo shipea, DevStudio lo interpreta) · binario Go +
 UI embebida. El código go+ui NO se copió: el port es gradual, gobernado por la épica, pieza
 por pieza según la experiencia decidida.
 
@@ -49,4 +49,4 @@ en qué forma).
 
 | Fecha | Decisión | Fichas |
 |---|---|---|
-| 2026-07-04 | Fundación del repo propio: graduación de P2 (nombre DevHub confirmado — binario `devhub`, muere la colisión `cockpit` de nacimiento); visión ampliada = construir y mantener software basado en proceso y arquitectura, trabajo orquestado multi-usuario (CTO·developer·devops·PO), GitHub conector; célula del monorepo congelada como fuente del port gradual; kit dev como plugin del marketplace; épica «Experiencia Orquestada» sembrada (F0 por firmar). | DH-12 |
+| 2026-07-04 | Fundación del repo propio: graduación de P2 (nombre DevStudio confirmado — binario `dev-studio`, muere la colisión `cockpit` de nacimiento); visión ampliada = construir y mantener software basado en proceso y arquitectura, trabajo orquestado multi-usuario (CTO·developer·devops·PO), GitHub conector; célula del monorepo congelada como fuente del port gradual; kit dev como plugin del marketplace; épica «Experiencia Orquestada» sembrada (F0 por firmar). | DH-12 |
