@@ -1,0 +1,87 @@
+/* PRENTER — Color system.
+   PRENTER (robótica e ingeniería) es una marca DARK-FIRST: negro puro + teal de marca (#00b7aa),
+   con un motivo de código binario ("trama corporativa") en líneas teal sobre negro.
+   El teal es el ÚNICO acento saturado. Neutros ligeramente fríos para superficies claras.
+
+   SINCRONIZADO 2026-07-07 desde Claude Design «PRENTER Design System»
+   (id a98c2e0d-db82-43f2-8fd7-e7e05c40fd51, tokens/colors.css, etag 1782145899987577).
+   SSoT visual = ese proyecto; al cambiar allá, re-sincronizar acá. */
+
+:root {
+  /* ---- Brand teal ramp ---- */
+  --teal-50:  #e6f8f6;
+  --teal-100: #c2efea;
+  --teal-200: #8fe3da;
+  --teal-300: #54d4c8;
+  --teal-400: #1fc6b8;
+  --teal-500: #00b7aa; /* ← brand primary */
+  --teal-600: #009d92;
+  --teal-700: #007f76;
+  --teal-800: #0a605a;
+  --teal-900: #0d4944;
+
+  /* ---- Core ---- */
+  --black:       #000000; /* brand black — fondos dark */
+  --white:       #ffffff;
+
+  /* ---- Neutrals (slightly cool) ---- */
+  --neutral-50:  #f6f8f8;
+  --neutral-100: #eef1f1;
+  --neutral-200: #e1e6e6;
+  --neutral-300: #c9d1d1;
+  --neutral-400: #98a3a3;
+  --neutral-500: #6b7676;
+  --neutral-600: #4d5757;
+  --neutral-700: #353d3d;
+  --neutral-800: #1a201f;
+  --neutral-900: #0e1312;
+  --ink:         #0a0d0c; /* casi-negro para superficies dark suaves */
+
+  /* ---- Dark theme surfaces (identidad principal) ---- */
+  --dark-bg:      #000000; /* lienzo principal dark */
+  --dark-surface: #0c1110; /* tarjeta sobre negro */
+  --dark-raised:  #141a19; /* elemento elevado */
+  --dark-border:  #1f2826; /* borde sutil sobre negro */
+  --dark-border-teal: rgba(0,183,170,0.35);
+
+  /* ---- Semantic: text (light context) ---- */
+  --text-strong:  var(--neutral-900);
+  --text-body:    var(--neutral-700);
+  --text-muted:   var(--neutral-500);
+  --text-faint:   var(--neutral-400);
+  --text-inverse: var(--white);
+  --text-brand:   var(--teal-700);
+
+  /* ---- Semantic: text on dark ---- */
+  --text-on-dark:        rgba(255,255,255,0.92);
+  --text-on-dark-muted:  rgba(255,255,255,0.58);
+  --text-on-dark-faint:  rgba(255,255,255,0.34);
+  --text-on-dark-brand:  var(--teal-400);
+
+  /* ---- Semantic: surfaces ---- */
+  --surface-page:    var(--white);
+  --surface-card:    var(--white);
+  --surface-sunken:  var(--neutral-50);
+  --surface-muted:   var(--neutral-100);
+  --surface-inverse: var(--black);
+  --surface-brand:   var(--teal-500);
+
+  /* ---- Semantic: borders ---- */
+  --border-subtle:  var(--neutral-200);
+  --border-default: var(--neutral-300);
+  --border-strong:  var(--neutral-400);
+  --border-brand:   var(--teal-500);
+
+  /* ---- Brand interaction states ---- */
+  --brand:          var(--teal-500);
+  --brand-hover:    var(--teal-400);
+  --brand-active:   var(--teal-600);
+  --brand-subtle:   var(--teal-50);
+  --brand-contrast: var(--black);
+  --focus-ring:     var(--teal-400);
+
+  /* ---- Status (muted, corporate) ---- */
+  --success: #1f9d6b;
+  --warning: #c98a16;
+  --danger:  #d0483c;
+}

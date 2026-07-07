@@ -1,0 +1,23 @@
+/* PRENTER — Webfonts.
+   ⚠ SUBSTITUTIONS IN PLACE — awaiting real brand font files from the user:
+     • Display/títulos  : brand uses "Coco Gothic" (Zetafonts, commercial).
+                          Substituted with "Jost" (Google) — geometric, art-deco lineage, closest free match.
+     • Texto corrido    : brand uses "Sansation" (free, by Bernd Montag, not on Google Fonts).
+                          Substituted with "Mulish" (Google) — clean geometric humanist sans.
+   When the .ttf/.woff2 files arrive, replace the @import below with @font-face rules
+   pointing at the copied binaries, and drop the substitutes from the stacks.
+
+   SINCRONIZADO 2026-07-07 desde Claude Design «PRENTER Design System»
+   (id a98c2e0d-db82-43f2-8fd7-e7e05c40fd51, tokens/fonts.css, etag 1782145899961938).
+   ⚠ Para la app de escritorio (binario go:embed, sin garantía de red): NO usar el @import
+   de Google Fonts en runtime — vendorizar los .woff2 al construir (ver SPEC §2). */
+
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Mulish:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* Real brand names listed first as documentation; substitutes are what actually render today. */
+  --font-display: 'Coco Gothic', 'Jost', system-ui, sans-serif;
+  --font-body: 'Sansation', 'Mulish', system-ui, sans-serif;
+  /* Monospace — terminal / código binario / etiquetas técnicas (motivo de marca). */
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}

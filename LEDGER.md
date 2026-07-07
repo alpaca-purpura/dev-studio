@@ -132,7 +132,50 @@ firmada hoy) y PB-03 (Storybook + atomic design). Diseñar el registry propio (P
 junto a la rebanada Rol (PB-06). Promover lo permanente de la épica a `specs/` recién al cierre
 de la ÉPICA.
 
-<!-- Próximas: DH-15, DH-16, … -->
+### DH-15 · Shell primero — spec congelable del shell PRENTER (PB-04 ⊕ PB-03) — `decidida` · `vig:vigente`
+
+*Cruda (operador, 2026-07-07):* "necesito que antes de continuar sobre la construcción de la
+aplicación vayamos cerrando cosas, como por ejemplo el shell, tengo un mockup html que quiero
+que revises, entiendas y hagamos el spec y con ello construyamos siguiendo la arquitectura y
+allí ya revisar los workspace aislados, pero ya en la aplicación." Y sobre la paleta: "eso lo
+hemos extraído del system design que creamos para prenter que está en ~/Proyectos/prenter …
+si te conectas a Claude Design puedes extraerlo, el system design se llama PRENTER allí."
+
+*Desarrollo:* revisión completa del mockup (`mockup-clon-agentsroom.html`, 1634 líneas: fuente
++ 5 estados renderizados con Chrome headless aislado — el MCP compartido estaba lockeado por
+otra sesión viva, HB-73 respetado). Hallazgos: el mockup EVOLUCIONÓ sobre §0.5 — `studio-nav`
+de 5 ítems (Studio/Backlog/Product/Roles-pronto/Config) reemplaza los 2 botones de header;
+overlays nuevos Product (mapa por zonas Estudio/Plataforma/Infraestructura) y Roles; el rail
+de sesiones F1 se FUSIONA con el árbol Repositorios→Workspaces (workspace=sesión 1:1, un solo
+conjunto en dos ejes). Confirmado: la paleta del mockup ES el design system **PRENTER** (los
+swatches del boceto son los tokens de marca) — tokens extraídos del proyecto Claude Design
+«PRENTER Design System» (`a98c2e0d-db82-43f2-8fd7-e7e05c40fd51`, `tokens/*.css`) y
+sincronizados a `specs/shell/tokens/` con etags anotados; `brand-guidelines.md` de
+`~/Proyectos/prenter` como fuente de reglas de marca (teal único acento, dark-first, Jost/
+Mulish/JetBrains Mono como sustitutos vigentes). **Forks firmados:** (1) paleta = PRENTER
+(theme.css ámbar muere; CAP-06 se actualizará al entregar); (2) Config/roster = placeholder
+honesto del registry (banner PB-25, muere «+ Rol personalizado»); (3) alcance = AMBICIOSO:
+además del shell cableado, **panel Cambios git REAL** (status/diff/quick-look/side-by-side/
+log + commit por pathspec explícito; push/pull/fetch NO EXISTEN en el adapter — boundary
+nuevo `git-solo-lectura-y-commit` con fitness test); (4) Storybook DENTRO de la rebanada
+(PB-03 fusionada: átomo sin story no entra al shell, RN-9). Artefactos: **`specs/shell/SPEC.md`
+v1** (primera spec permanente del repo — estructura real/stub por zona, flujos picker→crear
+sesión, arquitectura hexagonal con ports `RepoRegistry`/`GitInfo`/`GitCommit`, RN-1..10,
+AC-1..10 con verificación real, fuera-de-alcance con destino por PB) + BACKLOG rebandeado
+(PB-04→🔴 en-curso absorbe PB-03 · PB-02 después del shell «ya en la aplicación» · PB-05
+parcialmente adelantada).
+
+*Conecta:* DH-14 (norte firmado que esta rebanada materializa; reframe rol=arnés → roster
+placeholder) · DH-13 (F1 cuyo rail muere en este shell) · DH-10 (BYO CLI — el adapter git
+sigue el mismo espíritu: subproceso del `git` del usuario) · PB-04/PB-03/PB-02 ·
+`specs/shell/SPEC.md` · `specs/shell/tokens/` · marca PRENTER (`~/Proyectos/prenter/marketing/
+brand-guidelines.md` + Claude Design `a98c2e0d`).
+
+*Siguiente:* Chris ratifica la spec (cabecera → CONGELADA) → construir la rebanada siguiendo
+§5 → verificación AC-1..AC-10 en vivo → CAP nuevas/actualizadas en INCREMENTO en el mismo
+commit → inmediatamente después: PB-02 (workspace aislado) sobre este shell.
+
+<!-- Próximas: DH-16, DH-17, … -->
 
 ## Log
 
@@ -141,3 +184,4 @@ de la ÉPICA.
 | 2026-07-04 | Fundación del repo propio: graduación de P2 (nombre DevStudio confirmado — binario `dev-studio`, muere la colisión `cockpit` de nacimiento); visión ampliada = construir y mantener software basado en proceso y arquitectura, trabajo orquestado multi-usuario (CTO·developer·devops·PO), GitHub conector; célula del monorepo congelada como fuente del port gradual; kit dev como plugin del marketplace; épica «Experiencia Orquestada» sembrada (F0 por firmar). | DH-12 |
 | 2026-07-06 | F1 esqueleto de la app entregado: driver CLI-nativo propio (subproceso `claude` + stream-json, multisesión real verificada con 2 procesos concurrentes) + rail de sesiones colapsable (estilo Storybook de `harness-studio` copiado 1:1, dominio simplificado) + arquitectura as code propia (`arch/`, 5 boundaries, 2 enforced con test) con brecha de seguridad documentada sin ocultar. | DH-13 |
 | 2026-07-07 | F0 norte FIRMADO (cierra PB-01 y la deuda de DH-13): journeys ×4 (CTO = hueco declarado) + 7 principios + reframe Rol = arnés instalado desde REGISTRY PROPIO (solo marketplace, cero roles locales; permisos por puesto con multi-usuario) + orden de herencia Proyecto→Rol→Sesión-workspace→Historia/Capability→Proceso + dudas §9 resueltas (multi-usuario TBD sin bloquear; PB-02 = worktree + validación rutas) + seam completo (value_stream 10 estados, wip_caps advisory). | DH-14 |
+| 2026-07-07 | Shell primero: mockup revisado (evolución sobre §0.5: studio-nav 5 ítems, overlays Producto/Roles, workspace=sesión 1:1 — rail F1 muere) + paleta confirmada = design system PRENTER (tokens sincronizados de Claude Design a `specs/shell/tokens/`) + spec v1 del shell escrita (`specs/shell/SPEC.md`, primera spec permanente: alcance ambicioso con panel Cambios git real sin push/pull, roster placeholder del registry, Storybook dentro — PB-03 fusionada en PB-04; PB-02 pasa a construirse DESPUÉS del shell, ya en la app). | DH-15 |
