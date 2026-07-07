@@ -26,7 +26,7 @@ func registerRepo(svc *usecase.RepoService) http.HandlerFunc {
 			return
 		}
 		repo, err := svc.Register(req.Ruta)
-		if errors.Is(err, usecase.ErrNoEsRepo) {
+		if errors.Is(err, usecase.ErrNoEsRepo) || errors.Is(err, usecase.ErrRutaProtegida) {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}

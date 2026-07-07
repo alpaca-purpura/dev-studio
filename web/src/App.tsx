@@ -4,6 +4,7 @@ import { StudioNav } from "./widgets/studio-nav";
 import { SessionView } from "./widgets/session-view";
 import { ChangesPanel } from "./widgets/changes-panel";
 import { BacklogOverlay, ConfigOverlay, ProductoOverlay, RolesOverlay } from "./widgets/overlays";
+import { CloseSessionModal } from "./widgets/session-close/ui/close-session-modal";
 import { useSessions } from "./shared/store/sessions-store";
 import { useRepos } from "./shared/store/repos-store";
 import { useUi } from "./shared/store/ui-store";
@@ -40,6 +41,7 @@ export function App() {
         <ConfigOverlay />
         <ProductoOverlay />
         <RolesOverlay />
+        <CloseSessionModal />
       </div>
     </div>
   );

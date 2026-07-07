@@ -5,6 +5,8 @@ export type NavKey = "studio" | "backlog" | "producto" | "roles" | "config";
 
 interface UiState {
   nav: NavKey;
+  /** sesión con cierre pendiente — dispara el modal conservar/borrar workspace (PB-02) */
+  closeRequestId: string | null;
   /** picker: el Backlog abierto para ELEGIR el paquete de una sesión nueva (RN-1) */
   pickerMode: boolean;
   /** historia elegida en el picker, esperando en Config a `Crear sesión aislada` */
@@ -14,6 +16,7 @@ interface UiState {
   rolElegido: string;
 
   setNav: (k: NavKey) => void;
+  requestClose: (sessionId: string | null) => void;
   /** `+ Nuevo Workspace` de un repo → Backlog en modo picker */
   startPicker: (repoId: string) => void;
   /** clic en una historia estando en picker → Config con el paquete */
@@ -26,12 +29,14 @@ interface UiState {
 
 export const useUi = create<UiState>((set) => ({
   nav: "studio",
+  closeRequestId: null,
   pickerMode: false,
   pendingHistoria: null,
   pendingRepoId: null,
   rolElegido: "Full-Stack",
 
   setNav: (k) => set({ nav: k, pickerMode: false }),
+  requestClose: (sessionId) => set({ closeRequestId: sessionId }),
   startPicker: (repoId) => set({ nav: "backlog", pickerMode: true, pendingRepoId: repoId }),
   pickHistoria: (h) => set({ nav: "config", pickerMode: false, pendingHistoria: h }),
   setRol: (rol) => set({ rolElegido: rol }),

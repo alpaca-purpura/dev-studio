@@ -112,6 +112,35 @@ func TestGitCommitExigePathspec(t *testing.T) {
 	}
 }
 
+type memRepoStore struct{ repos []domain.Repo }
+
+func (m *memRepoStore) LoadRepos(context.Context) ([]domain.Repo, error) { return m.repos, nil }
+func (m *memRepoStore) SaveRepos(_ context.Context, r []domain.Repo) error {
+	m.repos = r
+	return nil
+}
+
+// TestRutasProtegidasRechazadas enforça sesion-aislada-por-cwd (mitad rutas): ninguna puerta
+// acepta $HOME ni raíces de sistema como repo/cwd (spec workspace-aislado §2.3, RN-2).
+func TestRutasProtegidasRechazadas(t *testing.T) {
+	home := "/home/fitness-test"
+	repos, err := usecase.NewRepoService(context.Background(), &memRepoStore{}, home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, ruta := range []string{home, "/etc", "/", home + "/.ssh", home + "/.dev-studio"} {
+		if _, err := repos.Register(ruta); !errors.Is(err, usecase.ErrRutaProtegida) {
+			t.Errorf("Register(%s): esperaba ErrRutaProtegida, obtuve %v", ruta, err)
+		}
+	}
+	if err := usecase.ValidarRuta(home, "/etc/nginx"); !errors.Is(err, usecase.ErrRutaProtegida) {
+		t.Errorf("ValidarRuta(/etc/nginx): esperaba ErrRutaProtegida, obtuve %v", err)
+	}
+	if err := usecase.ValidarRuta(home, home+"/Proyectos/x"); err != nil {
+		t.Errorf("ruta legítima rechazada: %v", err)
+	}
+}
+
 func assertNoDep(t *testing.T, pkg, forbidden string) {
 	t.Helper()
 	cmd := exec.Command("go", "list", "-deps", pkg)

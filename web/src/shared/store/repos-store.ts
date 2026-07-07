@@ -6,6 +6,8 @@ interface ReposState {
   repos: Repo[];
   /** status git por repo (branch + ±N para el rail) — refrescado on-demand */
   status: Record<string, GitStatus>;
+  /** status git POR SESIÓN (su worktree propio, PB-02) — la verdad del workspace-item */
+  sessionStatus: Record<string, GitStatus>;
   expanded: Record<string, boolean>;
   addOpen: boolean;
   addError: string | null;
@@ -14,6 +16,7 @@ interface ReposState {
   register: (ruta: string) => Promise<Repo | null>;
   remove: (id: string) => Promise<void>;
   refreshStatus: (repoId: string) => Promise<void>;
+  refreshSessionStatus: (sessionId: string) => Promise<void>;
   toggleExpanded: (repoId: string) => void;
   setAddOpen: (v: boolean) => void;
 }
@@ -21,6 +24,7 @@ interface ReposState {
 export const useRepos = create<ReposState>((set, get) => ({
   repos: [],
   status: {},
+  sessionStatus: {},
   expanded: {},
   addOpen: false,
   addError: null,
@@ -58,6 +62,15 @@ export const useRepos = create<ReposState>((set, get) => ({
       set((s) => ({ status: { ...s.status, [repoId]: st } }));
     } catch {
       // repo movido/borrado del disco: el rail lo muestra sin status
+    }
+  },
+
+  refreshSessionStatus: async (sessionId: string) => {
+    try {
+      const st = await api.gitStatus(sessionId);
+      set((s) => ({ sessionStatus: { ...s.sessionStatus, [sessionId]: st } }));
+    } catch {
+      // sesión sin cwd válido (legacy con directorio borrado): sin status, sin drama
     }
   },
 

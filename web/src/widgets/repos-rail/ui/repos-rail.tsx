@@ -5,64 +5,76 @@ import { useSessions } from "../../../shared/store/sessions-store";
 import { useUi } from "../../../shared/store/ui-store";
 import { cn } from "../../../shared/lib/cn";
 import { Button, DiffStat, Input, Kbd, StatusDot, statusLabel, type WorkspaceState } from "../../../shared/ui";
+import { UpdateFooter } from "./update-footer";
 
 /** Pseudo-repo para sesiones F1 sin repo_id (migración, spec shell §6). */
 const SIN_REPO: Repo = { id: "", nombre: "(sin repositorio)", ruta: "" };
 
-function workspaceState(s: Session, dirty: boolean): WorkspaceState {
+function workspaceState(s: Session, dirty: boolean, conflict: boolean): WorkspaceState {
   if (s.status === "streaming") return "streaming";
+  if (conflict) return "conflict";
   return dirty ? "ready" : "idle";
 }
 
-function WorkspaceItem({
-  session,
-  index,
-  branch,
-  add,
-  del,
-  dirty,
-}: {
-  session: Session;
-  index: number;
-  branch?: string;
-  add: number;
-  del: number;
-  dirty: boolean;
-}) {
+function WorkspaceItem({ session, index }: { session: Session; index: number }) {
   const activeId = useSessions((s) => s.activeId);
   const switchTo = useSessions((s) => s.switchTo);
-  const state = workspaceState(session, dirty);
+  const requestClose = useUi((s) => s.requestClose);
+  // PB-02: branch/±N del worktree DE ESTA SESIÓN (ya no el status agregado del repo)
+  const st = useRepos((s) => s.sessionStatus[session.id]);
+  const refreshSessionStatus = useRepos((s) => s.refreshSessionStatus);
+
+  useEffect(() => {
+    void refreshSessionStatus(session.id);
+  }, [refreshSessionStatus, session.id]);
+
+  const dirty = (st?.files.length ?? 0) > 0;
+  const conflict = st?.files.some((f) => f.state === "U") ?? false;
+  const state = workspaceState(session, dirty, conflict);
   const active = activeId === session.id;
 
   return (
-    <button
+    <div
       data-session={session.id}
-      onClick={() => switchTo(session.id)}
       className={cn(
-        "w-full cursor-pointer rounded-md border border-transparent px-2 py-1.5 text-left transition-colors hover:bg-sidebar-accent",
+        "group relative w-full rounded-md border border-transparent transition-colors hover:bg-sidebar-accent",
         active && "border-border bg-sidebar-accent shadow-[inset_2px_0_0_var(--primary)]",
       )}
     >
-      <div className="flex items-center gap-1.5">
-        <span aria-hidden className="text-muted-foreground">⎇</span>
-        <span className="min-w-0 flex-1 truncate font-mono text-xs font-semibold text-foreground">
-          {session.nombre}
-        </span>
-        <DiffStat add={add} del={del} />
-      </div>
-      <div className="mt-0.5 flex items-center gap-1.5 pl-5 text-[10px] text-muted-foreground">
-        <span className="truncate font-mono">{branch ?? "—"}</span>
-        <span aria-hidden>·</span>
-        <StatusDot state={state} />
-        <span className="truncate">{statusLabel[state]}</span>
-        {index < 9 && <Kbd className="ml-auto">⌘{index + 1}</Kbd>}
-      </div>
-    </button>
+      <button onClick={() => switchTo(session.id)} className="w-full cursor-pointer px-2 py-1.5 text-left">
+        <div className="flex items-center gap-1.5">
+          <span aria-hidden className="text-muted-foreground">⎇</span>
+          <span className="min-w-0 flex-1 truncate font-mono text-xs font-semibold text-foreground">
+            {session.nombre}
+          </span>
+          <DiffStat add={st?.add ?? 0} del={st?.del ?? 0} />
+        </div>
+        <div className="mt-0.5 flex items-center gap-1.5 pl-5 text-[10px] text-muted-foreground">
+          <span className="truncate font-mono">{session.branch ?? st?.branch ?? "—"}</span>
+          <span aria-hidden>·</span>
+          <StatusDot state={state} />
+          <span className="truncate">{statusLabel[state]}</span>
+          {index < 9 && <Kbd className="ml-auto">⌘{index + 1}</Kbd>}
+        </div>
+      </button>
+      <button
+        aria-label={`Cerrar ${session.nombre}`}
+        title="Cerrar sesión"
+        onClick={(e) => {
+          e.stopPropagation();
+          requestClose(session.id);
+        }}
+        className="absolute right-1 top-1 hidden cursor-pointer rounded p-0.5 text-muted-foreground hover:bg-secondary hover:text-foreground group-hover:block"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </div>
   );
 }
 
 function RepoBlock({ repo, sessions, startIndex }: { repo: Repo; sessions: Session[]; startIndex: number }) {
-  const status = useRepos((s) => s.status[repo.id]);
   const expanded = useRepos((s) => s.expanded[repo.id] ?? true);
   const toggleExpanded = useRepos((s) => s.toggleExpanded);
   const startPicker = useUi((s) => s.startPicker);
@@ -136,15 +148,7 @@ function RepoBlock({ repo, sessions, startIndex }: { repo: Repo; sessions: Sessi
             </div>
           )}
           {sessions.map((s, i) => (
-            <WorkspaceItem
-              key={s.id}
-              session={s}
-              index={startIndex + i}
-              branch={isReal ? status?.branch : undefined}
-              add={isReal ? (status?.add ?? 0) : 0}
-              del={isReal ? (status?.del ?? 0) : 0}
-              dirty={isReal ? (status?.files.length ?? 0) > 0 : false}
-            />
+            <WorkspaceItem key={s.id} session={s} index={startIndex + i} />
           ))}
         </div>
       )}
@@ -270,24 +274,7 @@ export function ReposRail() {
         })}
       </div>
 
-      <div className="flex gap-1 border-t border-sidebar-border p-2">
-        {[
-          ["Archivados", "M3 4h18v4H3zM5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 13h4"],
-          ["Feedback", "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"],
-          ["Ajustes", "M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"],
-        ].map(([title, d]) => (
-          <button
-            key={title}
-            title={`${title} — todavía no (RN-7)`}
-            disabled
-            className="cursor-not-allowed rounded p-1.5 text-muted-foreground/40"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-4">
-              <path d={d} />
-            </svg>
-          </button>
-        ))}
-      </div>
+      <UpdateFooter />
     </nav>
   );
 }

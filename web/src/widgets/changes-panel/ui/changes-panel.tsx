@@ -3,6 +3,7 @@ import { api } from "../../../shared/api/client";
 import type { GitDiff, GitLogEntry, GitStatus } from "../../../shared/api/types";
 import { useSessions } from "../../../shared/store/sessions-store";
 import { useRepos } from "../../../shared/store/repos-store";
+import { useUi } from "../../../shared/store/ui-store";
 import {
   Avatar,
   Button,
@@ -38,7 +39,8 @@ function DiffLines({ text, sideBySide }: { text: string; sideBySide?: boolean })
 
 export function ChangesPanel() {
   const session = useSessions((s) => s.sessions.find((x) => x.id === s.activeId));
-  const refreshRepoStatus = useRepos((s) => s.refreshStatus);
+  const refreshSessionStatus = useRepos((s) => s.refreshSessionStatus);
+  const requestClose = useUi((s) => s.requestClose);
   const [tab, setTab] = useState("cambios");
   const [pane, setPane] = useState<"pendientes" | "historial">("pendientes");
   const [status, setStatus] = useState<GitStatus | null>(null);
@@ -100,8 +102,9 @@ export function ChangesPanel() {
       await api.gitCommit(session.id, selected, mensaje.trim());
       setMensaje("");
       await refresh();
-      if (session.repo_id) void refreshRepoStatus(session.repo_id);
-      if (cerrar) await useSessions.getState().closeSession(session.id);
+      void refreshSessionStatus(session.id);
+      // cerrar pasa por el modal conservar/borrar del workspace (spec workspace-aislado §2.2)
+      if (cerrar) requestClose(session.id);
     } catch (e) {
       setStatusErr(e instanceof Error ? e.message : "No se pudo commitear");
     } finally {

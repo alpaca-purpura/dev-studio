@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alpacapurpura/dev-studio/internal/domain"
 	"github.com/alpacapurpura/dev-studio/internal/usecase"
@@ -31,35 +32,75 @@ type createSessionReq struct {
 	Rol      string           `json:"rol"`
 }
 
-func createSession(svc *usecase.SessionService, repos *usecase.RepoService) http.HandlerFunc {
+// slugify normaliza el nombre a slug de branch/carpeta (misma regla que la SPA).
+func slugify(s string) string {
+	var b []rune
+	prev := '-'
+	for _, r := range strings.ToLower(s) {
+		switch {
+		case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
+			b = append(b, r)
+			prev = r
+		default:
+			if prev != '-' {
+				b = append(b, '-')
+				prev = '-'
+			}
+		}
+	}
+	out := strings.Trim(string(b), "-")
+	if len(out) > 26 {
+		out = strings.Trim(out[:26], "-")
+	}
+	if out == "" {
+		out = "sesion"
+	}
+	return out
+}
+
+func createSession(svc *usecase.SessionService, repos *usecase.RepoService, git *usecase.GitService, home, workspacesDir string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req createSessionReq
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "bad request", http.StatusBadRequest)
 			return
 		}
-		cwd := req.Cwd
+		nombre := req.Nombre
+		if nombre == "" {
+			nombre = "Nueva sesión"
+		}
+
+		p := usecase.NewSession{Nombre: nombre, RepoID: req.RepoID, Historia: req.Historia, Rol: req.Rol}
 		if req.RepoID != "" {
+			// PB-02: toda sesión de repo nace en su PROPIO workspace (worktree + wt/{slug})
 			repo, ok := repos.Get(req.RepoID)
 			if !ok {
 				http.Error(w, "repo not found", http.StatusUnprocessableEntity)
 				return
 			}
-			// v1 pre-PB-02: la sesión trabaja sobre la raíz del repo; el workspace
-			// aislado (worktree+branch) entra en la rebanada siguiente.
-			cwd = repo.Ruta
+			slug := slugify(nombre)
+			destino := filepath.Join(workspacesDir, repo.Nombre, slug)
+			path, branch, err := git.CreateWorktree(r.Context(), repo.Ruta, destino, slug)
+			if err != nil {
+				http.Error(w, "workspace: "+err.Error(), http.StatusUnprocessableEntity)
+				return
+			}
+			p.Cwd, p.Workspace, p.Branch = path, path, branch
+		} else {
+			cwd := req.Cwd
+			if cwd == "" {
+				cwd, _ = os.UserHomeDir()
+			}
+			cwd = filepath.Clean(cwd)
+			// RN-2: ninguna sesión en ruta protegida, tampoco por la puerta legacy
+			if err := usecase.ValidarRuta(home, cwd); err != nil {
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+				return
+			}
+			p.Cwd = cwd
 		}
-		if cwd == "" {
-			cwd, _ = os.UserHomeDir()
-		}
-		cwd = filepath.Clean(cwd)
-		nombre := req.Nombre
-		if nombre == "" {
-			nombre = "Nueva sesión"
-		}
-		sess, err := svc.CreateSession(usecase.NewSession{
-			Nombre: nombre, Cwd: cwd, RepoID: req.RepoID, Historia: req.Historia, Rol: req.Rol,
-		})
+
+		sess, err := svc.CreateSession(p)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -102,13 +143,38 @@ func patchSession(svc *usecase.SessionService) http.HandlerFunc {
 	}
 }
 
-func deleteSession(svc *usecase.SessionService) http.HandlerFunc {
+type deleteSessionResp struct {
+	Closed           bool   `json:"closed"`
+	WorkspaceRemoved bool   `json:"workspace_removed"`
+	Detalle          string `json:"detalle,omitempty"`
+}
+
+// deleteSession cierra la sesión; ?workspace=remove intenta borrar su worktree (RN-3: git
+// rechaza el remove sucio — la app conserva y avisa, jamás --force).
+func deleteSession(svc *usecase.SessionService, repos *usecase.RepoService, git *usecase.GitService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := svc.Close(r.PathValue("id")); errors.Is(err, usecase.ErrNotFound) {
+		sess, ok := svc.Get(r.PathValue("id"))
+		if !ok {
 			http.Error(w, "not found", http.StatusNotFound)
 			return
 		}
-		w.WriteHeader(http.StatusNoContent)
+		if err := svc.Close(sess.ID); errors.Is(err, usecase.ErrNotFound) {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+		resp := deleteSessionResp{Closed: true}
+		if r.URL.Query().Get("workspace") == "remove" && sess.Workspace != "" {
+			repoRoot := sess.Workspace // fallback: el remove corre desde el propio worktree
+			if repo, ok := repos.Get(sess.RepoID); ok {
+				repoRoot = repo.Ruta
+			}
+			if err := git.RemoveWorktree(r.Context(), repoRoot, sess.Workspace); err != nil {
+				resp.Detalle = "el workspace se conservó: " + err.Error()
+			} else {
+				resp.WorkspaceRemoved = true
+			}
+		}
+		writeJSON(w, http.StatusOK, resp)
 	}
 }
 

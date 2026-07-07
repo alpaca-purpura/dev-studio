@@ -1,4 +1,4 @@
-import type { GitDiff, GitLogEntry, GitStatus, Historia, Repo, Session } from "./types";
+import type { CloseSessionResp, GitDiff, GitLogEntry, GitStatus, Historia, Repo, Session, VersionInfo } from "./types";
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
@@ -21,9 +21,16 @@ export const api = {
       body: JSON.stringify({ nombre }),
     }).then((r) => json<Session>(r)),
 
-  close: (id: string): Promise<void> =>
-    fetch(`/api/sessions/${id}`, { method: "DELETE" }).then((r) => {
-      if (!r.ok) throw new Error(`${r.status}`);
+  close: (id: string, workspace: "keep" | "remove" = "keep"): Promise<CloseSessionResp> =>
+    fetch(`/api/sessions/${id}?workspace=${workspace}`, { method: "DELETE" }).then((r) =>
+      json<CloseSessionResp>(r),
+    ),
+
+  version: (): Promise<VersionInfo> => fetch("/api/version").then((r) => json<VersionInfo>(r)),
+
+  update: (): Promise<void> =>
+    fetch("/api/update", { method: "POST" }).then(async (r) => {
+      if (!r.ok) throw new Error(await r.text());
     }),
 
   turn: (id: string, text: string): Promise<void> =>

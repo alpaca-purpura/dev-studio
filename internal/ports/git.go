@@ -20,3 +20,11 @@ type GitInfo interface {
 type GitCommit interface {
 	Commit(ctx context.Context, cwd string, paths []string, mensaje string) (sha string, err error)
 }
+
+// GitWorkspace crea/borra los workspaces aislados por sesión (spec workspace-aislado, PB-02):
+// worktree + branch wt/{slug}. Remove sin force — un worktree sucio se conserva, jamás se
+// pierde trabajo en silencio (RN-3).
+type GitWorkspace interface {
+	CreateWorktree(ctx context.Context, repoRoot, destino, slug string) (path, branch string, err error)
+	RemoveWorktree(ctx context.Context, repoRoot, path string) error
+}

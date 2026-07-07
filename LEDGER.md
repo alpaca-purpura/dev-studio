@@ -194,7 +194,51 @@ actualizadas + **CAP-07/08/09 nuevas**.
 protegidas), ya sobre este shell** (forma firmada en F0; el rail ya pinta branch/status/dots
 para recibirla). Después: banda 🟡 (PB-05 restos → PB-25 registry → PB-06 Roles).
 
-<!-- Próximas: DH-16, DH-17, … -->
+### DH-16 · Workspace aislado por sesión + instalable dogfooding (PB-02 ⊕ PB-26) — `decidida` · `vig:vigente`
+
+*Cruda (operador, 2026-07-07):* "dale, arranquemos PB-02 y crea el instalador y el mecanismo
+para instalarlo y actualizar la aplicación y verla y probar todo en adelante desde el mismo
+app."
+
+*Desarrollo:* spec `specs/workspace-aislado/SPEC.md` (segunda permanente) ratificada con 3
+forks: worktrees en `~/.dev-studio/workspaces/{repo}/{slug}` (fuera del repo del usuario,
+patrón Conductor) · cierre de sesión PREGUNTA (modal conservar/borrar) · updater = REBUILD
+LOCAL (sin red, sin tokens, sin git — compila el working tree del repo fuente). **PB-02:**
+puerto `GitWorkspace` (CreateWorktree/RemoveWorktree, TDD con 4 tests sobre repos reales:
+aislamiento, colisión de slug → sufijo, HEAD unborn → error honesto, remove sucio rechazado)
+· toda sesión de repo nace en su worktree con branch `wt/{slug}` (`Session.Workspace/Branch`)
+· `domain.RutaProtegida` (pura: $HOME, ~/.ssh/.gnupg/.aws/.kube/.docker/.dev-studio, raíces
+de sistema) aplicada en TODA puerta (Register + createSession legacy → 422) · el rail pinta
+branch/±N/dot del worktree DE CADA SESIÓN (dot `conflict` parseando unmerged) · modal de
+cierre con RN-3 (borrar sucio → git rechaza, la app conserva y muestra el error REAL —
+bug de unmount del aviso cazado y arreglado EN el gate). **Boundary
+`sesion-aislada-por-cwd`: `proposed` → `enforced`** (v2.0 — 3 de 4 checks con test; resta
+token de capacidad, documentado). **PB-26:** `scripts/install.sh` (SPA + binario con
+`-ldflags` versión SHA+dirty/fecha → `~/.local/bin/dev-studio` + lanzador `dev-studio-open`
+(app-mode Chrome) + `.desktop` + icono PRENTER SVG + `app.json` con el source) · `GET
+/api/version` + `POST /api/update` (rebuild vía `install.sh --update` con `bash -lc`, 500
+con output del compilador si falla, restart por `syscall.Exec` del binario nuevo) · footer
+del rail: versión visible + «Actualizar» con poll de `version@build_date` → `location.reload()`.
+**Verificación real: 14/14 checks** en vivo contra el binario INSTALADO (puppeteer):
+worktree en disco + `git worktree list` + branch en rail · 2 sesiones mismo repo sin cruce
+de Cambios · $HOME rechazado visible · modal: borrar sucio conservado con aviso + borrar
+limpio desaparece · **la app se ACTUALIZÓ A SÍ MISMA** (AC-6: rebuild + restart + un fix
+Go commiteado solo en el working tree quedó VIVO tras el update — 422 verificado post-restart).
+Suite completa verde (5 paquetes + fitness 6 tests).
+
+*Conecta:* DH-14 (forma worktree+rutas firmada en F0) · DH-15 (el shell que recibe esto;
+CAP-09 pierde su ⚠) · DH-13/DH-10 (driver intacto — el subproceso `claude` ahora nace en el
+worktree) · `arch/boundaries/sesion-aislada-por-cwd.md` v2.0 · `arch/boundaries/git-solo-lectura-y-commit.md`
+(worktree add/remove NO tocan los verbos prohibidos — scanner sigue verde) · PB-24 (el
+instalable comercial sigue pendiente; esto es la versión casa) · BACKLOG PB-02/PB-26.
+
+*Siguiente:* dogfooding real — Chris abre DevStudio desde el lanzador y prueba las rebanadas
+desde la app instalada («Actualizar» tras cada entrega). Banda 🟡: PB-05 restos → PB-25
+(registry) → PB-06 (Roles). Deuda visible del boundary: token de capacidad de la API local
+(check TBD). La brecha de seguridad fundacional quedó CERRADA — la app ya puede verla gente
+fuera del equipo (con criterio).
+
+<!-- Próximas: DH-17, DH-18, … -->
 
 ## Log
 
@@ -205,3 +249,4 @@ para recibirla). Después: banda 🟡 (PB-05 restos → PB-25 registry → PB-06
 | 2026-07-07 | F0 norte FIRMADO (cierra PB-01 y la deuda de DH-13): journeys ×4 (CTO = hueco declarado) + 7 principios + reframe Rol = arnés instalado desde REGISTRY PROPIO (solo marketplace, cero roles locales; permisos por puesto con multi-usuario) + orden de herencia Proyecto→Rol→Sesión-workspace→Historia/Capability→Proceso + dudas §9 resueltas (multi-usuario TBD sin bloquear; PB-02 = worktree + validación rutas) + seam completo (value_stream 10 estados, wip_caps advisory). | DH-14 |
 | 2026-07-07 | Shell primero: mockup revisado (evolución sobre §0.5: studio-nav 5 ítems, overlays Producto/Roles, workspace=sesión 1:1 — rail F1 muere) + paleta confirmada = design system PRENTER (tokens sincronizados de Claude Design a `specs/shell/tokens/`) + spec v1 del shell escrita (`specs/shell/SPEC.md`, primera spec permanente: alcance ambicioso con panel Cambios git real sin push/pull, roster placeholder del registry, Storybook dentro — PB-03 fusionada en PB-04; PB-02 pasa a construirse DESPUÉS del shell, ya en la app). | DH-15 |
 | 2026-07-07 | Shell PRENTER ENTREGADO (PB-04 ⊕ PB-03 → entregadas): tokens+fuentes vendorizadas, backend git TDD, boundary `git-solo-lectura-y-commit` enforced, Storybook (RN-9), rail Repositorios→Workspaces reemplaza al rail F1, panel Cambios real con commit por pathspec, flujo picker→sesión ligada. 24/24 checks del gate en vivo (turno real, commit selectivo probado con `git show`, concurrencia sin cruce, migración F1 real). CAP-07/08/09 nuevas. Siguiente: PB-02 sobre este shell. | DH-15 |
+| 2026-07-07 | Workspace aislado + instalable ENTREGADOS (PB-02 ⊕ PB-26): toda sesión nace en su worktree `wt/{slug}` en `~/.dev-studio/workspaces/` + rutas protegidas en toda puerta + modal cierre conservar/borrar (sin --force jamás) → **boundary `sesion-aislada-por-cwd` ENFORCED (la brecha fundacional cerrada)**. Instalable dogfooding: install.sh + .desktop + icono + versión embebida + botón «Actualizar» (rebuild local + restart). 14/14 checks en vivo contra el binario instalado — incluida la app actualizándose a sí misma con un fix vivo post-restart. CAP-10/11 nuevas. | DH-16 |

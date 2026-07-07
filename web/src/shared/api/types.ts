@@ -20,7 +20,21 @@ export interface Session {
   repo_id?: string;
   historia?: Historia;
   rol?: string;
+  workspace?: string; // ruta del worktree propio (PB-02); vacío = legacy
+  branch?: string; // wt/{slug}
   conv: Turn[];
+}
+
+export interface CloseSessionResp {
+  closed: boolean;
+  workspace_removed: boolean;
+  detalle?: string;
+}
+
+export interface VersionInfo {
+  version: string;
+  build_date: string;
+  source: string;
 }
 
 export interface Repo {

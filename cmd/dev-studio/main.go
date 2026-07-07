@@ -24,6 +24,12 @@ import (
 	"github.com/alpacapurpura/dev-studio/web"
 )
 
+// inyectadas por -ldflags en scripts/install.sh (PB-26)
+var (
+	version   = "dev"
+	buildDate = ""
+)
+
 func main() {
 	addr := flag.String("addr", "127.0.0.1:4173", "dirección local donde sirve el shell")
 	claudeBin := flag.String("claude-bin", "", "ruta al binario claude (vacío = PATH)")
@@ -46,14 +52,21 @@ func main() {
 	if err != nil {
 		log.Fatalf("dev-studio: session service: %v", err)
 	}
-	repos, err := usecase.NewRepoService(ctx, appState)
+	repos, err := usecase.NewRepoService(ctx, appState, home)
 	if err != nil {
 		log.Fatalf("dev-studio: repo service: %v", err)
 	}
 	gitAdapter := gitcli.New()
-	git := usecase.NewGitService(gitAdapter, gitAdapter)
+	git := usecase.NewGitService(gitAdapter, gitAdapter, gitAdapter)
 
-	api := httptransport.NewRouter(sessions, repos, git, broker)
+	api := httptransport.NewRouter(sessions, repos, git, broker, httptransport.Deps{
+		Home:          home,
+		WorkspacesDir: filepath.Join(home, ".dev-studio", "workspaces"),
+		Version:       version,
+		BuildDate:     buildDate,
+		AppConfigPath: filepath.Join(home, ".dev-studio", "app.json"),
+		BinPath:       filepath.Join(home, ".local", "bin", "dev-studio"),
+	})
 	ui := uiHandler()
 
 	mux := http.NewServeMux()

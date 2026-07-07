@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { api } from "../api/client";
 import { connectDock } from "../api/sse";
-import type { DockFrame, Historia, Session } from "../api/types";
+import type { CloseSessionResp, DockFrame, Historia, Session } from "../api/types";
+import { useRepos } from "./repos-store";
 
 interface SessionsState {
   sessions: Session[];
@@ -13,7 +14,7 @@ interface SessionsState {
 
   init: () => Promise<void>;
   create: (p: { nombre: string; repo_id?: string; historia?: Historia; rol?: string }) => Promise<Session>;
-  closeSession: (id: string) => Promise<void>;
+  closeSession: (id: string, workspace?: "keep" | "remove") => Promise<CloseSessionResp>;
   rename: (id: string, nombre: string) => Promise<void>;
   switchTo: (id: string) => void;
   sendTurn: (id: string, text: string) => Promise<void>;
@@ -42,13 +43,14 @@ export const useSessions = create<SessionsState>((set, get) => ({
     return sess;
   },
 
-  closeSession: async (id: string) => {
-    await api.close(id);
+  closeSession: async (id: string, workspace: "keep" | "remove" = "keep") => {
+    const resp = await api.close(id, workspace);
     set((st) => {
       const sessions = st.sessions.filter((s) => s.id !== id);
       const activeId = st.activeId === id ? (sessions[0]?.id ?? null) : st.activeId;
       return { sessions, activeId };
     });
+    return resp;
   },
 
   rename: async (id: string, nombre: string) => {
@@ -137,6 +139,10 @@ export const useSessions = create<SessionsState>((set, get) => ({
       }
     });
 
+    // turno terminado → refrescar el status git del workspace (branch/±N del rail y Cambios)
+    if (f.kind === "result" || f.kind === "error") {
+      void useRepos.getState().refreshSessionStatus(f.session_id);
+    }
     // turno terminado → despachar el siguiente de la cola (RN-8: nunca en paralelo)
     if (f.kind === "result" || f.kind === "error") {
       const { queue, sendTurn } = get();

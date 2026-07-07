@@ -101,6 +101,7 @@ export function SessionView() {
           </div>
         </div>
         <span className="flex-1" />
+        {session.branch && <Chip title={`Workspace aislado: ${session.workspace ?? ""}`}>⎇ {session.branch}</Chip>}
         {session.historia && <Chip title="Historia ligada (RN-1)">📋 {session.historia.titulo}</Chip>}
       </div>
 

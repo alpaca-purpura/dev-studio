@@ -42,9 +42,8 @@ y SPA React 19 + Zustand + Tailwind v4 embebida vía `go:embed` (`web/`, binario
 independientes, sin cruce). Arquitectura as code propia en [`arch/INDEX.md`](./arch/INDEX.md)
 — hoy 6 boundaries, 3 enforced con test (`go test ./arch/fitness/...`), 1 brecha de seguridad
 documentada sin ocultar
-([`arch/boundaries/sesion-aislada-por-cwd.md`](./arch/boundaries/sesion-aislada-por-cwd.md): sin
-validación de rutas protegidas todavía). **Falta:** cerrar la brecha de cwd (PB-02: worktree +
-validación de rutas, forma firmada en F0) antes de exponer la app fuera del equipo.
+([`arch/boundaries/sesion-aislada-por-cwd.md`](./arch/boundaries/sesion-aislada-por-cwd.md) —
+**CERRADA en DH-16**).
 
 **Estado (DH-14, 2026-07-07):** F0 cerrada — norte FIRMADO en
 [`epicas/experiencia-orquestada/NORTE-FIRMADO.md`](./epicas/experiencia-orquestada/NORTE-FIRMADO.md):
@@ -64,6 +63,17 @@ sesión 1:1, `web/src/widgets/repos-rail`) + studio-nav + overlays (jamás tapan
 **Cambios git real** (status/diff/side-by-side/log + commit SOLO por pathspec; push/pull/fetch
 no existen — boundary `git-solo-lectura-y-commit` enforced). Sesión nace SIEMPRE ligada a
 historia (picker, RN-1; historias mock hasta PB-07). Persistencia `~/.dev-studio/state.json`
-(migra `sessions.json` F1 solo). CAP-07/08/09 nuevas en INCREMENTO. **Siguiente: PB-02.**
+(migra `sessions.json` F1 solo). CAP-07/08/09 nuevas en INCREMENTO.
+
+**Estado (DH-16, 2026-07-07):** PB-02 ⊕ PB-26 ENTREGADOS (spec `specs/workspace-aislado/SPEC.md`,
+14/14 checks contra el binario INSTALADO). Toda sesión de repo nace en su **worktree propio**
+(`~/.dev-studio/workspaces/{repo}/{slug}`, branch `wt/{slug}`) + rutas protegidas vedadas en
+toda puerta + cierre con modal conservar/borrar (jamás `--force`) → **boundary
+`sesion-aislada-por-cwd` ENFORCED** (resta token de capacidad de la API local, check TBD).
+**Dogfooding:** la app se instala (`scripts/install.sh` → `~/.local/bin/dev-studio` +
+lanzador `.desktop` + icono PRENTER) y se ACTUALIZA desde su footer («Actualizar» = rebuild
+del repo local + restart; en el gate se actualizó a sí misma). Las rebanadas se prueban desde
+la app instalada. CAP-10/11 nuevas. **Siguiente:** banda 🟡 — PB-05 restos → PB-25 (registry)
+→ PB-06 (Roles).
 
 **Git:** trunk-based — `main` única, commit/push directo, tags semver cuando haya releases.

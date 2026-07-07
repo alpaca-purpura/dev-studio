@@ -28,7 +28,7 @@ func gitDir(t *testing.T) string {
 }
 
 func TestRegisterValidaRepoGit(t *testing.T) {
-	svc, err := usecase.NewRepoService(context.Background(), &memRepoStore{})
+	svc, err := usecase.NewRepoService(context.Background(), &memRepoStore{}, "/home/test-x")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +63,7 @@ func TestRegisterValidaRepoGit(t *testing.T) {
 
 func TestRemoveYGet(t *testing.T) {
 	store := &memRepoStore{}
-	svc, _ := usecase.NewRepoService(context.Background(), store)
+	svc, _ := usecase.NewRepoService(context.Background(), store, "/home/test-x")
 	dir := gitDir(t)
 	repo, _ := svc.Register(dir)
 

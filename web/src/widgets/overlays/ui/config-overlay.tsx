@@ -152,7 +152,7 @@ export function ConfigOverlay() {
               <p className="text-xs text-muted-foreground">
                 Repositorio destino: <b className="font-mono text-foreground">{repoDestino.nombre}</b>
                 <span className="ml-2 text-[10px]">
-                  (v1: la sesión trabaja sobre la raíz del repo — el aislamiento por worktree llega con PB-02)
+                  — la sesión nace en su propio workspace aislado (worktree + branch wt/…, PB-02)
                 </span>
               </p>
             ) : (

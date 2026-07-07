@@ -67,6 +67,8 @@ func (g *Git) Status(ctx context.Context, cwd string) (domain.GitStatus, error) 
 		}
 		state := "M"
 		switch {
+		case x == 'U' || y == 'U', x == 'A' && y == 'A', x == 'D' && y == 'D':
+			state = "U" // conflicto (unmerged)
 		case x == '?' && y == '?':
 			state = "A"
 		case x == 'A' || y == 'A':

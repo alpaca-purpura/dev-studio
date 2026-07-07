@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Icono DevStudio — PRENTER: negro + teal único acento, motivo prompt de terminal -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#08090a"/>
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="none" stroke="#1f2826" stroke-width="2"/>
+  <path d="M36 44 L60 64 L36 84" fill="none" stroke="#00b7aa" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="68" y1="86" x2="94" y2="86" stroke="#ffffff" stroke-opacity="0.85" stroke-width="10" stroke-linecap="round"/>
+</svg>

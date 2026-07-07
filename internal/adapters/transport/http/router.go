@@ -11,16 +11,29 @@ import (
 	"github.com/alpacapurpura/dev-studio/internal/usecase"
 )
 
-// NewRouter monta la API local (sesiones + repos + git + eventos) sobre un http.ServeMux.
-func NewRouter(sessions *usecase.SessionService, repos *usecase.RepoService, git *usecase.GitService, broker *sse.Broker) http.Handler {
+// Deps agrupa lo que el router necesita además de los servicios (config del host).
+type Deps struct {
+	Home          string
+	WorkspacesDir string // ~/.dev-studio/workspaces
+	Version       string
+	BuildDate     string
+	AppConfigPath string // ~/.dev-studio/app.json (source del updater)
+	BinPath       string // ~/.local/bin/dev-studio (destino del rebuild + exec)
+}
+
+// NewRouter monta la API local (sesiones + repos + git + versión/update + eventos).
+func NewRouter(sessions *usecase.SessionService, repos *usecase.RepoService, git *usecase.GitService, broker *sse.Broker, deps Deps) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /api/sessions", listSessions(sessions))
-	mux.HandleFunc("POST /api/sessions", createSession(sessions, repos))
+	mux.HandleFunc("POST /api/sessions", createSession(sessions, repos, git, deps.Home, deps.WorkspacesDir))
 	mux.HandleFunc("GET /api/sessions/{id}", getSession(sessions))
 	mux.HandleFunc("PATCH /api/sessions/{id}", patchSession(sessions))
-	mux.HandleFunc("DELETE /api/sessions/{id}", deleteSession(sessions))
+	mux.HandleFunc("DELETE /api/sessions/{id}", deleteSession(sessions, repos, git))
 	mux.HandleFunc("POST /api/sessions/{id}/turn", sessionTurn(sessions))
+
+	mux.HandleFunc("GET /api/version", getVersion(deps))
+	mux.HandleFunc("POST /api/update", postUpdate(deps))
 
 	mux.HandleFunc("GET /api/sessions/{id}/git/status", sessionGitStatus(sessions, git))
 	mux.HandleFunc("GET /api/sessions/{id}/git/diff", sessionGitDiff(sessions, git))

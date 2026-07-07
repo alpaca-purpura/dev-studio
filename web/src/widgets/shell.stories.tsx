@@ -14,8 +14,9 @@ export default meta;
 function seed() {
   useRepos.setState({
     repos: [{ id: "r1", nombre: "dev-studio", ruta: "/home/demo/dev-studio" }],
-    status: {
-      r1: { branch: "main", files: [{ path: "internal/adapters/git/cli/cli.go", state: "M" }], add: 41, del: 9 },
+    sessionStatus: {
+      s1: { branch: "wt/aislar-sesion", files: [{ path: "internal/adapters/git/cli/cli.go", state: "M" }], add: 41, del: 9 },
+      s2: { branch: "wt/fix-sse", files: [], add: 0, del: 0 },
     },
   });
   useSessions.setState({

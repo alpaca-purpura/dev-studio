@@ -29,5 +29,7 @@ type Session struct {
 	RepoID          string    `json:"repo_id,omitempty"`
 	Historia        *Historia `json:"historia,omitempty"`
 	Rol             string    `json:"rol,omitempty"`
+	Workspace       string    `json:"workspace,omitempty"` // ruta del worktree propio (PB-02); vacío = legacy sin aislamiento
+	Branch          string    `json:"branch,omitempty"`    // wt/{slug} del workspace
 	Conv            []Turn    `json:"conv"`
 }

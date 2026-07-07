@@ -7,16 +7,26 @@ import (
 	"github.com/alpacapurpura/dev-studio/internal/ports"
 )
 
-// GitService expone las lecturas git + el commit explícito al transporte, manteniendo la
-// dirección hexagonal (transport → usecase → ports). Es deliberadamente delgado: la política
-// (solo lectura + commit por pathspec) vive en los PUERTOS — acá no se agrega superficie.
+// GitService expone las lecturas git + el commit explícito + los workspaces aislados al
+// transporte, manteniendo la dirección hexagonal (transport → usecase → ports). Es
+// deliberadamente delgado: la política (solo lectura + commit por pathspec + worktree sin
+// force) vive en los PUERTOS — acá no se agrega superficie.
 type GitService struct {
 	info   ports.GitInfo
 	commit ports.GitCommit
+	ws     ports.GitWorkspace
 }
 
-func NewGitService(info ports.GitInfo, commit ports.GitCommit) *GitService {
-	return &GitService{info: info, commit: commit}
+func NewGitService(info ports.GitInfo, commit ports.GitCommit, ws ports.GitWorkspace) *GitService {
+	return &GitService{info: info, commit: commit, ws: ws}
+}
+
+func (g *GitService) CreateWorktree(ctx context.Context, repoRoot, destino, slug string) (string, string, error) {
+	return g.ws.CreateWorktree(ctx, repoRoot, destino, slug)
+}
+
+func (g *GitService) RemoveWorktree(ctx context.Context, repoRoot, path string) error {
+	return g.ws.RemoveWorktree(ctx, repoRoot, path)
 }
 
 func (g *GitService) Status(ctx context.Context, cwd string) (domain.GitStatus, error) {

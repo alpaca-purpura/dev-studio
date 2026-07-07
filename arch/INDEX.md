@@ -34,12 +34,13 @@
 | [`boundaries/conductor-encapsula-stream-json.md`](./boundaries/conductor-encapsula-stream-json.md) | Un solo paquete parsea el protocolo `stream-json` | 🌱 proposed | 2 | code review (TBD automatizar) |
 | [`boundaries/sesion-un-turno-a-la-vez.md`](./boundaries/sesion-un-turno-a-la-vez.md) | Un turno concurrente por sesión, rechazo explícito (no cola silenciosa) | 🌳 enforced | 2 | `fitness/arch_test.go:TestOneTurnAtATime` |
 | [`boundaries/dominio-independiente-de-transporte.md`](./boundaries/dominio-independiente-de-transporte.md) | `domain`/`usecase` no importan `net/http` | 🌳 enforced | 2 | `fitness/arch_test.go:TestDomainNoTransportImport` |
-| [`boundaries/sesion-aislada-por-cwd.md`](./boundaries/sesion-aislada-por-cwd.md) | Cada sesión confinada a su cwd — **parcial, brecha documentada** | 🌱 proposed | 3 (1 ✅, 2 ❌ TBD) | ninguno todavía (validación de path pendiente) |
+| [`boundaries/sesion-aislada-por-cwd.md`](./boundaries/sesion-aislada-por-cwd.md) | Sesión = workspace propio (worktree `wt/{slug}`) + rutas protegidas vedadas + remove sin force | 🌳 enforced | 4 (3 ✅, 1 ❌ TBD: token de capacidad) | `worktree_test.go` + `arch_test.go:TestRutasProtegidasRechazadas` |
 | [`boundaries/git-solo-lectura-y-commit.md`](./boundaries/git-solo-lectura-y-commit.md) | La app nunca push/pull/fetch/reset/rebase; commit solo por pathspec explícito | 🌳 enforced | 2 | `fitness/arch_test.go:TestGitAdapterSinVerbosProhibidos` + `TestGitCommitExigePathspec` |
 
 Leyenda: 🌱 proposed (declarado, chequeo manual o pendiente) · 🌳 enforced (código + test
-corriendo). **Total: 6 boundaries · 13 checks · 3 enforced con test real** (`go test
-./arch/fitness/...` pasa hoy).
+corriendo). **Total: 6 boundaries · 14 checks · 4 enforced con test real** (`go test
+./arch/fitness/...` pasa hoy). La brecha de seguridad fundacional (`sesion-aislada-por-cwd`)
+se CERRÓ en DH-16 — resta solo el token de capacidad de la API local (check TBD).
 
 > **Honestidad (heredada de la casa, vía `harness-studio`/METODOLOGIA):** este árbol es
 > deliberadamente MÁS CHICO que el del proyecto hermano — F1 es un esqueleto, no la fábrica
