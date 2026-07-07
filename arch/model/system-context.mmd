@@ -1,0 +1,13 @@
+%% C4 nivel 1 (contexto) — DevStudio F1. Texto → renderiza en GitHub sin tooling extra.
+graph TD
+    user["Usuario<br/>(CTO · developer · devops · PO)"]
+    app["DevStudio<br/>binario Go + SPA embebida<br/>127.0.0.1:4173"]
+    claude["claude CLI<br/>(binario del usuario, BYO licencia)<br/>N procesos, uno por sesión"]
+    disk["~/.dev-studio/sessions.json<br/>registro de sesiones (metadata)"]
+    jsonl["JSONL propio de Claude Code<br/>fuente de verdad de la conversación"]
+
+    user -->|"abre pestañas, escribe turnos"| app
+    app -->|"spawn stream-json por sesión<br/>(stdin/stdout)"| claude
+    app -->|"persiste metadata liviana"| disk
+    claude -->|"--resume rehidrata"| jsonl
+    claude -.->|"escribe su propio índice"| jsonl

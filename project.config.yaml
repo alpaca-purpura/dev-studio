@@ -30,21 +30,37 @@ sistemas:
       status: active
 
 # toolchain · lint/format/typecheck/test/build commands — quoted VERBATIM from
-# the repo's own build files (go.mod / package.json / Makefile). Greenfield:
-# no build files yet → fill when the first manifest lands.
-toolchain: __FILL_ME__
+# the repo's own build files (go.mod / package.json).
+# firmado Chris 2026-07-06 (DH-13, F1 esqueleto) · provenance: go.mod / web/package.json
+toolchain:
+  go:
+    build: "go build ./..."
+    vet: "go vet ./..."
+    fmt_check: "gofmt -l ."
+    test: "go test ./..."
+  web:
+    dir: "web"
+    dev: "npm run dev"
+    build: "npm run build"
 
 # locale · user-facing language rule the copy gates enforce.
-locale: __FILL_ME__
+# firmado Chris 2026-07-06 (DH-13) · provenance: toda la UI (web/src) está en español
+locale: es
 
 # engine_prefix · where SHARED/reusable code lives (anti-duplication grep target).
-engine_prefix: __FILL_ME__
+# firmado Chris 2026-07-06 (DH-13) · provenance: internal/ports + internal/usecase son el único
+# código compartido hoy (un solo sistema, dev-studio) — sin motor multi-sistema todavía.
+engine_prefix:
+  go_glob: "internal/ports/**;internal/usecase/**"
 
 # live_verify_infra · how a story is exercised LIVE before `done`.
-live_verify_infra: __FILL_ME__
+# firmado Chris 2026-07-06 (DH-13) · provenance: skill `verify` + Chrome DevTools MCP —
+# verificación real hecha en DH-13 (2 sesiones concurrentes en navegador, ver LEDGER).
+live_verify_infra: "go build ./cmd/dev-studio && ./dev-studio --addr 127.0.0.1:4173 (curl /api/sessions + Chrome DevTools MCP)"
 
 # design_system_ref · UI-composition canon (or `none` for non-UI products).
-design_system_ref: __FILL_ME__
+# firmado Chris 2026-07-06 (DH-13) · provenance: tokens copiados 1:1 de harness-studio
+design_system_ref: "web/src/app/styles/theme.css (tokens Tailwind v4, copiados de harness-studio HS-05)"
 
 # domain_modules · the business modules the process talks about.
 domain_modules: __FILL_ME__

@@ -1,0 +1,751 @@
+<title>Competidores — gestión de equipo en wrappers de Claude Code</title>
+
+<style>
+  :root {
+    --bg: #eff1ee;
+    --bg-raised: #ffffff;
+    --fg: #1c211f;
+    --fg-dim: #565f5b;
+    --border: #d6d9d3;
+    --accent: #3e6e64;
+    --accent-soft: #dde8e4;
+    --yes: #3e7d4c;
+    --yes-bg: #e1efe3;
+    --no: #b4483f;
+    --no-bg: #f5e4e2;
+    --partial: #a97a1f;
+    --partial-bg: #f1e6d1;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --serif: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14181a;
+    --bg-raised: #1b2022;
+    --fg: #e7eae7;
+    --fg-dim: #9aa39d;
+    --border: #2d3436;
+    --accent: #6fbbaa;
+    --accent-soft: #1e2e2b;
+    --yes: #5fae72;
+    --yes-bg: #1c2c20;
+    --no: #d9776d;
+    --no-bg: #2f1e1c;
+    --partial: #d9a94d;
+    --partial-bg: #2f2718;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a;
+      --bg-raised: #1b2022;
+      --fg: #e7eae7;
+      --fg-dim: #9aa39d;
+      --border: #2d3436;
+      --accent: #6fbbaa;
+      --accent-soft: #1e2e2b;
+      --yes: #5fae72;
+      --yes-bg: #1c2c20;
+      --no: #d9776d;
+      --no-bg: #2f1e1c;
+      --partial: #d9a94d;
+      --partial-bg: #2f2718;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.75rem;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.65rem, 3.2vw, 2.35rem);
+    line-height: 1.2;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  .masthead-meta {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.2rem;
+  }
+
+  .masthead-meta span b { color: var(--fg); font-weight: 600; }
+
+  /* ---------- generic section ---------- */
+  section { display: flex; flex-direction: column; gap: 1rem; }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.3rem;
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+
+  h2 .num {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+
+  p { margin: 0; max-width: 66ch; }
+  .dim { color: var(--fg-dim); }
+
+  /* ---------- executive summary callout ---------- */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 1.1rem 1.3rem;
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .callout p { max-width: none; }
+  .callout strong { color: var(--accent); }
+
+  /* ---------- comparison table ---------- */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1080px;
+    font-size: 0.85rem;
+  }
+
+  thead th {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    text-align: left;
+    padding: 0.65rem 0.8rem;
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+
+  thead th:first-child { position: sticky; left: 0; z-index: 2; }
+
+  tbody th {
+    text-align: left;
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+    white-space: nowrap;
+    background: var(--bg);
+    position: sticky;
+    left: 0;
+  }
+
+  tbody td {
+    padding: 0.6rem 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    white-space: nowrap;
+    border-top: 1px solid var(--border);
+  }
+  tbody th { border-top: 1px solid var(--border); }
+
+  .pill {
+    display: inline-block;
+    padding: 0.12rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+  }
+  .pill.yes { background: var(--yes-bg); color: var(--yes); }
+  .pill.no { background: var(--no-bg); color: var(--no); }
+  .pill.partial { background: var(--partial-bg); color: var(--partial); }
+
+  .devstudio-row th, .devstudio-row td {
+    background: var(--accent-soft);
+    font-weight: 600;
+  }
+
+  /* ---------- competitor cards ---------- */
+  .cards { display: flex; flex-direction: column; gap: 0; }
+
+  .card {
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .cards .card:last-child { border-bottom: 1px solid var(--border); }
+
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .card-name {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.98rem;
+  }
+
+  .card-name a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--border); }
+  .card-name a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card-tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+
+  .card-desc { max-width: 62ch; }
+
+  .gaps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.15rem;
+  }
+
+  .gap-chip {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 0.18rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--fg-dim);
+  }
+
+  .gap-chip.none {
+    color: var(--no);
+    border-color: var(--no);
+  }
+
+  /* ---------- priority list ---------- */
+  .priority { display: flex; flex-direction: column; gap: 0; counter-reset: pr; }
+
+  .pr-item {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    gap: 0.9rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border);
+  }
+  .priority .pr-item:last-child { border-bottom: 1px solid var(--border); }
+
+  .pr-num {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .pr-body h3 {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 0.25rem;
+  }
+  .pr-body p { max-width: 58ch; }
+
+  /* ---------- open questions / footer ---------- */
+  .open-q ul { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .open-q li::marker { color: var(--accent); font-family: var(--mono); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card, .pr-item { transition: background 0.15s ease; }
+  }
+</style>
+
+<div class="page">
+
+  <div class="masthead">
+    <div class="eyebrow">Inteligencia competitiva · DevStudio</div>
+    <h1>Gestión de equipo en wrappers de Claude&nbsp;Code: qué tienen ellos y no tenemos nosotros</h1>
+    <div class="masthead-meta">
+      <span><b>Benchmark</b> Conductor · Operon · AgentsRoom</span>
+      <span><b>Competidores relevados</b> 16</span>
+      <span><b>Fecha</b> 2026-07-07</span>
+    </div>
+  </div>
+
+  <section>
+    <div class="callout">
+      <p><strong>Hallazgo central:</strong> la madurez en gestión de equipo NO correlaciona con cercanía de producto a Conductor/Operon/AgentsRoom — correlaciona con tamaño/funding, con una excepción grande. Las plataformas grandes (Devin/Cognition, Cursor, Factory.ai) tienen SSO/SAML, RBAC, SCIM, límites de gasto por dev, audit logs y dashboards maduros. Los wrappers puros tipo Conductor (Conductor mismo, Chloe, Vibe Kanban, Claude Squad, AgentOS) y <strong>AgentsRoom</strong> tienen <strong>cero</strong> superficie de equipo confirmada.</p>
+      <p><strong>Corrección tras auditar las páginas propias:</strong> <strong>Operon</strong> — uno de los 3 benchmarks nombrados — ya tiene un tier "Team" ($20/mes/seat) con audit log admin, dashboard de costo/actividad por developer y role scoping multi-tenant. No es un wrapper "puro" sin equipo — ya está construyendo esto. <strong>Superconductor</strong> sigue siendo el único con sesión en vivo visible/joineable por el equipo; Operon se queda en observabilidad agregada (dashboards, replay, audit), no en "mirar la sesión de otro developer en tiempo real".</p>
+    </div>
+    <p class="dim">DevStudio hoy (F1): app de escritorio single-user, rail de sesiones concurrentes de Claude Code por usuario. Cero superficie de equipo — todo lo de abajo es brecha, no solo diferenciación.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">01</span> Frecuencia de features de equipo — 9 competidores con evidencia directa</h2>
+    <p class="dim">Confirmado con fuente primaria + verificación adversarial 3-voto. "DevStudio" agregado como fila de referencia.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Factory.ai</th>
+            <th>Devin</th>
+            <th>Cursor</th>
+            <th>Super&shy;conductor</th>
+            <th>Operon</th>
+            <th>Agents&shy;Room</th>
+            <th>Nimbalyst</th>
+            <th>Conductor</th>
+            <th>Vibe Kanban</th>
+            <th>Chloe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>SSO / SAML</th>
+            <td><span class="pill yes">Sí</span></td>
+            <td><span class="pill yes">Sí</span></td>
+            <td><span class="pill yes">Sí</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>RBAC / roles</th>
+            <td>—</td>
+            <td><span class="pill yes">Sí</span></td>
+            <td><span class="pill partial">Parcial</span></td>
+            <td><span class="pill yes">Sí</span></td>
+            <td><span class="pill partial">Role scoping multi-tenant</span></td>
+            <td><span class="pill no">No (solo roles de IA)</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>SCIM auto-provisioning</th>
+            <td>—</td>
+            <td><span class="pill yes">Sí</span></td>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>Billing centralizado / seats</th>
+            <td>—</td>
+            <td><span class="pill yes">$80+$40/seat</span></td>
+            <td><span class="pill yes">Sí</span></td>
+            <td>—</td>
+            <td><span class="pill yes">$20/mes/seat</span></td>
+            <td><span class="pill no">No (Free/Pro individual)</span></td>
+            <td>—</td>
+            <td><span class="pill no">No (BYOK)</span></td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>Límite gasto/modelo por dev</th>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="pill yes">Sí</span></td>
+            <td>—</td>
+            <td><span class="pill yes">Budget alerts + costo por dev</span></td>
+            <td><span class="pill no">No (auto-pick modelo, no admin)</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>Audit logs</th>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="pill yes">Sí</span></td>
+            <td>—</td>
+            <td><span class="pill yes">Admin Audit Log</span></td>
+            <td><span class="pill no">No</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>Dashboard analytics uso</th>
+            <td>—</td>
+            <td><span class="pill yes">Sí</span></td>
+            <td><span class="pill yes">refresh 2min</span></td>
+            <td>—</td>
+            <td><span class="pill yes">6 categorías + PM dashboard</span></td>
+            <td><span class="pill partial">Solo por proyecto, no por dev</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>Sesiones compartidas/visibles</th>
+            <td>—</td>
+            <td>—</td>
+            <td>n/a (IDE)</td>
+            <td><span class="pill yes">Sí — core</span></td>
+            <td><span class="pill partial">Replay + actividad agregada, no join en vivo</span></td>
+            <td><span class="pill no">No (multi-device, mismo user)</span></td>
+            <td><span class="pill partial">Parcial</span></td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill partial">Board sí, sesión no</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>Integraciones equipo</th>
+            <td><span class="pill yes">12+</span></td>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="pill partial">Slack, GH PR sync</span></td>
+            <td><span class="pill partial">GitHub, Linear, Jira (webhooks/import)</span></td>
+            <td><span class="pill partial">Backlog remoto de clientes</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill partial">Linear/GH/Jira intake</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr>
+            <th>Políticas org-wide</th>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="pill yes">Team Rules</span></td>
+            <td>—</td>
+            <td><span class="pill partial">Feature-flag toggles admin</span></td>
+            <td><span class="pill no">No</span></td>
+            <td>—</td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+            <td><span class="pill no">No</span></td>
+          </tr>
+          <tr class="devstudio-row">
+            <th>DevStudio (hoy, F1)</th>
+            <td colspan="10">Ninguna de estas 10 filas — single-user, sin roles, sin billing, sin dashboard, sin auditoría.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="dim">"—" = no reportado / no confirmado en la investigación (no significa ausencia probada, salvo fila "No" explícita).</p>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span> Perfiles por competidor</h2>
+
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://www.operonapp.dev/features" target="_blank" rel="noopener">Operon</a></span>
+          <span class="card-tag">Benchmark nombrado — SÍ tiene equipo</span>
+        </div>
+        <p class="card-desc">Uno de los 3 benchmarks originales. Auditado directo (features + pricing): no es un wrapper sin equipo — tiene un tier "Team" a $20/mes/seat, activo hoy, no roadmap.</p>
+        <div class="gaps">
+          <span class="gap-chip">Team observability dashboard — costo por miembro, tendencia semanal</span>
+          <span class="gap-chip">Best-practice extraction — "miembros con ≥70% success rate"</span>
+          <span class="gap-chip">Admin Audit Log — event stream filtrable por actor/recurso/tiempo, con suspend/impersonate</span>
+          <span class="gap-chip">Cost Intelligence — atribución per-sesión/per-proyecto/per-developer + budget alerts</span>
+          <span class="gap-chip">Agency Workflow — multi-tenant, role scoping, PM dashboard con actividad real-time, reportes de cliente 1-click</span>
+          <span class="gap-chip">Cloud sync realtime (Supabase) con RLS por tabla</span>
+        </div>
+        <p class="dim" style="font-size:0.85rem">Lo que NO tiene: sesión en vivo joineable por otro dev (es observabilidad agregada, no multiplayer tipo Superconductor). SSO/SAML y SCIM no mencionados.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://agentsroom.dev/es/features" target="_blank" rel="noopener">AgentsRoom</a></span>
+          <span class="card-tag">Benchmark nombrado — cero equipo, confirmado</span>
+        </div>
+        <p class="card-desc">Auditado directo (37 features del sitio + pricing): cockpit multi-proyecto/multi-agente muy completo (voice mode, mobile companion, browser automation, remote fleet, multi-cuenta Claude/Codex) — pero cero superficie para gestionar humanos en equipo. Los "13 roles" de su comparativa son personas de agente IA (DevOps, QA, Architect...), no permisos de usuario. Pricing: Free (3 proyectos) / Pro €9.99/mes (proyectos ilimitados) — sin tier de equipo.</p>
+        <div class="gaps">
+          <span class="gap-chip none">Sin multi-usuario, sin roles humanos, sin SSO, sin billing de equipo, sin dashboard/audit, sin integraciones Slack/CI de equipo</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://devin.ai" target="_blank" rel="noopener">Devin Desktop — Cognition</a></span>
+          <span class="card-tag">Stack de equipo más completo</span>
+        </div>
+        <p class="card-desc">Unifica Windsurf; corre Claude Code, Codex y OpenCode vía ACP. El stack de gestión de equipo más completo de todo el relevamiento.</p>
+        <div class="gaps">
+          <span class="gap-chip">SSO/SAML (Okta, Entra, Google)</span>
+          <span class="gap-chip">RBAC predefinido + roles custom (ej. analytics-only)</span>
+          <span class="gap-chip">SCIM (alta/baja automática, auto-crear equipos)</span>
+          <span class="gap-chip">Billing centralizado — Teams $80/mes + $40/seat</span>
+          <span class="gap-chip">Admin dashboard con analytics</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://cursor.com" target="_blank" rel="noopener">Cursor</a></span>
+          <span class="card-tag">Benchmark — no es wrapper puro, es IDE</span>
+        </div>
+        <p class="card-desc">No orquesta CLIs como Conductor, pero fija el techo de lo que "gestión de equipo madura" significa en esta categoría adyacente.</p>
+        <div class="gaps">
+          <span class="gap-chip">Model Access Control — qué modelos puede usar cada dev</span>
+          <span class="gap-chip">Límites de gasto por dev/grupo (no solo team-wide)</span>
+          <span class="gap-chip">Audit log centralizado (auth, membership, permisos, API keys)</span>
+          <span class="gap-chip">Dashboard real-time (refresh 2min, export CSV/API)</span>
+          <span class="gap-chip">"Team Rules" — convenciones forzadas org-wide</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://factory.ai" target="_blank" rel="noopener">Factory.ai (Droids)</a></span>
+          <span class="card-tag">Integraciones — el más ancho</span>
+        </div>
+        <p class="card-desc">Wrapper agent-native (Droid CLI) con la lista de integraciones de equipo más larga del relevamiento.</p>
+        <div class="gaps">
+          <span class="gap-chip">SSO/SAML con todo IdP mayor</span>
+          <span class="gap-chip">Account manager dedicado + soporte 24/7</span>
+          <span class="gap-chip">17 integraciones nativas: GitHub, GitLab, Jira, Linear, Slack, PagerDuty, Asana, MS Teams, Codecov, CircleCI...</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://www.superconductor.com" target="_blank" rel="noopener">Superconductor</a></span>
+          <span class="card-tag">Único con sesión en vivo compartida</span>
+        </div>
+        <p class="card-desc">"Workspace multiplayer para tu equipo y agentes de IA" — corre Claude Code, Codex, Amp, OpenCode. Es el competidor funcionalmente más parecido a Conductor/Operon/AgentsRoom, y el único de ese grupo con feature de equipo real.</p>
+        <div class="gaps">
+          <span class="gap-chip">Cada sesión de agente accesible por todo el equipo (no solo el owner) — diferenciador core</span>
+          <span class="gap-chip">Roles livianos: Admin / Dev / Collaborator / Viewer</span>
+          <span class="gap-chip">Slack + sync de PRs de GitHub</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://nimbalyst.com" target="_blank" rel="noopener">Nimbalyst</a> <span class="dim">(rebrand de Crystal)</span></span>
+          <span class="card-tag">Team plan "coming soon"</span>
+        </div>
+        <p class="card-desc">Workspace visual open-source (MIT) para Claude Code/Codex, aislamiento por git-worktree, kanban de sesiones. Construyendo hacia equipo pero sin tier pagado activo aún.</p>
+        <div class="gaps">
+          <span class="gap-chip">"Multiplayer real-time": docs/mockups/tasks compartidos entre agentes de distintos devs</span>
+          <span class="gap-chip">Kanban tracker compartido que refleja el trabajo real de los agentes del equipo</span>
+          <span class="gap-chip">"Nimbalyst for Teams" — en waitlist, sin specs de SSO/RBAC/audit publicadas</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://www.conductor.build" target="_blank" rel="noopener">Conductor</a> <span class="dim">(Melty Labs)</span></span>
+          <span class="card-tag">Benchmark nombrado — cero equipo</span>
+        </div>
+        <p class="card-desc">Gratis, BYOK, single-user, dashboard sobre worktrees aislados para Claude Code/Codex. Confirmado por múltiples fuentes independientes: sin RBAC, sin SSO, sin billing, sin colaboración — "planea monetizar colaboración más adelante".</p>
+        <div class="gaps"><span class="gap-chip none">Sin ninguna feature de equipo confirmada</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://github.com/BloopAI/vibe-kanban" target="_blank" rel="noopener">Vibe Kanban</a> <span class="dim">(BloopAI, empresa cerró abr-2026 → OSS)</span></span>
+          <span class="card-tag">Kanban, no multiplayer</span>
+        </div>
+        <p class="card-desc">Board tipo kanban sobre 10+ agentes (Claude Code, Codex, Gemini CLI, Cursor, OpenCode...). Board "privado o con equipo", pero README confirma: sin RBAC, sin billing, sin audit, sin analytics.</p>
+        <div class="gaps">
+          <span class="gap-chip">Board compartible en teoría — sin roles/permisos/sync real-time</span>
+          <span class="gap-chip">Intake de tickets desde Linear/GitHub/Jira</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name"><a href="https://getchloe.sh" target="_blank" rel="noopener">Chloe</a></span>
+          <span class="card-tag">Cero equipo, por diseño</span>
+        </div>
+        <p class="card-desc">Multiplexer de terminal en Rust (Claude Code, Gemini CLI, Amp, OpenCode) + kanban personal. Gratis, open-source, local, sin telemetría, sin plan pago. Confirmado: cero keywords de equipo en todo el sitio.</p>
+        <div class="gaps"><span class="gap-chip none">Sin ninguna feature de equipo — filosofía "para el dev individual"</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Paperclip</span>
+          <span class="card-tag">Orientado a team leads</span>
+        </div>
+        <p class="card-desc">Orquestador de cola de tareas para agentes. Se posiciona explícitamente contra Vibe Kanban en el eje "team lead".</p>
+        <div class="gaps">
+          <span class="gap-chip">Templates de tarea compartidos entre miembros del equipo</span>
+          <span class="gap-chip">Historial de tareas / audit trail para accountability</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Claude Squad</span>
+          <span class="card-tag">8k★ — sin equipo</span>
+        </div>
+        <p class="card-desc">Harness sobre tmux para correr y gestionar múltiples sesiones de Claude Code lado a lado.</p>
+        <div class="gaps"><span class="gap-chip none">Ninguna feature de equipo mencionada</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">AgentOS</span>
+          <span class="card-tag">Self-hosted, solo dev</span>
+        </div>
+        <p class="card-desc">Web UI open-source construida por un desarrollador solo, para uso personal, para no perder el hilo entre sesiones de Claude Code.</p>
+        <div class="gaps"><span class="gap-chip none">Sin roles, SSO, billing, workspaces compartidos ni audit logs</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Orca</span>
+          <span class="card-tag">Entrante nuevo, sin verificar</span>
+        </div>
+        <p class="card-desc">IDE de worktrees para Claude Code, Codex, OpenCode y Pi. Apunta al mismo caso de uso central que Conductor.</p>
+        <div class="gaps"><span class="gap-chip none">Superficie de equipo no verificada — requiere chequeo directo</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">GitHub Copilot Enterprise</span>
+          <span class="card-tag">Benchmark de plataforma grande</span>
+        </div>
+        <p class="card-desc">No es wrapper de CLI, pero fija el estándar de audit log de la industria.</p>
+        <div class="gaps">
+          <span class="gap-chip">Audit log con retención de 180 días</span>
+          <span class="gap-chip">Streaming a SIEM externo para retención extendida</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span> Long tail sin auditar — 100+ herramientas</h2>
+    <p>Un listado curado en GitHub (<span class="card-name" style="font-size:0.85rem">andyrewlee/awesome-agent-orchestrators</span>) cataloga 100+ orquestadores en 4 categorías (Parallel Agent Runners ~50, Personal Assistants ~28, Multi-Agent Swarms ~28, Autonomous Loop Runners ~9) — cero análisis de gestión de equipo, pero mapea dónde seguir mirando: <span class="card-name" style="font-size:0.85rem">cmux, crystal, emdash, clave, mux, Composio AO, Baton, Bernstein, Agent Kanban, ccmanager, Parallel Code</span>. Un pase separado sobre 9 de estos orquestadores open-source confirmó: <strong>ninguno</strong> documenta RBAC, permisos, colaboración multi-usuario, audit logging o enforcement de políticas — asumen developer individual o equipo chico sobre repo compartido.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span> Qué construir primero</h2>
+    <div class="priority">
+      <div class="pr-item">
+        <span class="pr-num">1</span>
+        <div class="pr-body">
+          <h3>Sesiones compartidas/visibles + roles livianos</h3>
+          <p>La jugada de Superconductor. Es la única feature de equipo que un peer directo de Conductor/Operon/AgentsRoom ya validó — y nadie más en esa categoría la tiene. Máxima diferenciación con menor costo de construcción (no requiere SSO/SCIM enterprise).</p>
+        </div>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">2</span>
+        <div class="pr-body">
+          <h3>SSO/SAML + audit log básico</h3>
+          <p>Table stakes en cuanto se vende a una org (probado por Cursor/Devin/Factory.ai) y hoy ausente en todo wrapper tipo Conductor — es whitespace, no solo paridad.</p>
+        </div>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">3</span>
+        <div class="pr-body">
+          <h3>Dashboard de uso por developer</h3>
+          <p>Gasto, modelo usado, cantidad de sesiones — el patrón de Cursor (refresh cada 2min) y Devin (admin dashboard) prueba que es lo primero que un lead pide.</p>
+        </div>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">4</span>
+        <div class="pr-body">
+          <h3>Integraciones de equipo</h3>
+          <p>Slack + GitHub org como mínimo (Superconductor); Jira/Linear/CI si se apunta a paridad con Factory.ai.</p>
+        </div>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">5</span>
+        <div class="pr-body">
+          <h3>Políticas centralizadas</h3>
+          <p>Qué modelos puede usar cada dev, límites de gasto por persona/grupo — el "Model Access Control" de Cursor.</p>
+        </div>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">6</span>
+        <div class="pr-body">
+          <h3>RBAC completo + SCIM</h3>
+          <p>Lo más maduro (Devin) pero también lo más caro de construir bien — esperar a que el tamaño de cuenta lo justifique.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="open-q">
+    <h2><span class="num">05</span> Lo que falta investigar</h2>
+    <ul>
+      <li><s class="dim">Operon y AgentsRoom sin auditar</s> — <strong>resuelto (2026-07-07):</strong> fetch directo de ambas páginas de features + pricing. Operon SÍ tiene tier Team; AgentsRoom confirmado cero equipo. Ver perfiles arriba.</li>
+      <li>¿Operon deja "mirar" (no solo agregados) la sesión en vivo de otro developer, o el Session Replay es siempre post-hoc? La página no lo aclara — requiere probar el producto o leer docs, no solo la landing.</li>
+      <li>De los 100+ tools del listado awesome-agent-orchestrators, ¿cuáles ya ofrecen algo tipo Superconductor (sesión visible sin SSO/RBAC completo)?</li>
+      <li>Empaquetado real: ¿sesión compartida es gratis o feature de plan pago? Confirmado en detalle para Devin ($40/seat) y Operon ($20/seat) — falta para Superconductor.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Fuentes: 24 documentos primarios/secundarios · 106 claims extraídos · 25 verificados por voto adversarial 3x (20 confirmados, 5 refutados) · 107 sub-agentes, ~669s.
+  </footer>
+
+</div>

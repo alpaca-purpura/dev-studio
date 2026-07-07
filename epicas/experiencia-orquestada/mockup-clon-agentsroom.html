@@ -1,0 +1,1634 @@
+<title>Dev Studio — mockup de interfaz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;600&family=Mulish:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  /* ── Tokens: Sistema de Diseño Prenter (~/Proyectos/prenter/marketing/brand-guidelines.md) ──
+     Dark-first, teal único acento. Diverge a propósito de web/src/app/styles/theme.css (ámbar,
+     heredado de harness-studio HS-05) — realinear ese archivo real queda para un ticket aparte. */
+  :root {
+    --background: #08090a; --foreground: #ffffff;
+    --card: #0c1110; --card-foreground: #ffffff; --popover: #0c1110;
+    --primary: #1fc6b8; --primary-foreground: #04211f;
+    --secondary: #121817; --secondary-foreground: #ffffff;
+    --muted: #121817; --muted-foreground: rgba(255, 255, 255, 0.55);
+    --accent: #121817; --accent-soft: rgba(31, 198, 184, 0.14);
+    --destructive: #d0483c; --border: #1f2826; --input: #2a3432; --ring: #1fc6b8;
+    --sidebar: #0c1110; --sidebar-foreground: rgba(255, 255, 255, 0.55);
+    --sidebar-accent: #121817; --sidebar-border: #1f2826;
+    --ok: #1f9d6b; --warn: #c98a16; --crit: #d0483c;
+    --ok-soft: rgba(31, 157, 107, 0.16); --warn-soft: rgba(201, 138, 22, 0.16);
+    --crit-soft: rgba(208, 72, 60, 0.16); --muted-soft: rgba(255, 255, 255, 0.10);
+    --shadow-glow: 0 8px 24px rgba(0, 183, 170, 0.22);
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 14px; --radius-xl: 22px; --radius-full: 9999px;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 24px; --space-6: 32px; --space-8: 48px; --space-10: 64px;
+    --text-xs: 11px; --text-sm: 12.5px; --text-base: 14px;
+    --text-lg: 16px; --text-xl: 20px; --text-2xl: 26px;
+    --font-sans: "Mulish", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: "Jost", var(--font-sans);
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  :root[data-theme="dark"] {
+    --background: #08090a; --foreground: #ffffff;
+    --card: #0c1110; --card-foreground: #ffffff; --popover: #0c1110;
+    --primary: #1fc6b8; --primary-foreground: #04211f;
+    --secondary: #121817; --secondary-foreground: #ffffff;
+    --muted: #121817; --muted-foreground: rgba(255, 255, 255, 0.55);
+    --accent: #121817; --accent-soft: rgba(31, 198, 184, 0.14);
+    --destructive: #d0483c; --border: #1f2826; --input: #2a3432; --ring: #1fc6b8;
+    --sidebar: #0c1110; --sidebar-foreground: rgba(255, 255, 255, 0.55);
+    --sidebar-accent: #121817; --sidebar-border: #1f2826;
+    --ok: #1f9d6b; --warn: #c98a16; --crit: #d0483c;
+    --ok-soft: rgba(31, 157, 107, 0.16); --warn-soft: rgba(201, 138, 22, 0.16);
+    --crit-soft: rgba(208, 72, 60, 0.16); --muted-soft: rgba(255, 255, 255, 0.10);
+  }
+  :root[data-theme="light"] {
+    --background: #f6f8f8; --foreground: #0e1312;
+    --card: #ffffff; --card-foreground: #0e1312; --popover: #ffffff;
+    --primary: #009d92; --primary-foreground: #ffffff;
+    --secondary: #eef1f1; --secondary-foreground: #0e1312;
+    --muted: #eef1f1; --muted-foreground: #6b7676;
+    --accent: #eef1f1; --accent-soft: rgba(0, 157, 146, 0.14);
+    --destructive: #d0483c; --border: #dde3e2; --input: #c7cfce; --ring: #009d92;
+    --sidebar: #ffffff; --sidebar-foreground: #6b7676;
+    --sidebar-accent: #eef1f1; --sidebar-border: #dde3e2;
+    --ok: #1f9d6b; --warn: #c98a16; --crit: #d0483c;
+    --ok-soft: rgba(31, 157, 107, 0.13); --warn-soft: rgba(201, 138, 22, 0.13);
+    --crit-soft: rgba(208, 72, 60, 0.12); --muted-soft: rgba(14, 19, 18, 0.08);
+  }
+
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  html, body {
+    margin: 0; height: 100%; background: var(--background); color: var(--foreground);
+    font-family: var(--font-sans); font-size: var(--text-base); -webkit-font-smoothing: antialiased;
+  }
+  button, textarea, input, select { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+  .app { display: flex; height: 100dvh; min-height: 560px; }
+
+  /* ══ REPOSITORIOS → WORKSPACES (rail izquierdo, calcado de mockup-sidebar-repositorios-workspaces.html) ══ */
+  .repos-rail {
+    width: 224px; flex-shrink: 0; background: var(--sidebar); border-right: 1px solid var(--sidebar-border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .rr-home-row { padding: var(--space-2) var(--space-2) 2px; }
+  .rr-home-btn {
+    width: 100%; display: flex; align-items: center; gap: var(--space-2); background: none; border: none;
+    color: var(--sidebar-foreground); font-size: var(--text-sm); font-weight: 700; padding: 7px var(--space-2);
+    border-radius: var(--radius-md); cursor: pointer; text-align: left;
+  }
+  .rr-home-btn:hover { background: var(--sidebar-accent); }
+  .rr-home-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .rr-divider { height: 1px; background: var(--sidebar-border); margin: 2px 0; }
+
+  .rr-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-2) var(--space-2) 10px; }
+  .rr-title { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-foreground); }
+  .rr-icon-btn {
+    display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px;
+    border-radius: var(--radius-sm); border: 1px solid transparent; background: none; color: var(--muted-foreground); cursor: pointer; padding: 0;
+  }
+  .rr-icon-btn:hover { background: var(--sidebar-accent); color: var(--foreground); }
+  .rr-icon-btn.rr-active { background: var(--accent-soft); color: var(--primary); border-color: var(--primary); }
+  .rr-icon-btn svg { width: 14px; height: 14px; }
+
+  .rr-add-inline { display: flex; gap: 6px; padding: 0 var(--space-2) var(--space-2) 10px; overflow: hidden; max-height: 0; opacity: 0; transition: max-height .18s ease, opacity .18s ease; }
+  .rr-add-inline.open { max-height: 44px; opacity: 1; }
+  .rr-add-inline input { flex: 1; min-width: 0; background: var(--background); border: 1px solid var(--input); border-radius: var(--radius-sm); color: var(--foreground); font-size: 12px; padding: 5px 7px; font-family: var(--font-mono); }
+  .rr-mini-btn { background: var(--primary); color: var(--primary-foreground); border: none; border-radius: var(--radius-full); font-size: 11.5px; font-weight: 700; padding: 0 9px; cursor: pointer; }
+
+  .rr-repo-list { flex: 1; overflow-y: auto; padding: 2px 6px var(--space-2); }
+  .rr-repo-divider { margin: var(--space-2) -6px; height: 1px; background: var(--sidebar-border); }
+
+  .repo-block { margin: 0; }
+  .repo-header {
+    width: 100%; display: flex; align-items: center; gap: 6px; background: none; border: none;
+    color: var(--foreground); font-size: var(--text-sm); font-weight: 700; padding: 6px; border-radius: var(--radius-md); cursor: pointer; text-align: left;
+  }
+  .repo-header:hover { background: var(--sidebar-accent); }
+  .repo-header .rr-chevron { width: 12px; height: 12px; flex-shrink: 0; color: var(--muted-foreground); transition: transform .15s ease; }
+  .repo-block[data-expanded="false"] .rr-chevron { transform: rotate(-90deg); }
+  .repo-header .repo-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .repo-header .rr-count { font-size: 10.5px; color: var(--muted-foreground); font-family: var(--font-mono); background: var(--secondary); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 1px 6px; }
+
+  .workspace-list { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .18s ease; overflow: hidden; padding-left: 8px; }
+  .workspace-list > div { overflow: hidden; min-height: 0; }
+  .repo-block[data-expanded="false"] .workspace-list { grid-template-rows: 0fr; }
+
+  .rr-new-ws {
+    width: 100%; display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--muted-foreground);
+    font-size: 12px; font-weight: 600; padding: 6px 6px 6px 20px; border-radius: var(--radius-md); cursor: pointer; position: relative;
+  }
+  .rr-new-ws:hover { background: var(--sidebar-accent); color: var(--foreground); }
+  .rr-new-ws:hover .rr-dots { opacity: 1; }
+  .rr-new-ws .plus { font-size: 13px; color: var(--muted-foreground); }
+  .rr-new-ws .label { flex: 1; text-align: left; }
+  .rr-dots { opacity: 0; width: 18px; height: 18px; border-radius: 4px; border: none; background: none; color: var(--muted-foreground); font-size: 12px; cursor: pointer; flex-shrink: 0; }
+  .rr-dots:hover { background: var(--secondary); color: var(--foreground); }
+  .rr-dots:focus-visible { opacity: 1; }
+
+  .rr-dropdown {
+    position: absolute; top: 100%; right: 6px; z-index: 5; background: var(--popover); border: 1px solid var(--border);
+    border-radius: var(--radius-md); box-shadow: 0 12px 28px -10px rgba(0,0,0,.35); padding: 4px; min-width: 168px; font-size: 12px;
+  }
+  .rr-dropdown[hidden] { display: none; }
+  .rr-dropdown button { width: 100%; text-align: left; background: none; border: none; color: var(--foreground); padding: 6px 8px; border-radius: var(--radius-sm); cursor: pointer; }
+  .rr-dropdown button:hover { background: var(--secondary); }
+  .rr-dropdown .rr-note { color: var(--muted-foreground); font-size: 10.5px; padding: 5px 8px 2px; border-top: 1px solid var(--border); margin-top: 3px; }
+
+  .workspace-item {
+    width: 100%; display: block; text-align: left; background: none; border: none; border-left: 2px solid transparent;
+    border-radius: var(--radius-md); padding: 6px 8px 7px 6px; cursor: pointer; margin-bottom: 1px;
+  }
+  .workspace-item:hover { background: var(--sidebar-accent); }
+  .workspace-item.active { background: var(--accent-soft); border-left-color: var(--primary); }
+  .rr-ws-top { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+  .rr-ws-icon { color: var(--muted-foreground); font-size: 11px; flex-shrink: 0; }
+  .workspace-item.active .rr-ws-icon { color: var(--primary); }
+  .rr-ws-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 600; font-family: var(--font-mono); color: var(--foreground); }
+  .rr-ws-diff { flex-shrink: 0; font-family: var(--font-mono); font-size: 10.5px; display: flex; gap: 4px; }
+  .rr-ws-diff .add { color: var(--ok); } .rr-ws-diff .del { color: var(--crit); }
+  .rr-ws-bottom { display: flex; align-items: center; gap: 4px; padding-left: 16px; font-size: 10.5px; color: var(--muted-foreground); }
+  .rr-ws-branch { font-family: var(--font-mono); }
+  .rr-ws-sep { color: var(--muted-foreground); }
+  .rr-status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .rr-status-dot.ready { background: var(--ok); }
+  .rr-status-dot.conflict { background: var(--crit); }
+  .rr-status-dot.archived { background: var(--muted-foreground); }
+  .rr-status-dot.idle { background: var(--border); }
+  .rr-status-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rr-ws-shortcut { flex-shrink: 0; font-family: var(--font-mono); color: var(--muted-foreground); font-size: 9.5px; background: var(--secondary); border: 1px solid var(--border); border-radius: 4px; padding: 1px 4px; }
+  .rr-ws-tag { flex-shrink: 0; font-size: 9.5px; color: var(--primary); background: var(--accent-soft); border: 1px solid var(--primary); border-radius: 4px; padding: 0 4px; }
+
+  .rr-footer { display: flex; gap: 2px; padding: var(--space-2); border-top: 1px solid var(--sidebar-border); }
+
+  .app-main { flex: 1; min-width: 0; overflow: auto; }
+  .view { display: none; height: 100%; }
+  .view.active { display: flex; flex-direction: column; }
+
+  .view-head { padding: var(--space-5) var(--space-6) var(--space-4); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+  .view-head h2 { margin: 0; font-size: var(--text-xl); font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+  .view-head p.sub, .panel-overlay-head p.sub { margin: 2px 0 0; color: var(--muted-foreground); font-size: var(--text-sm); }
+  .view-head .spacer { flex: 1; }
+
+  .pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot.ok { background: var(--ok); } .dot.warn { background: var(--warn); } .dot.crit { background: var(--crit); }
+  .dot.primary { background: var(--primary); } .dot.muted { background: var(--muted-foreground); }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); } .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.crit { background: var(--crit-soft); color: var(--crit); } .pill.primary { background: var(--accent-soft); color: var(--primary); }
+  .pill.muted { background: var(--muted-soft); color: var(--muted-foreground); }
+
+  .chip { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: var(--radius-full); font-size: 10.5px; font-weight: 600; background: var(--secondary); color: var(--secondary-foreground); border: 1px solid var(--border); }
+
+  .avatar { width: 26px; height: 26px; border-radius: var(--radius-md); background: var(--accent-soft); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  /* ══ DEV STUDIO — estudio del proyecto ══ */
+  #view-devstudio .proj-body { flex: 1; display: flex; min-height: 0; position: relative; }
+
+  /* ══ NAV del estudio (calcado del rail angosto de ArnesIA: ícono + label apilados) ══ */
+  .studio-nav {
+    width: 72px; flex-shrink: 0; background: var(--sidebar); border-right: 1px solid var(--sidebar-border);
+    display: flex; flex-direction: column; align-items: stretch; padding: var(--space-3) 6px; gap: 4px;
+  }
+  .studio-nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none;
+    color: var(--muted-foreground); font-size: 10px; font-weight: 600; padding: 9px 2px; border-radius: var(--radius-md);
+    cursor: pointer; position: relative; text-align: center; line-height: 1.2;
+  }
+  .studio-nav-item svg { width: 19px; height: 19px; }
+  .studio-nav-item:hover { background: var(--sidebar-accent); color: var(--foreground); }
+  .studio-nav-item.active { background: var(--accent-soft); color: var(--primary); }
+  .studio-nav-item.soon { opacity: .55; }
+  .studio-nav-item.soon:hover { opacity: .85; }
+  .studio-nav-item .soon-badge {
+    position: absolute; top: 2px; right: 2px; font-size: 7px; letter-spacing: .02em; text-transform: uppercase;
+    background: var(--secondary); color: var(--muted-foreground); border-radius: 999px; padding: 1px 3px; line-height: 1;
+  }
+
+  .session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+  .session-head { padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: var(--space-3); }
+  .session-head .name { font-weight: 700; }
+  .session-head .cwd { font-size: var(--text-xs); font-family: var(--font-mono); color: var(--muted-foreground); }
+  .chat-scroll { flex: 1; overflow: auto; padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); }
+  .turn { max-width: 72ch; }
+  .turn .who { font-size: var(--text-xs); font-weight: 700; color: var(--muted-foreground); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .turn.user .who { color: var(--primary); }
+  .turn .bubble { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); line-height: 1.5; }
+  .turn.user .bubble { background: var(--accent-soft); border-color: transparent; }
+  .turn .bubble code { font-family: var(--font-mono); font-size: 12px; background: var(--muted); padding: 1px 5px; border-radius: 4px; }
+
+  /* composer nuevo */
+  .composer-wrap { border-top: 1px solid var(--border); padding: var(--space-3) var(--space-5) var(--space-4); flex-shrink: 0; }
+  .composer-box { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
+  .composer-resize { height: 5px; cursor: row-resize; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .composer-resize::after { content: ""; display: block; width: 32px; height: 3px; background: var(--border); border-radius: 2px; margin: 1px auto 0; }
+  .composer-text { position: relative; padding: var(--space-3) var(--space-4) 0; }
+  .composer-text textarea { width: 100%; border: none; background: none; resize: none; outline: none; color: var(--foreground); font-size: var(--text-sm); min-height: 40px; font-family: inherit; }
+  .composer-expand { position: absolute; top: var(--space-2); right: var(--space-3); border: none; background: none; color: var(--muted-foreground); cursor: pointer; }
+  .composer-toolbar { display: flex; align-items: center; gap: 6px; padding: var(--space-2) var(--space-3) var(--space-3); }
+  .composer-toolbar .divider { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
+  .icon-btn { width: 27px; height: 27px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--secondary); color: var(--muted-foreground); }
+  .icon-btn svg { width: 13px; height: 13px; }
+  /* grp-orange/violet/rose: agrupan visualmente por .divider, no por color — teal es el único acento */
+  .icon-btn:hover { filter: brightness(1.18); }
+  .composer-toolbar .spacer { flex: 1; }
+  .queue-btn { border: 1px solid var(--border); background: none; color: var(--muted-foreground); border-radius: var(--radius-full); padding: 5px 10px; font-size: var(--text-xs); font-weight: 600; cursor: pointer; }
+  .send-btn { border: none; background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-full); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-glow); }
+  .send-btn svg { width: 14px; height: 14px; }
+
+  .term-row { display: flex; align-items: center; gap: 6px; padding-top: var(--space-3); flex-wrap: wrap; }
+  .term-tab { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: var(--secondary); font-size: var(--text-xs); font-weight: 600; border-bottom: 2px solid var(--primary); }
+  .term-tab .x { cursor: pointer; color: var(--muted-foreground); font-weight: 400; }
+  .term-add { width: 24px; height: 24px; border-radius: var(--radius-sm); border: 1px dashed var(--border); background: none; color: var(--muted-foreground); cursor: pointer; }
+  .term-chip { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: var(--radius-full); background: var(--secondary); font-size: var(--text-xs); font-weight: 600; border: 1px solid var(--border); cursor: pointer; color: var(--foreground); }
+  .term-row .spacer { flex: 1; }
+  .layout-icon { width: 26px; height: 26px; border: none; background: none; color: var(--muted-foreground); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .layout-icon svg { width: 15px; height: 15px; }
+
+  /* ══ side panel ══ */
+  .side-panel { width: 340px; flex-shrink: 0; border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+  .side-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .side-tabs button { flex: 1; border: none; background: none; padding: var(--space-3) 0; font-size: var(--text-xs); font-weight: 700; color: var(--muted-foreground); cursor: pointer; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid transparent; }
+  .side-tabs button.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .side-panel-body { flex: 1; overflow: auto; display: flex; flex-direction: column; min-height: 0; }
+  .side-content { display: none; flex: 1; flex-direction: column; min-height: 0; }
+  .side-content.active { display: flex; }
+
+  .cambios-subtabs { display: flex; gap: var(--space-4); padding: var(--space-3) var(--space-4) 0; }
+  .cambios-subtabs button { border: none; background: none; padding: 0 0 var(--space-2); font-size: var(--text-sm); font-weight: 600; color: var(--muted-foreground); cursor: pointer; border-bottom: 2px solid transparent; }
+  .cambios-subtabs button.active { color: var(--foreground); border-bottom-color: var(--primary); }
+  .cambios-pane { display: none; flex-direction: column; flex: 1; min-height: 0; }
+  .cambios-pane.active { display: flex; }
+
+  .changes-head { padding: var(--space-3) var(--space-4); display: flex; align-items: center; gap: 6px; font-size: var(--text-sm); font-weight: 600; border-bottom: 1px solid var(--border); }
+  .changes-head svg { width: 13px; height: 13px; color: var(--muted-foreground); }
+  .sync-row { display: flex; align-items: center; gap: 4px; padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border); }
+  .sync-btn { width: 24px; height: 24px; border: none; background: none; color: var(--muted-foreground); cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; }
+  .sync-btn:disabled { opacity: 0.35; cursor: default; }
+  .sync-btn svg { width: 13px; height: 13px; }
+  .review-cta { margin: var(--space-3) var(--space-4) 0; border: none; background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-full); padding: var(--space-2) 0; font-weight: 700; font-size: var(--text-sm); cursor: pointer; box-shadow: var(--shadow-glow); }
+  .filter-chips { display: flex; gap: 6px; padding: var(--space-3) var(--space-4); flex-wrap: wrap; }
+  .filter-chip { border: 1px solid var(--border); background: var(--card); color: var(--foreground); border-radius: var(--radius-full); padding: 3px 10px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; gap: 4px; align-items: center; }
+  .filter-chip.active { background: var(--accent-soft); border-color: var(--primary); color: var(--primary); }
+  .file-list { flex: 1; overflow: auto; padding: 0 var(--space-2); }
+  .file-row { display: flex; align-items: center; gap: 8px; padding: var(--space-2); border-radius: var(--radius-md); position: relative; }
+  .file-row:hover { background: var(--secondary); }
+  .file-row .fpath { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-family: var(--font-mono); cursor: pointer; }
+  .file-row input[type=checkbox] { accent-color: var(--primary); width: 15px; height: 15px; flex-shrink: 0; }
+  .file-row .more-btn { border: none; background: none; color: var(--muted-foreground); cursor: pointer; padding: 2px 6px; border-radius: var(--radius-sm); flex-shrink: 0; }
+  .file-row .more-btn:hover { background: var(--muted); }
+  .file-menu { position: absolute; right: 8px; top: 32px; background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(0,0,0,.18); z-index: 10; min-width: 170px; display: none; }
+  .file-menu.open { display: block; }
+  .file-menu button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 8px 12px; font-size: 12.5px; cursor: pointer; color: var(--foreground); }
+  .file-menu button:hover { background: var(--secondary); }
+  .commit-footer { border-top: 1px solid var(--border); padding: var(--space-3) var(--space-4); display: flex; flex-direction: column; gap: 8px; }
+  .commit-footer textarea { width: 100%; border: 1px solid var(--input); border-radius: var(--radius-md); padding: var(--space-2); font-size: var(--text-sm); resize: none; min-height: 42px; background: var(--card); color: var(--foreground); }
+  .commit-footer .attach-row { display: flex; align-items: flex-start; gap: 6px; font-size: 11.5px; color: var(--muted-foreground); }
+  .commit-footer .attach-row input { margin-top: 2px; accent-color: var(--primary); }
+  .commit-footer .commit-btns { display: flex; gap: 8px; }
+  .btn-outline { border: 1px solid var(--border); background: var(--card); color: var(--foreground); border-radius: var(--radius-full); padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: 600; cursor: pointer; }
+  .btn-primary { border: none; background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-full); padding: var(--space-2) var(--space-3); font-size: var(--text-sm); font-weight: 700; cursor: pointer; box-shadow: var(--shadow-glow); }
+  .btn-outline:disabled, .btn-primary:disabled { opacity: .5; cursor: default; }
+
+  .history-controls { display: flex; gap: 8px; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .history-controls input { border: 1px solid var(--input); border-radius: var(--radius-md); padding: 5px 8px; font-size: 12px; background: var(--card); color: var(--foreground); }
+  .history-timeline { flex: 1; overflow: auto; padding: var(--space-4); }
+  .commit-row { display: flex; gap: 10px; position: relative; padding-bottom: var(--space-5); }
+  .commit-row::before { content: ""; position: absolute; left: 13px; top: 28px; bottom: 0; width: 1px; background: var(--border); }
+  .commit-row:last-child::before { display: none; }
+  .commit-avatar { width: 27px; height: 27px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; color: #fff; flex-shrink: 0; z-index: 1; }
+  .commit-msg { font-size: var(--text-sm); font-weight: 600; }
+  .commit-meta { font-size: 11px; color: var(--muted-foreground); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .commit-meta code { font-family: var(--font-mono); }
+
+  .qa-panel { padding: var(--space-4); font-size: var(--text-sm); color: var(--muted-foreground); }
+  .files-panel { padding: var(--space-2); }
+
+  /* ══ BACKLOG (contenido del overlay) ══ */
+  #backlogOverlay .board-scroll { flex: 1; overflow: auto; padding: var(--space-4) var(--space-6) var(--space-5); }
+  .board { display: flex; gap: var(--space-4); min-width: max-content; height: 100%; }
+  .lane { width: 234px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+  .lane h4 { font-size: var(--text-xs); color: var(--muted-foreground); display: flex; align-items: center; justify-content: space-between; margin: 0 0 var(--space-1); }
+  .lane h4 .n { font-variant-numeric: tabular-nums; font-size: 10.5px; }
+  .lane h4 .n .cap { opacity: .6; }
+  .lane h4 .n.over { color: var(--warn); font-weight: 700; }
+  .state-pill { display: inline-flex; padding: 2px 8px; border-radius: var(--radius-full); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+  .state-idea { background: var(--secondary); color: var(--muted-foreground); }
+  .state-refining { background: rgba(59,130,246,.16); color: #93c5fd; }
+  .state-refined { background: rgba(139,92,246,.16); color: #ddd6fe; }
+  .state-ready { background: var(--accent-soft); color: var(--primary); }
+  .state-developing { background: var(--warn-soft); color: var(--warn); }
+  .state-developed { background: rgba(163,230,53,.14); color: #bef264; }
+  .state-reviewing { background: rgba(251,146,60,.16); color: #fdba74; }
+  .state-done { background: var(--ok-soft); color: var(--ok); }
+
+  .story-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3); display: flex; flex-direction: column; gap: 6px; font-size: var(--text-sm); }
+  .story-card:hover { border-color: #2a3432; }
+  .story-card .card-top { display: flex; align-items: center; gap: 6px; }
+  .story-card .card-agent { font-size: 10.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+  .story-card .card-type { font-size: 11px; line-height: 1; opacity: .85; }
+  .story-card .release-chip { font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: var(--radius-sm); line-height: 1.5; }
+  .story-card .title { font-weight: 600; line-height: 1.3; }
+  .story-card .card-session-badge { align-self: flex-start; font-size: 10px; padding: 2px 7px; border-radius: var(--radius-full); background: var(--warn-soft); color: var(--warn); }
+  .story-card .foot { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: space-between; }
+  .story-card .prio { display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; color: var(--muted-foreground); white-space: nowrap; }
+  .story-card .prio .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .board-toolbar { display: flex; align-items: center; gap: 8px; padding: var(--space-3) var(--space-6) 0; flex-wrap: wrap; }
+  .board-toolbar select { background: var(--card); border: 1px solid var(--input); border-radius: var(--radius-md); color: var(--foreground); font-size: 12px; padding: 5px 8px; }
+  .board-toolbar .tb-check { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted-foreground); white-space: nowrap; }
+  .board-toolbar .tb-check input { accent-color: var(--primary); }
+  .board-toolbar .tb-search { display: flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--input); border-radius: var(--radius-md); padding: 4px 8px; flex: 1; min-width: 120px; max-width: 200px; }
+  .board-toolbar .tb-search input { border: none; background: none; flex: 1; font-size: 12px; color: var(--foreground); min-width: 0; }
+  .board-toolbar .tb-search input:focus { outline: none; }
+  .wip-row { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+  .wip-chip { font-size: 10px; font-family: var(--font-mono); padding: 2px 8px; border-radius: var(--radius-full); background: var(--secondary); color: var(--muted-foreground); white-space: nowrap; }
+  .wip-chip.over { background: var(--warn-soft); color: var(--warn); }
+  .building-row { display: flex; align-items: center; gap: 8px; padding: var(--space-2) var(--space-6) 0; flex-wrap: wrap; font-size: 11px; color: var(--muted-foreground); }
+  .building-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--warn-soft); color: var(--warn); border: 1px solid rgba(201,138,22,.35); border-radius: var(--radius-full); padding: 2px 9px; font-family: var(--font-mono); font-size: 10.5px; }
+
+  /* ══ PRODUCT (Mapa de capabilities — contenido del overlay) ══ */
+  #productOverlay .map-scroll { flex: 1; overflow: auto; padding: var(--space-5) var(--space-6); }
+
+  .health-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-5); }
+  .health-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-2); }
+  .health-head h3 { margin: 0; font-size: var(--text-base); font-weight: 600; font-family: var(--font-display); }
+  .health-caption { font-size: 11px; color: var(--muted-foreground); font-family: var(--font-mono); }
+  .health-bar { display: flex; height: 10px; border-radius: var(--radius-full); overflow: hidden; background: var(--secondary); border: 1px solid var(--border); }
+  .health-bar span { height: 100%; }
+  .health-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-3); }
+  .health-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: var(--radius-full); font-size: 11px; font-weight: 600; }
+  .health-chip .n { font-family: var(--font-mono); opacity: .85; }
+
+  .map-toolbar .lens-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; margin-left: auto; }
+  .lens-toggle button { padding: 5px 12px; font-size: 11.5px; background: var(--card); color: var(--muted-foreground); border: none; cursor: pointer; }
+  .lens-toggle button.active { background: var(--accent-soft); color: var(--primary); font-weight: 700; }
+  .map-toolbar .supervisor-note { font-size: 10.5px; color: var(--muted-foreground); font-style: italic; }
+
+  .zone-block { margin-bottom: var(--space-6); }
+  .zone-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: var(--space-2); margin-bottom: var(--space-3); }
+  .zone-head h2 { margin: 0; font-size: var(--text-lg); font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+  .zone-tier { font-size: 9px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border-radius: var(--radius-sm); font-weight: 700; }
+  .zone-tier.core { background: var(--ok-soft); color: var(--ok); }
+  .zone-tier.supporting { background: rgba(59,130,246,.16); color: #93c5fd; }
+  .zone-tier.enabling { background: var(--muted-soft); color: var(--muted-foreground); }
+  .zone-count { font-size: 10.5px; color: var(--muted-foreground); }
+  .zone-desc { flex-basis: 100%; font-size: 11.5px; color: var(--muted-foreground); font-style: italic; margin: 2px 0 0; line-height: 1.5; }
+  .zone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-4); }
+  .zone-collapsed-hint { font-size: 11.5px; color: var(--muted-foreground); border: 1px dashed var(--border); border-radius: var(--radius-md); padding: var(--space-3); }
+
+  .box-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+  .box-head { display: flex; align-items: baseline; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: var(--space-2); }
+  .box-head .emoji { font-size: 19px; }
+  .box-head .box-name-wrap { flex: 1; min-width: 0; }
+  .box-head .box-name { font-weight: 600; font-size: var(--text-sm); }
+  .box-head .box-sub { font-size: 10.5px; color: var(--muted-foreground); display: block; margin-top: 1px; }
+  .box-head .box-count { font-size: 10.5px; color: var(--muted-foreground); font-family: var(--font-mono); }
+  .box-progress { display: flex; align-items: center; gap: 6px; }
+  .box-progress .track { flex: 1; height: 4px; border-radius: var(--radius-full); background: var(--secondary); overflow: hidden; }
+  .box-progress .fill { height: 100%; border-radius: var(--radius-full); background: var(--primary); }
+  .box-progress .fill.full { background: #22c55e; }
+  .box-progress .label { font-size: 9.5px; color: var(--muted-foreground); white-space: nowrap; }
+
+  .area-row { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 9px; background: var(--secondary); }
+  .area-row .a-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .area-row .a-name { font-size: 11.5px; font-weight: 600; flex: 1; }
+  .area-row .a-target { font-size: 9.5px; color: var(--muted-foreground); }
+  .area-row .a-desc { font-size: 10.5px; color: var(--muted-foreground); font-style: italic; margin-top: 3px; line-height: 1.4; }
+
+  .map-collapsible { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); margin-top: var(--space-5); }
+  .map-collapsible summary { list-style: none; cursor: pointer; padding: var(--space-3) var(--space-4); display: flex; align-items: center; gap: 8px; font-size: var(--text-sm); font-weight: 600; }
+  .map-collapsible summary::-webkit-details-marker { display: none; }
+  .map-collapsible summary .arrow { font-size: 11px; color: var(--muted-foreground); transition: transform .15s ease; }
+  .map-collapsible[open] summary .arrow { transform: rotate(90deg); }
+  .map-collapsible .body { padding: 0 var(--space-4) var(--space-4); }
+  .data-table { width: 100%; font-size: 11px; border-collapse: collapse; }
+  .data-table th { text-align: left; font-size: 9.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted-foreground); padding: 6px; border-bottom: 1px solid var(--border); }
+  .data-table td { padding: 6px; border-bottom: 1px solid var(--border); font-size: 11px; }
+
+  /* ══ ROLES (contenido de Configuración) ══ */
+  #settingsOverlay .roles-body { flex: 1; display: flex; min-height: 0; }
+  .roster-list { width: 260px; flex-shrink: 0; border-right: 1px solid var(--border); overflow: auto; padding: var(--space-3); }
+  .roster-group h4 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin: var(--space-3) 0 var(--space-2) var(--space-2); }
+  .roster-item { display: flex; align-items: center; gap: var(--space-2); width: 100%; text-align: left; background: none; border: none; padding: var(--space-2); border-radius: var(--radius-md); cursor: pointer; }
+  .roster-item:hover { background: var(--secondary); }
+  .roster-item.active { background: var(--accent-soft); }
+  .roster-item .name { font-size: var(--text-sm); font-weight: 600; }
+  .role-detail { flex: 1; overflow: auto; padding: var(--space-6); max-width: 640px; }
+  .role-detail h3 { margin: 0 0 var(--space-1); font-size: var(--text-xl); font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+  .role-detail .desc { color: var(--muted-foreground); font-size: var(--text-sm); margin-bottom: var(--space-5); }
+  .prompt-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); font-family: var(--font-mono); font-size: 12px; line-height: 1.7; color: var(--muted-foreground); white-space: pre-wrap; overflow-x: auto; margin-bottom: var(--space-5); }
+  .prompt-box b { color: var(--foreground); }
+  .field-row { display: flex; gap: var(--space-3); margin-bottom: var(--space-4); flex-wrap: wrap; }
+  .field { flex: 1; min-width: 150px; }
+  .field label { display: block; font-size: var(--text-xs); color: var(--muted-foreground); margin-bottom: 4px; }
+  .field select { width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--input); border-radius: var(--radius-md); background: var(--card); color: var(--foreground); font-size: var(--text-sm); }
+  .create-btn { border: none; background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-full); padding: var(--space-2) var(--space-5); font-weight: 700; font-size: var(--text-sm); cursor: pointer; box-shadow: var(--shadow-glow); }
+  .custom-role-btn { display: flex; align-items: center; gap: var(--space-2); width: 100%; text-align: left; background: none; border: 1px dashed var(--border); border-radius: var(--radius-md); padding: var(--space-2); color: var(--muted-foreground); font-size: var(--text-sm); cursor: pointer; margin-top: var(--space-2); }
+
+  /* ══ PANEL OVERLAY (Backlog / Product / Roles / Configuración — se superpone al dev studio, deja el nav del estudio y la barra repositorios/workspaces visibles) ══ */
+  .panel-overlay {
+    position: absolute; top: 0; right: 0; bottom: 0; left: 72px; /* ancho de .studio-nav: queda visible y clickeable */
+    background: var(--background); border-left: 1px solid var(--border); z-index: 20;
+    display: none; flex-direction: column;
+  }
+  .panel-overlay.open { display: flex; }
+  .panel-overlay-head { padding: var(--space-5) var(--space-6) var(--space-4); border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: var(--space-4); flex-shrink: 0; }
+  .panel-overlay-head h2 { margin: 0; font-size: var(--text-xl); font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+  .picker-banner { display: none; margin: var(--space-4) var(--space-6) 0; padding: var(--space-3) var(--space-4); background: var(--accent-soft); color: var(--primary); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: 600; flex-shrink: 0; }
+  .picker-banner.show { display: block; }
+  #backlogOverlay.picking .story-card { cursor: pointer; }
+  #backlogOverlay.picking .story-card:hover { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+  #settingsOverlay .pkg-hint { margin-bottom: var(--space-4); font-size: var(--text-sm); color: var(--muted-foreground); }
+
+  /* ══ overlays / modals ══ */
+  .overlay { position: fixed; inset: 0; background: rgba(15, 18, 22, 0.55); display: none; align-items: center; justify-content: center; z-index: 100; padding: var(--space-6); }
+  .overlay.open { display: flex; }
+  .modal { background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-xl); max-width: 560px; width: 100%; max-height: 82vh; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,0.35); }
+  .modal-head { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-5); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .modal-head .m-icon { width: 34px; height: 34px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+  .modal-head h4 { margin: 0; font-size: var(--text-lg); font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; }
+  .modal-head p { margin: 4px 0 0; font-size: var(--text-sm); color: var(--muted-foreground); line-height: 1.5; }
+  .modal-close { margin-left: auto; background: none; border: none; color: var(--muted-foreground); cursor: pointer; font-size: 20px; line-height: 1; padding: 0; flex-shrink: 0; }
+  .modal-body { padding: var(--space-5); overflow: auto; font-size: var(--text-sm); }
+  .modal-foot { display: flex; justify-content: flex-end; gap: var(--space-2); padding: var(--space-4) var(--space-5); border-top: 1px solid var(--border); flex-shrink: 0; }
+  .kbd { display: inline-flex; padding: 2px 6px; border: 1px solid var(--border); border-radius: 4px; font-family: var(--font-mono); font-size: 11px; background: var(--secondary); }
+  .swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; padding: 0; }
+  .swatch.selected { border-color: var(--primary); }
+  .qr-mock { width: 96px; height: 96px; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; margin: 0 auto var(--space-3); }
+  .qr-mock div { background: var(--foreground); }
+  .qr-mock div.off { background: transparent; }
+  .prompt-lib-body { display: flex; gap: 0; min-height: 260px; }
+  .prompt-lib-sidebar { width: 160px; flex-shrink: 0; border-right: 1px solid var(--border); padding: var(--space-3); font-size: 12.5px; }
+  .prompt-lib-sidebar .folder { display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: var(--radius-sm); }
+  .prompt-lib-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--space-3); padding: var(--space-5); color: var(--muted-foreground); font-size: var(--text-sm); }
+  .cmd-row { display: flex; align-items: center; gap: 8px; padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; font-size: 12.5px; }
+  .cmd-row code { font-family: var(--font-mono); color: var(--muted-foreground); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) 0; font-size: var(--text-sm); border-bottom: 1px solid var(--border); }
+  .toggle { width: 34px; height: 19px; border-radius: var(--radius-full); background: var(--muted); position: relative; cursor: pointer; border: none; flex-shrink: 0; }
+  .toggle::after { content: ""; position: absolute; width: 15px; height: 15px; border-radius: 50%; background: #fff; top: 2px; left: 2px; }
+  .toggle.on { background: var(--primary); }
+  .toggle.on::after { left: 17px; }
+
+  /* review modal */
+  #reviewOverlay .modal { max-width: 920px; width: 96%; }
+  .review-head { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .review-head .fp { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; }
+  .review-body-wrap { display: flex; height: 380px; }
+  .review-sidebar { width: 210px; flex-shrink: 0; border-right: 1px solid var(--border); overflow: auto; padding: var(--space-3); }
+  .review-sidebar .sb-title { font-size: 10px; text-transform: uppercase; color: var(--muted-foreground); letter-spacing: .04em; margin-bottom: var(--space-2); }
+  .review-sidebar .sb-file { display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: var(--radius-sm); font-size: 11.5px; font-family: var(--font-mono); cursor: pointer; }
+  .review-sidebar .sb-file.current { background: var(--secondary); font-weight: 700; }
+  .review-panes { flex: 1; display: flex; min-width: 0; }
+  .review-pane { flex: 1; min-width: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+  .review-pane:last-child { border-right: none; }
+  .review-pane .pane-head { padding: 6px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .review-pane.original .pane-head { color: var(--crit); } .review-pane.modified .pane-head { color: var(--ok); }
+  .pane-scroll { flex: 1; overflow: auto; font-family: var(--font-mono); font-size: 11.5px; }
+  .dline { display: flex; }
+  .dline .ln { width: 32px; text-align: right; padding-right: 8px; color: var(--muted-foreground); user-select: none; flex-shrink: 0; }
+  .dline .code { white-space: pre; padding-right: 12px; }
+  .dline.add { background: var(--ok-soft); } .dline.del { background: var(--crit-soft); }
+  .dline.empty .code { color: var(--muted-foreground); font-style: italic; }
+  .review-foot { padding: var(--space-3) var(--space-5); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .review-foot input { flex: 1; min-width: 160px; border: 1px solid var(--input); border-radius: var(--radius-md); padding: 8px; font-size: var(--text-sm); background: var(--card); color: var(--foreground); }
+  .review-done { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-3); padding: var(--space-8); text-align: center; }
+  .review-done .glow-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--accent-soft); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; box-shadow: 0 0 0 8px var(--accent-soft); }
+
+  @media (max-width: 980px) { .repos-rail, .studio-nav, .side-panel, .roster-list, .review-sidebar { display: none; } }
+</style>
+
+<div class="app">
+  <nav class="repos-rail" aria-label="Repositorios y workspaces">
+
+    <div class="rr-home-row">
+      <button class="rr-home-btn" type="button" title="Inicio — placeholder, sin destino aún">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
+        <span>Inicio</span>
+      </button>
+    </div>
+    <div class="rr-divider"></div>
+
+    <div class="rr-header">
+      <span class="rr-title">Repositorios</span>
+      <button class="rr-icon-btn" id="addRepoBtn" title="Agregar repositorio" aria-label="Agregar repositorio" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+          <path d="M13 3v5h5"/>
+          <path d="M12 13v5M9.5 15.5h5"/>
+        </svg>
+      </button>
+    </div>
+    <div class="rr-add-inline" id="addRepoInline">
+      <input type="text" id="addRepoInput" placeholder="Ruta o URL del repositorio…">
+      <button class="rr-mini-btn" id="addRepoConfirm" type="button">Agregar</button>
+    </div>
+
+    <div class="rr-repo-list">
+
+      <section class="repo-block" data-expanded="true" data-repo="dev-studio">
+        <button class="repo-header" data-toggle>
+          <svg class="rr-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span class="repo-name">dev-studio</span>
+          <span class="rr-count">4</span>
+        </button>
+        <div class="workspace-list"><div id="workspaceListDevStudio">
+
+          <div style="position:relative;">
+            <button class="rr-new-ws">
+              <span class="plus">+</span><span class="label">Nuevo Workspace</span>
+              <button class="rr-dots" data-menu-toggle="rrm1" aria-label="Opciones de Nuevo Workspace" type="button">⋯</button>
+            </button>
+            <div class="rr-dropdown" id="rrm1" hidden>
+              <button type="button">Duplicar último workspace</button>
+              <button type="button">Nuevo desde branch…</button>
+              <button type="button">Nuevo worktree…</button>
+              <div class="rr-note">Definimos esto después</div>
+            </div>
+          </div>
+
+          <button class="workspace-item" data-session="sse">
+            <div class="rr-ws-top">
+              <span class="rr-ws-icon">⎇</span>
+              <span class="rr-ws-name">fix-sse-reconexion</span>
+              <span class="rr-ws-diff"><span class="add">+41</span><span class="del">-9</span></span>
+            </div>
+            <div class="rr-ws-bottom">
+              <span class="rr-ws-branch">wt/fix-sse-reconexion</span>
+              <span class="rr-ws-sep">·</span>
+              <span class="rr-status-dot idle"></span>
+              <span class="rr-status-label">Sin cambios</span>
+              <span class="rr-ws-shortcut">⌘1</span>
+            </div>
+          </button>
+
+          <button class="workspace-item" data-session="rutas">
+            <div class="rr-ws-top">
+              <span class="rr-ws-icon">⎇</span>
+              <span class="rr-ws-name">validar-rutas-protegidas</span>
+              <span class="rr-ws-diff"><span class="add">+63</span><span class="del">-4</span></span>
+            </div>
+            <div class="rr-ws-bottom">
+              <span class="rr-ws-branch">wt/validar-rutas-protegidas</span>
+              <span class="rr-ws-sep">·</span>
+              <span class="rr-status-dot ready"></span>
+              <span class="rr-status-label">Ready to merge</span>
+              <span class="rr-ws-shortcut">⌘2</span>
+            </div>
+          </button>
+
+          <button class="workspace-item active" data-session="aislar">
+            <div class="rr-ws-top">
+              <span class="rr-ws-icon">⎇</span>
+              <span class="rr-ws-name">aislar-sesion-worktree</span>
+              <span class="rr-ws-diff"><span class="add">+16</span><span class="del">-1</span></span>
+            </div>
+            <div class="rr-ws-bottom">
+              <span class="rr-ws-branch">wt/aislar-sesion-worktree</span>
+              <span class="rr-ws-sep">·</span>
+              <span class="rr-status-dot conflict"></span>
+              <span class="rr-status-label">Merge conflicts</span>
+              <span class="rr-ws-shortcut">⌘3</span>
+            </div>
+          </button>
+
+          <button class="workspace-item" data-session="vite">
+            <div class="rr-ws-top">
+              <span class="rr-ws-icon">⎇</span>
+              <span class="rr-ws-name">watcher-vite-build</span>
+              <span class="rr-ws-diff"><span class="add">+3</span></span>
+            </div>
+            <div class="rr-ws-bottom">
+              <span class="rr-ws-branch">wt/watcher-vite-build</span>
+              <span class="rr-ws-sep">·</span>
+              <span class="rr-status-dot archived"></span>
+              <span class="rr-status-label">Archivado</span>
+              <span class="rr-ws-shortcut">⌘4</span>
+            </div>
+          </button>
+
+        </div></div>
+      </section>
+
+      <div class="rr-repo-divider"></div>
+
+      <section class="repo-block" data-expanded="true" data-repo="harness-studio">
+        <button class="repo-header" data-toggle>
+          <svg class="rr-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span class="repo-name">harness-studio</span>
+          <span class="rr-count">2</span>
+        </button>
+        <div class="workspace-list"><div>
+
+          <div style="position:relative;">
+            <button class="rr-new-ws">
+              <span class="plus">+</span><span class="label">Nuevo Workspace</span>
+              <button class="rr-dots" data-menu-toggle="rrm2" aria-label="Opciones de Nuevo Workspace" type="button">⋯</button>
+            </button>
+            <div class="rr-dropdown" id="rrm2" hidden>
+              <button type="button">Duplicar último workspace</button>
+              <button type="button">Nuevo desde branch…</button>
+              <button type="button">Nuevo worktree…</button>
+              <div class="rr-note">Definimos esto después</div>
+            </div>
+          </div>
+
+          <button class="workspace-item">
+            <div class="rr-ws-top">
+              <span class="rr-ws-icon">⎇</span>
+              <span class="rr-ws-name">revision-boundaries</span>
+              <span class="rr-ws-diff"><span class="add">+22</span><span class="del">-6</span></span>
+            </div>
+            <div class="rr-ws-bottom">
+              <span class="rr-ws-branch">wt/revision-boundaries</span>
+              <span class="rr-ws-sep">·</span>
+              <span class="rr-status-dot ready"></span>
+              <span class="rr-status-label">Ready to merge</span>
+            </div>
+          </button>
+
+          <button class="workspace-item">
+            <div class="rr-ws-top">
+              <span class="rr-ws-icon">⎇</span>
+              <span class="rr-ws-name">session-rail-tokens</span>
+              <span class="rr-ws-diff"><span class="add">+8</span><span class="del">-2</span></span>
+            </div>
+            <div class="rr-ws-bottom">
+              <span class="rr-ws-branch">main</span>
+              <span class="rr-ws-tag">sin worktree</span>
+            </div>
+          </button>
+
+        </div></div>
+      </section>
+
+    </div>
+
+    <div class="rr-footer">
+      <button class="rr-icon-btn" title="Archivados" aria-label="Archivados">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/><path d="M10 13h4"/></svg>
+      </button>
+      <button class="rr-icon-btn" title="Feedback" aria-label="Feedback">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <button class="rr-icon-btn" title="Ajustes" aria-label="Ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
+      </button>
+    </div>
+
+  </nav>
+
+  <main class="app-main">
+
+    <!-- ══ DEV STUDIO — vista única dentro de un workspace ══ -->
+    <section id="view-devstudio" class="view active">
+      <div class="proj-body">
+        <nav class="studio-nav" aria-label="Navegación del estudio">
+          <button class="studio-nav-item active" data-nav="studio" title="Studio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Studio</span>
+          </button>
+          <button class="studio-nav-item" data-nav="backlog" title="Backlog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>
+            <span>Backlog</span>
+          </button>
+          <button class="studio-nav-item" data-nav="product" title="Product">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Product</span>
+          </button>
+          <button class="studio-nav-item soon" data-nav="roles" title="Roles — próximamente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2.5 20c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/><circle cx="18" cy="9" r="2.3"/><path d="M15.8 14.3c2.6.5 4.7 2.7 4.7 5.7"/></svg>
+            <span>Roles</span>
+            <span class="soon-badge">pronto</span>
+          </button>
+          <button class="studio-nav-item" data-nav="config" title="Configuración">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
+            <span>Config</span>
+          </button>
+        </nav>
+
+        <div class="session-main">
+          <div class="session-head">
+            <div class="avatar">FS</div>
+            <div><div class="name">Full-Stack · aislar-sesion-worktree</div><div class="cwd">~/Proyectos/dev-studio/.worktrees/aislar-sesion-worktree · Claude Code (Opus)</div></div>
+            <span class="spacer" style="flex:1"></span>
+            <span class="chip">📋 DH-14 · Aislar sesión en workspace propio</span>
+          </div>
+          <div class="chat-scroll">
+            <div class="turn user"><div class="who">Tú</div><div class="bubble">DH-14: cerrá <code>sesion-aislada-por-cwd</code> creando un workspace (git worktree) y branch propios por sesión en vez de compartir el cwd del proyecto real.</div></div>
+            <div class="turn"><div class="who">Full-Stack</div><div class="bubble">Entendido. Agrego <code>internal/adapters/agent/worktree/manager.go</code>: al crear la sesión corro <code>git worktree add .worktrees/&lt;slug&gt; -b wt/&lt;slug&gt;</code> y seteo ese path como <code>Cwd</code>. Escribo el test de aislamiento primero (TDD).</div></div>
+            <div class="turn"><div class="who">Full-Stack</div><div class="bubble">Test <code>TestSessionWorktreeIsolated</code> en rojo. Implementando el manager ahora — streaming…</div></div>
+          </div>
+
+          <div class="composer-wrap">
+            <div class="composer-box">
+              <div class="composer-resize" title="Arrastra para redimensionar el composer"></div>
+              <div class="composer-text">
+                <textarea rows="2" placeholder="Redacta un mensaje: Enter para enviar, Shift+Enter para una nueva línea"></textarea>
+                <button class="composer-expand" title="Expandir el composer">⤢</button>
+              </div>
+              <div class="composer-toolbar">
+                <button class="icon-btn" data-modal="boceto" title="Boceto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4Z"/></svg></button>
+                <button class="icon-btn" data-modal="captura" title="Captura de pantalla"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8V5a1 1 0 0 1 1-1h3M4 16v3a1 1 0 0 0 1 1h3M20 8V5a1 1 0 0 0-1-1h-3M20 16v3a1 1 0 0 1-1 1h-3"/></svg></button>
+                <div class="divider"></div>
+                <button class="icon-btn" data-modal="htmlimport" title="Importar página web"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6 3 12l5 6M16 6l5 6-5 6"/></svg></button>
+                <button class="icon-btn" data-modal="movil" title="Enviar desde el móvil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></button>
+                <button class="icon-btn" data-modal="prompts" title="Biblioteca de prompts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h11v18H6a2 2 0 0 1-2-2Z"/><path d="M17 3v18M8 7h5M8 11h5"/></svg></button>
+                <div class="divider"></div>
+                <button class="icon-btn" data-modal="voz" title="Conversación por voz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l1.6 4.9L18 8l-4.4 1.6L12 14l-1.6-4.4L6 8l4.4-1.1Z"/><path d="M19 15l.8 2.2L22 18l-2.2.9L19 21l-.9-2.1L16 18l2.1-.8Z"/></svg></button>
+                <button class="icon-btn" data-modal="dictar" title="Dictar mensaje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+                <span class="spacer"></span>
+                <button class="queue-btn" title="Añadir a la cola">⇒ Encolar</button>
+                <button class="send-btn" title="Enviar a este terminal (Enter)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l18-8-8 18-2-8-8-2Z"/></svg></button>
+              </div>
+              <div style="padding:0 var(--space-3) var(--space-3);">
+                <div class="term-row">
+                  <span class="term-tab">T Terminal <span class="x">×</span></span>
+                  <button class="term-add" title="Nueva terminal">+</button>
+                  <button class="term-chip" data-modal="comandos">⚡ Comandos de desarrollo</button>
+                  <button class="term-chip" data-modal="ssh">🖧 SSH remoto</button>
+                  <span class="spacer"></span>
+                  <button class="layout-icon" title="Vista dividida"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg></button>
+                  <button class="layout-icon" title="Separar en ventana flotante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="1"/><path d="M8 21h8"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="side-tabs">
+            <button data-side="archivos">Archivos</button>
+            <button data-side="cambios" class="active">Cambios</button>
+            <button data-side="pruebas">Pruebas</button>
+          </div>
+          <div class="side-panel-body">
+
+            <div class="side-content" id="side-archivos">
+              <div class="files-panel">
+                <div class="file-row"><span style="font-size:12px">📁</span><span class="fpath">internal/adapters/agent/worktree/</span></div>
+                <div class="file-row" style="padding-left:22px"><span style="font-size:12px">{}</span><span class="fpath">manager.go</span></div>
+                <div class="file-row" style="padding-left:22px"><span style="font-size:12px">{}</span><span class="fpath">manager_test.go</span></div>
+                <div class="file-row"><span style="font-size:12px">📁</span><span class="fpath">arch/boundaries/</span></div>
+                <div class="file-row" style="padding-left:22px"><span style="font-size:12px">📄</span><span class="fpath">sesion-aislada-por-cwd.md</span></div>
+              </div>
+            </div>
+
+            <div class="side-content active" id="side-cambios">
+              <div class="cambios-subtabs">
+                <button class="active" data-pane="pendientes">Cambios pendientes</button>
+                <button data-pane="historial">Historial</button>
+              </div>
+
+              <div class="cambios-pane active" id="pane-pendientes">
+                <div class="changes-head">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="12" r="2.2"/><path d="M6 8.2V15.8M8 6h4a4 4 0 0 1 4 4v0"/></svg>
+                  wt/aislar-sesion-worktree
+                  <span class="spacer"></span>
+                  <span class="chip">3 cambios</span>
+                </div>
+                <div class="sync-row">
+                  <button class="sync-btn" title="Fetch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg></button>
+                  <button class="sync-btn" disabled title="Pull — nada que traer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v14M6 12l6 6 6-6"/></svg></button>
+                  <button class="sync-btn" title="Push"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V6M6 12l6-6 6 6"/></svg></button>
+                  <span class="spacer"></span>
+                  <button class="sync-btn" title="Actualizar estado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v6h6M20 20v-6h-6M5 15a8 8 0 0 0 13.7 3M19 9A8 8 0 0 0 5.3 6"/></svg></button>
+                </div>
+                <button class="review-cta" id="openReview">⚡ Revisar cambios</button>
+                <div class="filter-chips" id="filterChips"></div>
+                <div class="file-list" id="fileListBody"></div>
+                <div class="commit-footer">
+                  <textarea placeholder="Mensaje de commit…"></textarea>
+                  <label class="attach-row"><input type="checkbox" checked><span>Adjuntar la conversación del rol al commit — sube un enlace no listado en el mensaje.</span></label>
+                  <div class="commit-btns">
+                    <button class="btn-outline">Confirmar cambios</button>
+                    <button class="btn-primary" style="flex:1">Confirmar y cerrar sesión</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cambios-pane" id="pane-historial">
+                <div class="history-controls">
+                  <span class="chip">⌥ wt/aislar-sesion-worktree ▾</span>
+                  <input placeholder="🔍 Buscar mensajes" style="flex:1">
+                  <input placeholder="👤 Autor" style="width:100px">
+                </div>
+                <div class="history-timeline">
+                  <div class="commit-row">
+                    <div class="commit-avatar" style="background:var(--primary)">FS</div>
+                    <div><div class="commit-msg">wip: manager de worktree + test de aislamiento</div><div class="commit-meta"><span class="chip">wt/aislar-sesion-worktree</span><span>Full-Stack</span><code>a1b2c3d</code><span style="margin-left:auto">6 jul</span></div></div>
+                  </div>
+                  <div class="commit-row">
+                    <div class="commit-avatar" style="background:var(--ok)">QA</div>
+                    <div><div class="commit-msg">test: cobertura de rutas protegidas por sesión</div><div class="commit-meta"><span class="chip">wt/validar-rutas-protegidas</span><span>QA</span><code>9f0e1a2</code><span style="margin-left:auto">5 jul</span></div></div>
+                  </div>
+                  <div class="commit-row">
+                    <div class="commit-avatar" style="background:var(--secondary);color:var(--foreground)">DH</div>
+                    <div><div class="commit-msg">chore: rename product DevHub → DevStudio</div><div class="commit-meta"><span class="chip">main</span><span class="chip">origin/main</span><span>Chris</span><code>82d9c4b</code><span style="margin-left:auto">4 jul</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="side-content" id="side-pruebas">
+              <div class="qa-panel">Superficies de prueba con navegador y MCP. Rol <b style="color:var(--foreground)">QA</b> puede correr suites contra esta sesión — sin superficie activa todavía en esta sesión de ejemplo.</div>
+            </div>
+
+          </div>
+        </aside>
+
+        <!-- ══ BACKLOG — overlay: tapa chat+panel lateral, deja rail de sesiones y barra repositorios/workspaces visibles ══ -->
+        <div class="panel-overlay" id="backlogOverlay">
+          <div class="panel-overlay-head">
+            <div><h2>Backlog</h2><p class="sub">Historias de usuario del proyecto — cada una liga a la capability que incrementa. 8 estados del descriptor de proceso (I-77), no un kanban genérico. Arrastrás solo las transiciones del operador; el resto las mueven los arneses dueños del proceso.</p></div>
+            <button class="modal-close" data-close="backlogOverlay">×</button>
+          </div>
+          <div class="picker-banner" id="backlogPickerBanner">Elegí un paquete de trabajo para la nueva sesión — hacé clic en una historia.</div>
+
+          <div class="board-toolbar">
+            <select title="Filtrar por release"><option>release: todos</option><option>F0</option><option selected>F1</option><option>F2</option></select>
+            <select title="Filtrar por tipo"><option>tipo: todos</option><option>ui</option><option>tech</option><option>service</option><option>func</option></select>
+            <label class="tb-check"><input type="checkbox">mostrar pausadas + descartadas</label>
+            <div class="tb-search"><span>🔍</span><input placeholder="Buscar…"></div>
+            <button class="btn-primary" style="white-space:nowrap" title="Capturar una idea desde cero: nace en estado idea con checkpoint + operator-input">+ Nueva story</button>
+            <div class="wip-row">
+              <span class="wip-chip">refinando 1/2</span>
+              <span class="wip-chip">desarrollo 2/2</span>
+              <span class="wip-chip over">revisión 2/1</span>
+            </div>
+          </div>
+          <div class="building-row">
+            <span>🔨 Construyendo ahora:</span>
+            <span class="building-chip">FS → DH-14</span>
+            <span class="building-chip">BE → DH-15</span>
+          </div>
+
+          <div class="board-scroll">
+            <div class="board">
+              <div class="lane"><h4><span class="state-pill state-idea">Idea</span><span class="n">2</span></h4>
+                <div class="story-card">
+                  <div class="card-top"><span class="card-agent" style="color:var(--muted-foreground)">— sin asignar</span><span style="flex:1"></span><span class="card-type" title="Func">📦</span><span class="release-chip" style="color:hsl(294 55% 78%);background:hsl(294 30% 16%)">F2</span></div>
+                  <div class="title">Panorama transversal de sesiones entre repositorios</div>
+                  <div class="foot"><span class="chip">multi-repositorio</span><span class="prio"><i class="dot" style="background:#3b82f6"></i>media</span></div>
+                </div>
+                <div class="story-card">
+                  <div class="card-top"><span class="card-agent" style="color:var(--muted-foreground)">— sin asignar</span><span style="flex:1"></span><span class="card-type" title="Tech">🛠</span><span class="release-chip" style="color:hsl(294 55% 78%);background:hsl(294 30% 16%)">F2</span></div>
+                  <div class="title">Publicar changelog automático por capability</div>
+                  <div class="foot"><span class="chip">backlog-historias</span><span class="prio"><i class="dot" style="background:#64748b"></i>baja</span></div>
+                </div>
+              </div>
+              <div class="lane"><h4><span class="state-pill state-refining">Refinando</span><span class="n">1<span class="cap">/2</span></span></h4>
+                <div class="story-card" style="border-left-color:#f97316">
+                  <div class="card-top"><span class="card-agent" style="color:#f97316">PO</span><span style="flex:1"></span><span class="card-type" title="UI">🖥</span><span class="release-chip" style="color:hsl(200 70% 78%);background:hsl(200 40% 16%)">F1</span></div>
+                  <div class="title">Tablero backlog con 8 estados del proceso</div>
+                  <div class="foot"><span class="chip">backlog-historias</span><span class="prio"><i class="dot" style="background:#f59e0b"></i>alta</span></div>
+                </div>
+              </div>
+              <div class="lane"><h4><span class="state-pill state-refined">Refinada</span><span class="n">1</span></h4>
+                <div class="story-card">
+                  <div class="card-top"><span class="card-agent" style="color:var(--muted-foreground)">— sin asignar</span><span style="flex:1"></span><span class="card-type" title="UI">🖥</span><span class="release-chip" style="color:hsl(294 55% 78%);background:hsl(294 30% 16%)">F2</span></div>
+                  <div class="title">Checkpoints y revert por turno de conversación</div>
+                  <div class="foot"><span class="chip">sesiones-multiples</span><span class="prio"><i class="dot" style="background:#3b82f6"></i>media</span></div>
+                </div>
+              </div>
+              <div class="lane"><h4><span class="state-pill state-ready">Lista</span><span class="n">1</span></h4>
+                <div class="story-card">
+                  <div class="card-top"><span class="card-agent" style="color:var(--muted-foreground)">— sin asignar</span><span style="flex:1"></span><span class="card-type" title="UI">🖥</span><span class="release-chip" style="color:hsl(294 55% 78%);background:hsl(294 30% 16%)">F2</span></div>
+                  <div class="title">Diff conversacional: comentar una línea y que el rol la resuelva</div>
+                  <div class="foot"><span class="chip">revision-cambios</span><span class="prio"><i class="dot" style="background:#3b82f6"></i>media</span></div>
+                </div>
+              </div>
+              <div class="lane"><h4><span class="state-pill state-developing">En desarrollo</span><span class="n">2<span class="cap">/2</span></span></h4>
+                <div class="story-card" style="border-left-color:var(--primary)">
+                  <div class="card-top"><span class="card-agent" style="color:var(--primary)">FS</span><span style="flex:1"></span><span class="card-type" title="Tech">🛠</span><span class="release-chip" style="color:hsl(200 70% 78%);background:hsl(200 40% 16%)">F1</span></div>
+                  <div class="title">Aislar sesión en workspace propio (DH-14)</div>
+                  <div class="card-session-badge">🔨 FS construyendo</div>
+                  <div class="foot"><span class="chip">sesiones-multiples</span><span class="prio"><i class="dot" style="background:var(--crit)"></i>crítica</span></div>
+                </div>
+                <div class="story-card" style="border-left-color:#a855f7">
+                  <div class="card-top"><span class="card-agent" style="color:#a855f7">BE</span><span style="flex:1"></span><span class="card-type" title="Tech">🛠</span><span class="release-chip" style="color:hsl(200 70% 78%);background:hsl(200 40% 16%)">F1</span></div>
+                  <div class="title">Resolver reconexión SSE con retry</div>
+                  <div class="card-session-badge">🔨 BE construyendo</div>
+                  <div class="foot"><span class="chip">sesiones-multiples</span><span class="prio"><i class="dot" style="background:#f59e0b"></i>alta</span></div>
+                </div>
+              </div>
+              <div class="lane"><h4><span class="state-pill state-developed">Desarrollada</span><span class="n">1</span></h4>
+                <div class="story-card" style="border-left-color:var(--warn)">
+                  <div class="card-top"><span class="card-agent" style="color:var(--warn)">DO</span><span style="flex:1"></span><span class="card-type" title="Tech">🛠</span><span class="release-chip" style="color:hsl(200 70% 78%);background:hsl(200 40% 16%)">F1</span></div>
+                  <div class="title">Watcher de build para Vite (mantenimiento)</div>
+                  <div class="foot"><span class="chip">comandos-dev</span><span class="prio"><i class="dot" style="background:#64748b"></i>baja</span></div>
+                </div>
+              </div>
+              <div class="lane"><h4><span class="state-pill state-reviewing">En revisión</span><span class="n over">2<span class="cap">/1</span></span></h4>
+                <div class="story-card" style="border-left-color:var(--ok)">
+                  <div class="card-top"><span class="card-agent" style="color:var(--ok)">QA</span><span style="flex:1"></span><span class="card-type" title="Tech">🛠</span><span class="release-chip" style="color:hsl(200 70% 78%);background:hsl(200 40% 16%)">F1</span></div>
+                  <div class="title">Validar rutas protegidas por sesión</div>
+                  <div class="foot"><span class="chip">sesiones-multiples</span><span class="prio"><i class="dot" style="background:var(--crit)"></i>crítica</span></div>
+                </div>
+                <div class="story-card" style="border-left-color:#06b6d4">
+                  <div class="card-top"><span class="card-agent" style="color:#06b6d4">AR</span><span style="flex:1"></span><span class="card-type" title="UI">🖥</span><span class="release-chip" style="color:hsl(200 70% 78%);background:hsl(200 40% 16%)">F1</span></div>
+                  <div class="title">Catálogo curado de roles por proyecto</div>
+                  <div class="foot"><span class="chip">roles-roster</span><span class="prio"><i class="dot" style="background:#3b82f6"></i>media</span></div>
+                </div>
+              </div>
+              <div class="lane"><h4><span class="state-pill state-done">Hecha</span><span class="n">1</span></h4>
+                <div class="story-card" style="opacity:.6">
+                  <div class="card-top"><span class="card-agent" style="color:var(--muted-foreground)">FS</span><span style="flex:1"></span><span class="card-type" title="UI">🖥</span><span class="release-chip" style="color:hsl(200 70% 78%);background:hsl(200 40% 16%)">F1</span></div>
+                  <div class="title">Rail de sesiones colapsable (F1)</div>
+                  <div class="foot"><span class="chip">sesiones-multiples</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ CONFIGURACIÓN — overlay: por ahora solo la vista "Añadir rol" ══ -->
+        <div class="panel-overlay" id="settingsOverlay">
+          <div class="panel-overlay-head">
+            <div><h2>Configuración</h2><p class="sub">Ajustes del proyecto. De momento: el roster de roles disponibles para nuevas sesiones.</p></div>
+            <button class="modal-close" data-close="settingsOverlay">×</button>
+          </div>
+          <div class="view-head"><div><h2>Añadir rol</h2><p class="sub">Roster curado del proyecto — no el catálogo sin filtrar. El rol es la plantilla; al crear la sesión queda ligado a un workspace propio.</p></div></div>
+          <div class="roles-body">
+            <nav class="roster-list">
+              <div class="roster-group"><h4>Builder</h4>
+                <button class="roster-item active"><span class="avatar" style="width:22px;height:22px;font-size:9px;">FS</span><span class="name">Full-Stack</span></button>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">FE</span><span class="name">Frontend</span></button>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">BE</span><span class="name">Backend</span></button>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">MO</span><span class="name">Móvil</span></button>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">DO</span><span class="name">DevOps</span></button>
+              </div>
+              <div class="roster-group"><h4>Auditor</h4>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">QA</span><span class="name">QA</span></button>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">SG</span><span class="name">Seguridad</span></button>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">AR</span><span class="name">Arquitecto de Software</span></button>
+              </div>
+              <div class="roster-group"><h4>Humano-complementario</h4>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">PO</span><span class="name">Product Owner</span></button>
+                <button class="roster-item"><span class="avatar" style="width:22px;height:22px;font-size:9px;">ID</span><span class="name">Ideación</span></button>
+              </div>
+              <button class="custom-role-btn">+ Rol personalizado</button>
+            </nav>
+            <div class="role-detail">
+              <h3>Full-Stack <span class="chip" style="margin-left:8px;">Rol actual</span></h3>
+              <p class="desc">Rol de la sesión activa (<code>aislar-sesion-worktree</code>). Dueño de dominio, casos de uso, adaptadores y la SPA embebida. Escribe el test primero, siempre. Reporta con precisión de dónde a dónde movió el estado.</p>
+              <div class="pill primary" id="pendingPkgBadge" style="display:none;margin-bottom:var(--space-4);"></div>
+              <div class="pkg-hint" id="pkgHint" style="display:none;">Todavía no elegiste un paquete de trabajo. Toda sesión debe ligarse a una historia del Backlog — <b>Crear sesión aislada</b> te llevará ahí a elegirla.</div>
+              <div class="prompt-box"><b># Identidad</b>
+Sos el rol Full-Stack de este proyecto. Trabajás en Go (arquitectura hexagonal:
+domain/ports/usecase/adapters) y en la SPA embebida (React + Zustand + Tailwind).
+
+<b># Reglas</b>
+- TDD obligatorio: test en rojo antes que implementación.
+- Un turno = un cambio revisable. No mezclás refactors con features.
+- Si el diff toca un boundary de arch/, avisás antes de escribir.
+
+<b># Entregables</b>
+- Diff acotado + test nuevo o migrado + una línea de qué RN cubre.</div>
+              <div class="field-row">
+                <div class="field"><label>Proveedor</label><select><option>Claude Code</option><option>Codex</option><option>OpenCode</option></select></div>
+                <div class="field"><label>Modelo</label><select><option>Opus</option><option selected>Sonnet</option><option>Haiku</option></select></div>
+                <div class="field"><label>Cuenta</label><select><option>Personal (BYO CLI)</option></select></div>
+              </div>
+              <button class="create-btn">Crear sesión aislada</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ PRODUCT — próximamente: mapa de capabilities (heredado de DevHub) ══ -->
+        <div class="panel-overlay" id="productOverlay">
+          <div class="panel-overlay-head">
+            <div><h2>Product</h2><p class="sub">Mapa del producto — la estructura prevista (SYSTEM-MAP) y lo que ya está construido sobre ella. Clic en una caja para su detalle.</p></div>
+            <button class="modal-close" data-close="productOverlay">×</button>
+          </div>
+          <div class="map-scroll">
+
+            <div class="health-card">
+              <div class="health-head">
+                <h3>Salud de Producto</h3>
+                <span class="health-caption">20 caps · 9 sin implementar (stub) · 1 en drift · 9 live</span>
+              </div>
+              <div class="health-bar" title="Distribución de capabilities por estado">
+                <span style="width:40%;background:#16a34a" title="verificado: 8"></span>
+                <span style="width:5%;background:#2563eb" title="declarado: 1"></span>
+                <span style="width:5%;background:#0891b2" title="wip: 1"></span>
+                <span style="width:45%;background:#52525b" title="stub: 9"></span>
+                <span style="width:5%;background:#dc2626" title="drift: 1"></span>
+              </div>
+              <div class="health-chips">
+                <span class="health-chip" style="background:#14532d;color:#86efac">🟢 verificado <span class="n">8</span></span>
+                <span class="health-chip" style="background:#1e3a5f;color:#93c5fd">🔵 declarado <span class="n">1</span></span>
+                <span class="health-chip" style="background:#164e63;color:#67e8f9">🔵 wip <span class="n">1</span></span>
+                <span class="health-chip" style="background:#3f3f46;color:#d4d4d8">⚪ stub <span class="n">9</span></span>
+                <span class="health-chip" style="background:#450a0a;color:#fca5a5">🔴 drift <span class="n">1</span></span>
+              </div>
+            </div>
+
+            <div class="board-toolbar map-toolbar" style="padding:0 0 var(--space-4)">
+              <div class="tb-search"><span>🔍</span><input placeholder="Buscar por área, descripción…"></div>
+              <select title="Modo onboarding por rol"><option>Todos los roles</option><option>Modo onboarding: CTO</option><option>Modo onboarding: Developer</option><option>Modo onboarding: DevOps</option><option>Modo onboarding: Product Owner</option></select>
+              <label class="tb-check"><input type="checkbox" checked disabled>live ✓ (9)</label>
+              <label class="tb-check"><input type="checkbox" disabled>beta ⚪ (0)</label>
+              <label class="tb-check"><input type="checkbox" disabled>infra 🔧 (7)</label>
+              <label class="tb-check"><input type="checkbox" checked disabled>planned 📋 (9)</label>
+              <div class="lens-toggle">
+                <button class="active" title="Por zona y caja (quién opera qué)">👥 Trabajadores</button>
+                <button title="Por etapas del value-stream">🔄 Proceso</button>
+              </div>
+            </div>
+
+            <!-- ══ ZONA ESTUDIO — Plano 1: lo que el usuario opera directo ══ -->
+            <section class="zone-block">
+              <div class="zone-head">
+                <h2>Estudio</h2>
+                <span class="zone-tier core">valor</span>
+                <span class="zone-count">2 cajas · 7 caps</span>
+                <p class="zone-desc">Lo que el usuario opera directo: conversación con Claude Code + navegación multisesión. Plano 1 del paradigma — existe sin agentes, operable a mano.</p>
+              </div>
+              <div class="zone-grid">
+                <div class="box-card">
+                  <div class="box-head"><span class="emoji">💬</span><div class="box-name-wrap"><span class="box-name">Dev Studio</span><span class="box-sub">conversación + composer + panel lateral</span></div><span class="box-count">4</span></div>
+                  <div class="box-progress"><div class="track"><div class="fill" style="width:25%"></div></div><span class="label">1/4 áreas</span></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Chat conversacional</span><span class="pill ok" style="font-size:9px">🟢 live</span></div></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Terminal integrada</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Cambios (diff + git)</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Pruebas (navegador + MCP)</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div><div class="a-desc">Sin superficie activa todavía en la sesión de ejemplo.</div></div>
+                </div>
+                <div class="box-card">
+                  <div class="box-head"><span class="emoji">🗂</span><div class="box-name-wrap"><span class="box-name">Rail de sesiones</span><span class="box-sub">multisesión, calcado de harness-studio</span></div><span class="box-count">3</span></div>
+                  <div class="box-progress"><div class="track"><div class="fill" style="width:67%"></div></div><span class="label">2/3 áreas</span></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Tabs colapsables 224px↔52px</span><span class="pill ok" style="font-size:9px">🟢 live</span></div></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Crear/cerrar sesión desde la app</span><span class="pill ok" style="font-size:9px">🟢 live</span></div></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Aislar sesión en workspace propio</span><span class="pill" style="font-size:9px;background:#164e63;color:#67e8f9">🔵 wip</span></div><div class="a-desc">DH-14 · en desarrollo ahora — ver Backlog.</div></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ══ ZONA PLATAFORMA — el usuario atraviesa, se opera a mano ══ -->
+            <section class="zone-block">
+              <div class="zone-head">
+                <h2>Plataforma</h2>
+                <span class="zone-tier supporting">transversal</span>
+                <span class="zone-count">3 cajas · 6 caps</span>
+                <p class="zone-desc">El usuario entra, gestiona su espacio y su backlog — se opera a mano, no vía agente. Hoy: mockup/spec (este árbol de archivos); backend todavía no portado.</p>
+              </div>
+              <div class="zone-grid">
+                <div class="box-card">
+                  <div class="box-head"><span class="emoji">📁</span><div class="box-name-wrap"><span class="box-name">Repositorios y Workspaces</span><span class="box-sub">rail izquierdo</span></div><span class="box-count">2</span></div>
+                  <div class="box-progress"><div class="track"><div class="fill" style="width:0%"></div></div><span class="label">0/2 áreas</span></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Registro de repos</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Workspaces por branch</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div></div>
+                </div>
+                <div class="box-card">
+                  <div class="box-head"><span class="emoji">📋</span><div class="box-name-wrap"><span class="box-name">Backlog</span><span class="box-sub">board 8 estados del proceso</span></div><span class="box-count">2</span></div>
+                  <div class="box-progress"><div class="track"><div class="fill" style="width:0%"></div></div><span class="label">0/2 áreas</span></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Board 8 estados</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Picker de paquete de trabajo</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div></div>
+                </div>
+                <div class="box-card">
+                  <div class="box-head"><span class="emoji">⚙</span><div class="box-name-wrap"><span class="box-name">Configuración</span><span class="box-sub">roster de roles</span></div><span class="box-count">2</span></div>
+                  <div class="box-progress"><div class="track"><div class="fill" style="width:0%"></div></div><span class="label">0/2 áreas</span></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Roster de roles</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div></div>
+                  <div class="area-row"><div class="a-top"><span class="a-name">Roles standalone (crear/editar)</span><span class="pill muted" style="font-size:9px">📋 planned</span><span class="a-target">→ F2</span></div></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ══ ZONA INFRAESTRUCTURA — no-funcional, colapsada por default (toggle infra 🔧) ══ -->
+            <section class="zone-block">
+              <div class="zone-head">
+                <h2>Infraestructura</h2>
+                <span class="zone-tier enabling">no-funcional</span>
+                <span class="zone-count">2 cajas · 7 caps</span>
+              </div>
+              <div class="zone-collapsed-hint">🔧 <b>Infraestructura</b> · 2 cajas · 7 caps · activá <span style="font-family:var(--font-mono)">infra 🔧</span> arriba para ver</div>
+            </section>
+
+            <details class="map-collapsible">
+              <summary><span class="arrow">▸</span>📦 Data ownership <span style="color:var(--muted-foreground);font-weight:400">(1)</span></summary>
+              <div class="body">
+                <table class="data-table">
+                  <thead><tr><th>Entity</th><th>Owner</th><th>Consumida por</th><th>Descripción</th></tr></thead>
+                  <tbody>
+                    <tr><td style="font-weight:600">Session</td><td>Transporte + Persistencia</td><td style="color:var(--muted-foreground)">Rail de sesiones, Dev Studio</td><td style="color:var(--muted-foreground)">Estado de una sesión Claude Code (cwd, historial, pid) — persistida en <code>sessions.json</code>.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+
+          </div>
+        </div>
+
+        <!-- ══ ROLES — próximamente: gestión standalone del roster ══ -->
+        <div class="panel-overlay" id="rolesOverlay">
+          <div class="panel-overlay-head">
+            <div><h2>Roles</h2><p class="sub">Catálogo curado de roles del proyecto, más allá de asignarlos a una sesión nueva.</p></div>
+            <button class="modal-close" data-close="rolesOverlay">×</button>
+          </div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+            <div style="text-align:center;color:var(--muted-foreground);font-size:var(--text-sm);">
+              <div style="font-size:28px;margin-bottom:10px;">🧩</div>
+              <div class="pill muted" style="margin:0 auto var(--space-3);width:fit-content;">Próximamente</div>
+              <p style="max-width:36ch;margin:0 auto;">Hoy el roster solo se ve al crear una sesión, desde <b>Configuración</b>. Gestión standalone (crear/editar roles) es un paso posterior.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ overlays ══ -->
+<div class="overlay" id="dynOverlay"><div class="modal">
+  <div class="modal-head">
+    <div class="m-icon" id="dm-icon"></div>
+    <div><h4 id="dm-title"></h4><p id="dm-sub"></p></div>
+    <button class="modal-close" data-close="dynOverlay">×</button>
+  </div>
+  <div class="modal-body" id="dm-body"></div>
+  <div class="modal-foot" id="dm-foot"></div>
+</div></div>
+
+<div class="overlay" id="sketchOverlay"><div class="modal" style="max-width:640px;">
+  <div class="modal-head">
+    <div class="m-icon" style="background:var(--secondary);color:var(--foreground);">✎</div>
+    <div><h4>Boceto</h4><p>Un dibujo dice lo que a las palabras les cuesta un párrafo.</p></div>
+    <button class="modal-close" data-close="sketchOverlay">×</button>
+  </div>
+  <div class="modal-body">
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+      <button class="swatch selected" data-color="#ffffff" style="background:#ffffff"></button>
+      <button class="swatch" data-color="#00b7aa" style="background:#00b7aa"></button>
+      <button class="swatch" data-color="#1f9d6b" style="background:#1f9d6b"></button>
+      <button class="swatch" data-color="#c98a16" style="background:#c98a16"></button>
+      <button class="swatch" data-color="#d0483c" style="background:#d0483c"></button>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn-outline" id="sketchClear" type="button">Borrar todo</button>
+    </div>
+    <canvas id="sketchCanvas" width="560" height="260" style="width:100%;display:block;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--card);cursor:crosshair;touch-action:none;"></canvas>
+    <p style="color:var(--muted-foreground);font-size:11.5px;margin-top:8px;">Dibujá arrastrando el mouse. Se adjunta como imagen al mensaje del rol.</p>
+  </div>
+  <div class="modal-foot">
+    <button class="btn-outline" data-close="sketchOverlay">Cancelar</button>
+    <button class="btn-primary">Adjuntar al mensaje</button>
+  </div>
+</div></div>
+
+<div class="overlay" id="commandsOverlay"><div class="modal" style="max-width:520px;">
+  <div class="modal-head">
+    <div class="m-icon" style="background:var(--secondary);color:var(--foreground);">&gt;_</div>
+    <div><h4>Comandos</h4><p>Procesos de terminal que corren junto a tus roles: servidores de desarrollo, watchers, ejecutores de pruebas. Siguen activos hasta que los detenés.</p></div>
+    <button class="modal-close" data-close="commandsOverlay">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="toggle-row"><span>Abrir comandos en el mismo panel</span><button class="toggle on"></button></div>
+    <div class="toggle-row" style="border-bottom:none"><span>Restaurar los comandos al iniciar</span><button class="toggle"></button></div>
+    <div style="margin-top:var(--space-3)">
+      <div class="cmd-row"><span class="dot ok"></span><b>Terminal</b><span class="spacer" style="flex:1"></span><span style="color:var(--muted-foreground)">corriendo</span></div>
+      <div class="cmd-row"><span style="opacity:.4">▶</span><b>Dev server</b><code>npm run dev</code></div>
+      <div class="cmd-row"><span style="opacity:.4">▶</span><b>Build</b><code>go build ./...</code></div>
+    </div>
+  </div>
+  <div class="modal-foot"><button class="btn-outline">✨ Detectar comandos con IA</button><button class="btn-primary">+ Nuevo comando</button></div>
+</div></div>
+
+<div class="overlay" id="sshOverlay"><div class="modal" style="max-width:460px;">
+  <div class="modal-head">
+    <div class="m-icon" style="background:var(--accent-soft);color:var(--primary);">🖧</div>
+    <div><h4>Conexiones remotas (SSH)</h4><p>Abrí un terminal en una máquina remota sin salir de la sesión.</p></div>
+    <button class="modal-close" data-close="sshOverlay">×</button>
+  </div>
+  <div class="modal-body" style="text-align:center;color:var(--muted-foreground);padding:var(--space-8) var(--space-5);">
+    <div style="font-size:32px;margin-bottom:10px;">🖧</div>
+    Aún no hay conexiones.<br>Añadí una máquina remota para abrir un terminal en ella por SSH.
+  </div>
+  <div class="modal-foot"><button class="btn-primary">+ Añadir una conexión</button></div>
+</div></div>
+
+<div class="overlay" id="quickOverlay"><div class="modal" style="max-width:600px;">
+  <div class="modal-head">
+    <div class="m-icon" style="background:var(--secondary);color:var(--foreground);">📄</div>
+    <div><h4 id="qk-name"></h4><p id="qk-path" style="font-family:var(--font-mono);"></p></div>
+    <button class="modal-close" data-close="quickOverlay" title="Cerrar (Esc)">×</button>
+  </div>
+  <div class="modal-body" style="font-family:var(--font-mono);font-size:12px;line-height:1.6;padding:0;" id="qk-body"></div>
+</div></div>
+
+<div class="overlay" id="reviewOverlay"><div class="modal">
+  <div class="review-head">
+    <span class="fp" id="rv-path"></span>
+    <span class="pill ok" id="rv-add"></span>
+    <span class="pill crit" id="rv-del"></span>
+    <span class="spacer" style="flex:1"></span>
+    <span class="chip" id="rv-count"></span>
+    <button class="modal-close" data-close="reviewOverlay">×</button>
+  </div>
+  <div id="rv-body"></div>
+</div></div>
+
+<script>
+  /* ── datos de archivos (única fuente para lista, filtros, quick-look y reviewer) ── */
+  const FILES = [
+    { id:'f1', path:'internal/adapters/agent/worktree/manager.go', role:'fs', roleLabel:'Full-Stack', add:9, del:0,
+      unified:['+ package worktree','+','+ func Create(repoRoot, slug string) (Worktree, error) {','+     path := filepath.Join(repoRoot, ".worktrees", slug)','+     branch := "wt/" + slug','+     return run(repoRoot, "worktree", "add", path, "-b", branch)','+ }'],
+      original: null,
+      modified:['package worktree','','func Create(repoRoot, slug string) (Worktree, error) {','    path := filepath.Join(repoRoot, ".worktrees", slug)','    branch := "wt/" + slug','    return run(repoRoot, "worktree", "add", path, "-b", branch)','}'] },
+    { id:'f2', path:'internal/adapters/agent/worktree/manager_test.go', role:'fs', roleLabel:'Full-Stack', add:5, del:0,
+      unified:['+ package worktree_test','+','+ func TestSessionWorktreeIsolated(t *testing.T) {','+     wt := manager.Create(t.TempDir(), "aislar-sesion")','+     assert.NotEqual(t, wt.Path, repoRoot)','+ }'],
+      original: null,
+      modified:['package worktree_test','','func TestSessionWorktreeIsolated(t *testing.T) {','    wt := manager.Create(t.TempDir(), "aislar-sesion")','    assert.NotEqual(t, wt.Path, repoRoot)','}'] },
+    { id:'f3', path:'arch/boundaries/sesion-aislada-por-cwd.md', role:'qa', roleLabel:'QA', add:2, del:1,
+      unified:['  ## Estado','- ⚠ sin validación de rutas protegidas todavía','+ ✅ aislada vía git worktree — ver DH-14','+ (test TestSessionWorktreeIsolated cubre el caso)'],
+      original:['## Estado','⚠ sin validación de rutas protegidas todavía'],
+      modified:['## Estado','✅ aislada vía git worktree — ver DH-14','(test TestSessionWorktreeIsolated cubre el caso)'] },
+  ];
+
+  function fileIcon(){ return '{}'; }
+
+  function renderFileList(filterRole){
+    const wrap = document.getElementById('fileListBody');
+    wrap.innerHTML = '';
+    FILES.filter(f => !filterRole || filterRole==='all' || f.role===filterRole).forEach(f => {
+      const row = document.createElement('div');
+      row.className = 'file-row';
+      row.innerHTML = `
+        <input type="checkbox" checked>
+        <span style="font-size:12px">${fileIcon()}</span>
+        <span class="fpath" data-open="${f.id}" title="${f.path}">${f.path}</span>
+        <button class="more-btn" data-more="${f.id}">⋯</button>
+        <div class="file-menu" id="menu-${f.id}">
+          <button data-act="ver">👁 Ver el contenido del archivo</button>
+          <button data-act="hist">🕘 Ver historial del archivo</button>
+          <button data-act="folder">📁 Abrir carpeta</button>
+        </div>`;
+      wrap.appendChild(row);
+    });
+    wrap.querySelectorAll('.fpath').forEach(el => el.addEventListener('click', () => openQuick(el.dataset.open)));
+    wrap.querySelectorAll('.more-btn').forEach(el => el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.file-menu').forEach(m => { if (m.id !== 'menu-'+el.dataset.more) m.classList.remove('open'); });
+      document.getElementById('menu-'+el.dataset.more).classList.toggle('open');
+    }));
+  }
+  document.addEventListener('click', () => document.querySelectorAll('.file-menu').forEach(m => m.classList.remove('open')));
+
+  function renderChips(){
+    const counts = { all: FILES.length };
+    FILES.forEach(f => counts[f.role] = (counts[f.role]||0)+1);
+    const labels = { all: 'Todos', fs: 'Full-Stack', qa: 'QA' };
+    const wrap = document.getElementById('filterChips');
+    wrap.innerHTML = '';
+    Object.keys(counts).forEach(key => {
+      const b = document.createElement('button');
+      b.className = 'filter-chip' + (key === 'all' ? ' active' : '');
+      b.textContent = `${labels[key]} ${counts[key]}`;
+      b.dataset.role = key;
+      b.addEventListener('click', () => {
+        wrap.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        b.classList.add('active');
+        renderFileList(key);
+      });
+      wrap.appendChild(b);
+    });
+  }
+  renderChips(); renderFileList('all');
+
+  /* ── quick-look (diff unificado) ── */
+  function openQuick(id){
+    const f = FILES.find(x => x.id === id);
+    document.getElementById('qk-name').textContent = f.path.split('/').pop();
+    document.getElementById('qk-path').textContent = f.path;
+    document.getElementById('qk-body').innerHTML = f.unified.map(l => {
+      const cls = l.startsWith('+') ? 'add' : l.startsWith('-') ? 'del' : '';
+      return `<div class="dline ${cls}"><span class="code" style="padding-left:12px">${l.replace(/</g,'&lt;')}</span></div>`;
+    }).join('');
+    document.getElementById('quickOverlay').classList.add('open');
+  }
+
+  /* ── reviewer (side-by-side, Revisar cambios) ── */
+  const reviewState = { i: 0, reviewed: new Set(), done: false };
+  function paneLines(lines, mode){
+    if (!lines) return '<div class="dline empty"><span class="ln"></span><span class="code">— archivo nuevo —</span></div>';
+    return lines.map((l,i) => {
+      let cls = '';
+      if (mode==='mod' && l.length===0) cls='';
+      return `<div class="dline"><span class="ln">${i+1}</span><span class="code">${l.replace(/</g,'&lt;')}</span></div>`;
+    }).join('');
+  }
+  function renderReview(){
+    const body = document.getElementById('rv-body');
+    if (reviewState.done){
+      document.getElementById('rv-path').textContent = '';
+      document.getElementById('rv-add').textContent = '';
+      document.getElementById('rv-del').textContent = '';
+      document.getElementById('rv-count').textContent = `${FILES.length}/${FILES.length} revisados`;
+      body.innerHTML = `<div class="review-done">
+        <div style="color:var(--primary);font-weight:700;font-size:var(--text-lg)">Listo para hacer commit</div>
+        <div class="glow-avatar">FS</div>
+        <div style="font-weight:600">Revisión completa</div>
+        <div style="color:var(--muted-foreground);font-size:var(--text-sm);max-width:40ch;">Todos los archivos fueron revisados. Escribí abajo un mensaje de commit para finalizar.</div>
+        <div style="display:flex;gap:8px;width:100%;max-width:420px;margin-top:8px;">
+          <input id="rv-msg-done" placeholder="Mensaje de commit…" style="flex:1;border:1px solid var(--input);border-radius:var(--radius-md);padding:8px;background:var(--card);color:var(--foreground);">
+          <button class="btn-primary" data-close="reviewOverlay">Confirmar cambios</button>
+        </div>
+      </div>`;
+      return;
+    }
+    const f = FILES[reviewState.i];
+    document.getElementById('rv-path').textContent = f.path;
+    document.getElementById('rv-add').textContent = '+' + f.add;
+    document.getElementById('rv-del').textContent = '-' + f.del;
+    document.getElementById('rv-count').textContent = `${reviewState.i+1} / ${FILES.length}`;
+    body.innerHTML = `
+      <div class="review-body-wrap">
+        <div class="review-sidebar">
+          <div class="sb-title">Archivos (${reviewState.reviewed.size}/${FILES.length} revisados)</div>
+          ${FILES.map((ff,idx) => `<div class="sb-file ${idx===reviewState.i?'current':''}" data-idx="${idx}">${reviewState.reviewed.has(ff.id)?'✓ ':''}${ff.path.split('/').pop()}</div>`).join('')}
+        </div>
+        <div class="review-panes">
+          <div class="review-pane original"><div class="pane-head">Original ${f.original? '-'+f.del : ''}</div><div class="pane-scroll">${paneLines(f.original)}</div></div>
+          <div class="review-pane modified"><div class="pane-head">Modificado +${f.add}</div><div class="pane-scroll">${paneLines(f.modified,'mod')}</div></div>
+        </div>
+      </div>
+      <div class="review-foot">
+        <button class="btn-outline" id="rv-prev" ${reviewState.i===0?'disabled':''}>← Anterior</button>
+        <input id="rv-msg" placeholder="Mensaje de commit…">
+        <button class="btn-outline" id="rv-ai">✨ Generar con IA</button>
+        <button class="btn-primary" id="rv-next">${reviewState.i===FILES.length-1?'Finalizar':'Siguiente →'}</button>
+      </div>`;
+    body.querySelectorAll('.sb-file').forEach(el => el.addEventListener('click', () => { reviewState.i = +el.dataset.idx; renderReview(); }));
+    document.getElementById('rv-prev').addEventListener('click', () => { reviewState.i = Math.max(0, reviewState.i-1); renderReview(); });
+    document.getElementById('rv-next').addEventListener('click', () => {
+      reviewState.reviewed.add(f.id);
+      if (reviewState.i === FILES.length-1){ reviewState.done = true; renderReview(); }
+      else { reviewState.i++; renderReview(); }
+    });
+    document.getElementById('rv-ai').addEventListener('click', () => { document.getElementById('rv-msg').value = 'feat(sesiones): aislar sesión en workspace propio (DH-14)'; });
+  }
+  document.getElementById('openReview').addEventListener('click', () => {
+    reviewState.i = 0; reviewState.reviewed.clear(); reviewState.done = false;
+    renderReview();
+    document.getElementById('reviewOverlay').classList.add('open');
+  });
+
+  /* ── modales de composer (contenido dinámico) ── */
+  const MODALS = {
+    captura: { icon:'📷', bg:'var(--secondary)', color:'var(--foreground)', title:'Captura de pantalla',
+      sub:'Capturá cualquier área de cualquier pantalla y colocala directo en el mensaje de este rol. Sin herramientas de terceros.',
+      body:'<div style="text-align:center;"><span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">2</span><p style="color:var(--muted-foreground);margin-top:12px;">Atajo global — funciona desde cualquier ventana.</p></div>',
+      foot:'<button class="btn-outline" data-close="dynOverlay">Ajustes</button><button class="btn-primary">Capturar ahora</button>' },
+    htmlimport: { icon:'</>', bg:'var(--secondary)', color:'var(--foreground)', title:'Importar página web',
+      sub:'Capturá cualquier página como HTML y dejala en el composer del rol activo, con la extensión de navegador.',
+      body:'<p style="color:var(--muted-foreground)">Abrí la extensión sobre cualquier página y enviala acá directo. (Alcance F2+ — depende de una extensión propia, ver spec §10.1).</p>',
+      foot:'<button class="btn-primary">Obtener la extensión ↗</button>' },
+    movil: { icon:'📱', bg:'var(--secondary)', color:'var(--foreground)', title:'Enviar desde el móvil',
+      sub:'Enviá archivos y capturas desde tu teléfono directo al composer del rol activo.',
+      body:'<div class="qr-mock" id="qrMock"></div><p style="text-align:center;color:var(--muted-foreground);">Escaneá con la app móvil de Dev Studio (roadmap FN).</p>',
+      foot:'' },
+    prompts: { icon:'📚', bg:'var(--secondary)', color:'var(--foreground)', title:'Biblioteca de prompts', sub:'Fragmentos reutilizables para tus roles — biblioteca por proyecto o global.',
+      body:'<div class="prompt-lib-body"><div class="prompt-lib-sidebar"><div class="folder"><span class="chip">Traducir</span></div><div style="margin-top:8px;color:var(--muted-foreground)">Todos los prompts · 0</div><button class="custom-role-btn" style="margin-top:8px">+ Nueva carpeta</button></div><div class="prompt-lib-main"><div style="font-size:28px">📚</div>Guardá acá tus mejores prompts.<button class="btn-primary">+ Crear el primer prompt</button></div></div>',
+      foot:'' },
+    voz: { icon:'✦', bg:'var(--secondary)', color:'var(--foreground)', title:'Conversación por voz', sub:'Conversación bidireccional hablada con el rol — todavía no incluida en F1/F2 (requiere backend propio).',
+      body:'<p style="color:var(--muted-foreground)">Se deja el botón visible a propósito (no se oculta) — mismo patrón que agentsroom: mensaje claro de "todavía no", no una feature a medias.</p>', foot:'<button class="btn-primary" data-close="dynOverlay">Entendido</button>' },
+    dictar: { icon:'🎙', bg:'var(--secondary)', color:'var(--foreground)', title:'Dictar mensaje', sub:'Grabá tu voz y se transcribe directo en el borrador del mensaje — todavía no incluido en F1/F2.',
+      body:'<p style="color:var(--muted-foreground)">Distinto de "Conversación por voz": esto es solo transcripción, unidireccional.</p>', foot:'<button class="btn-primary" data-close="dynOverlay">Entendido</button>' },
+  };
+  document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.modal;
+      if (key === 'comandos'){ document.getElementById('commandsOverlay').classList.add('open'); return; }
+      if (key === 'ssh'){ document.getElementById('sshOverlay').classList.add('open'); return; }
+      if (key === 'boceto'){ document.getElementById('sketchOverlay').classList.add('open'); return; }
+      const m = MODALS[key];
+      if (!m) return;
+      document.getElementById('dm-icon').style.background = m.bg;
+      document.getElementById('dm-icon').style.color = m.color;
+      document.getElementById('dm-icon').textContent = m.icon;
+      document.getElementById('dm-title').textContent = m.title;
+      document.getElementById('dm-sub').textContent = m.sub;
+      document.getElementById('dm-body').innerHTML = m.body;
+      document.getElementById('dm-foot').innerHTML = m.foot;
+      document.getElementById('dynOverlay').classList.add('open');
+      if (key === 'movil'){
+        const qr = document.getElementById('qrMock');
+        let html = '';
+        for (let i=0;i<64;i++){ html += `<div class="${Math.random()>0.45?'':'off'}"></div>`; }
+        qr.innerHTML = html;
+      }
+      document.querySelectorAll('[data-close="dynOverlay"]').forEach(b => b.onclick = () => document.getElementById('dynOverlay').classList.remove('open'));
+    });
+  });
+
+  /* ── nav del estudio (Studio / Backlog / Product / Roles / Configuración) ── */
+  const PANEL_IDS = ['backlogOverlay', 'settingsOverlay', 'productOverlay', 'rolesOverlay'];
+  function setNav(key){
+    document.querySelectorAll('.studio-nav-item').forEach(b => b.classList.toggle('active', b.dataset.nav === key));
+  }
+  function closeAllPanels(){
+    PANEL_IDS.forEach(id => document.getElementById(id).classList.remove('open', 'picking'));
+  }
+
+  /* ── cerrar overlays (incluye los panel-overlay de Backlog / Product / Roles / Configuración) ── */
+  document.querySelectorAll('.overlay').forEach(ov => {
+    ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('open'); });
+  });
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.close;
+      document.getElementById(id).classList.remove('open');
+      if (PANEL_IDS.includes(id)) setNav('studio');
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const hadPanelOpen = PANEL_IDS.some(id => document.getElementById(id).classList.contains('open'));
+    document.querySelectorAll('.overlay.open, .panel-overlay.open').forEach(o => o.classList.remove('open'));
+    if (hadPanelOpen) setNav('studio');
+  });
+
+  /* ── boceto: canvas de dibujo real ── */
+  (function(){
+    const canvas = document.getElementById('sketchCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false, color = '#ffffff';
+    ctx.lineWidth = 3; ctx.lineCap = 'round';
+    function pos(e){ const r = canvas.getBoundingClientRect(); const sx = canvas.width/r.width, sy = canvas.height/r.height;
+      const cx = (e.touches? e.touches[0].clientX : e.clientX) - r.left; const cy = (e.touches? e.touches[0].clientY : e.clientY) - r.top;
+      return { x: cx*sx, y: cy*sy }; }
+    function start(e){ drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+    function move(e){ if (!drawing) return; const p = pos(e); ctx.strokeStyle = color; ctx.lineTo(p.x,p.y); ctx.stroke(); }
+    function end(){ drawing = false; }
+    canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+    document.querySelectorAll('#sketchOverlay .swatch').forEach(s => s.addEventListener('click', () => {
+      document.querySelectorAll('#sketchOverlay .swatch').forEach(x => x.classList.remove('selected'));
+      s.classList.add('selected'); color = s.dataset.color;
+    }));
+    document.getElementById('sketchClear').addEventListener('click', () => ctx.clearRect(0,0,canvas.width,canvas.height));
+  })();
+
+  /* ── navegación (cosmética, no cambia el contenido del dev studio de ejemplo) ──
+     Modelo: 1 workspace (git worktree) = 1 sesión (aislamiento por workspace, DH-14). Por eso
+     el árbol de workspaces de la izquierda y el rail de sesiones son el MISMO conjunto visto de
+     dos formas (por disco / por atención): seleccionar en uno resalta su par en el otro. */
+  document.querySelectorAll('.repo-header[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const block = btn.closest('.repo-block');
+      const expanded = block.getAttribute('data-expanded') === 'true';
+      block.setAttribute('data-expanded', expanded ? 'false' : 'true');
+    });
+  });
+
+  /* ── dropdown ⋯ de "Nuevo Workspace" ── */
+  function closeAllRRMenus(except){
+    document.querySelectorAll('.rr-dropdown').forEach(m => { if (m !== except) m.hidden = true; });
+  }
+  document.querySelectorAll('.rr-dots[data-menu-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById(btn.dataset.menuToggle);
+      const willOpen = menu.hidden;
+      closeAllRRMenus();
+      menu.hidden = !willOpen;
+    });
+  });
+
+  /* ── "+ Agregar repositorio" — reveal inline (cosmético, ver legend del mockup fuente) ── */
+  (function(){
+    const addBtn = document.getElementById('addRepoBtn');
+    const addInline = document.getElementById('addRepoInline');
+    const addInput = document.getElementById('addRepoInput');
+    addBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = addInline.classList.toggle('open');
+      addBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      addBtn.classList.toggle('rr-active', open);
+      if (open) addInput.focus();
+    });
+    document.getElementById('addRepoConfirm').addEventListener('click', () => {
+      if (addInput.value.trim()) addInput.value = '';
+      addInline.classList.remove('open');
+      addBtn.setAttribute('aria-expanded', 'false');
+      addBtn.classList.remove('rr-active');
+    });
+    document.addEventListener('click', () => closeAllRRMenus());
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape'){
+        closeAllRRMenus();
+        addInline.classList.remove('open');
+        addBtn.setAttribute('aria-expanded', 'false');
+        addBtn.classList.remove('rr-active');
+      }
+    });
+  })();
+
+  function syncSelection(key){
+    if (!key) return;
+    document.querySelectorAll('.repos-rail .workspace-item').forEach(w => { if (w.dataset.session) w.classList.toggle('active', w.dataset.session === key); });
+  }
+  function wireWorkspaceItems(){
+    document.querySelectorAll('.workspace-item').forEach(btn => {
+      btn.onclick = () => {
+        if (btn.dataset.session){ syncSelection(btn.dataset.session); }
+        else { document.querySelectorAll('.workspace-item').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+      };
+    });
+  }
+  wireWorkspaceItems();
+
+  document.querySelectorAll('.side-tabs').forEach(group => {
+    group.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.side-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('side-' + btn.dataset.side).classList.add('active');
+      });
+    });
+  });
+  document.querySelectorAll('.cambios-subtabs').forEach(group => {
+    group.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.cambios-pane').forEach(c => c.classList.remove('active'));
+        document.getElementById('pane-' + btn.dataset.pane).classList.add('active');
+      });
+    });
+  });
+  document.querySelectorAll('.roster-item').forEach(item => {
+    item.addEventListener('click', () => { document.querySelectorAll('.roster-item').forEach(i => i.classList.remove('active')); item.classList.add('active'); });
+  });
+
+  /* ── Backlog / Configuración: regla — toda sesión nueva liga si o sí a un paquete del backlog ── */
+  let pickerMode = false;
+  let pendingPackage = null;
+
+  function openBacklog(picker){
+    pickerMode = !!picker;
+    document.getElementById('backlogPickerBanner').classList.toggle('show', pickerMode);
+    document.getElementById('backlogOverlay').classList.toggle('picking', pickerMode);
+    document.getElementById('backlogOverlay').classList.add('open');
+  }
+  function openSettings(){
+    const badge = document.getElementById('pendingPkgBadge');
+    const hint = document.getElementById('pkgHint');
+    if (pendingPackage){ badge.textContent = '📋 Nueva sesión para: ' + pendingPackage; badge.style.display = 'inline-flex'; hint.style.display = 'none'; }
+    else { badge.style.display = 'none'; hint.style.display = 'block'; }
+    document.getElementById('settingsOverlay').classList.add('open');
+  }
+  document.querySelectorAll('.studio-nav-item[data-nav]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.nav;
+      setNav(key);
+      closeAllPanels();
+      if (key === 'backlog') openBacklog(false);
+      else if (key === 'config') openSettings();
+      else if (key === 'product') document.getElementById('productOverlay').classList.add('open');
+      else if (key === 'roles') document.getElementById('rolesOverlay').classList.add('open');
+    });
+  });
+  /* "+ Nuevo Workspace" por repo también liga a la regla: toda sesión nace de un paquete del Backlog */
+  document.querySelectorAll('.rr-new-ws').forEach(btn => {
+    btn.addEventListener('click', () => { setNav('backlog'); openBacklog(true); });
+  });
+
+  document.querySelectorAll('#backlogOverlay .story-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (!pickerMode) return;
+      pendingPackage = card.querySelector('.title').textContent;
+      document.getElementById('backlogOverlay').classList.remove('open', 'picking');
+      pickerMode = false;
+      openSettings();
+    });
+  });
+
+  function slugify(s){
+    return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/\(.*?\)/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 26) || 'sesion';
+  }
+  document.querySelector('.create-btn').addEventListener('click', () => {
+    /* Regla de negocio: no hay sesión sin paquete. Sin paquete, mandamos al Backlog a elegir uno. */
+    if (!pendingPackage){
+      document.getElementById('settingsOverlay').classList.remove('open');
+      openBacklog(true);
+      return;
+    }
+    const key = 's' + Date.now();
+    const slug = slugify(pendingPackage);
+    /* su workspace aislado (1:1): nuevo item en el árbol de la izquierda */
+    const ws = document.createElement('button');
+    ws.className = 'workspace-item';
+    ws.dataset.session = key;
+    ws.innerHTML = `<div class="rr-ws-top"><span class="rr-ws-icon">⎇</span><span class="rr-ws-name">${slug}</span></div><div class="rr-ws-bottom"><span class="rr-ws-branch">wt/${slug}</span><span class="rr-ws-sep">·</span><span class="rr-status-dot idle"></span><span class="rr-status-label">Sin cambios</span></div>`;
+    document.getElementById('workspaceListDevStudio').appendChild(ws);
+    const countEl = document.querySelector('[data-repo="dev-studio"] .rr-count');
+    if (countEl) countEl.textContent = (parseInt(countEl.textContent, 10) || 0) + 1;
+    wireWorkspaceItems();
+    syncSelection(key);
+    pendingPackage = null;
+    document.getElementById('settingsOverlay').classList.remove('open');
+    setNav('studio');
+  });
+</script>
