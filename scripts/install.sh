@@ -54,8 +54,11 @@ if ! curl -sf --max-time 1 "$URL/api/version" > /dev/null 2>&1; then
   done
 fi
 if command -v google-chrome > /dev/null 2>&1; then
-  # ventana propia, sin diálogos de primera vez del perfil dedicado
+  # ventana propia, sin diálogos de primera vez del perfil dedicado.
+  # --class (X11) + --wayland-app-id (Wayland): WM_CLASS/app-id = dev-studio → la barra de
+  # tareas agrupa la ventana bajo NUESTRO .desktop (StartupWMClass), no bajo Google Chrome.
   exec google-chrome --app="$URL" --user-data-dir="$HOME/.dev-studio/chrome-profile" \
+    --class=dev-studio --wayland-app-id=dev-studio \
     --no-first-run --no-default-browser-check --disable-features=DefaultBrowserPrompt
 fi
 exec xdg-open "$URL"
@@ -73,6 +76,7 @@ Exec=$BIN_DIR/dev-studio-open
 Icon=dev-studio
 Terminal=false
 Categories=Development;
+StartupWMClass=dev-studio
 DESKTOP
   command -v update-desktop-database > /dev/null 2>&1 && update-desktop-database "$DESKTOP_DIR" || true
 fi
