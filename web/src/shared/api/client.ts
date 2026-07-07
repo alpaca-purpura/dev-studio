@@ -11,8 +11,15 @@ const post = (url: string, body: unknown) =>
 export const api = {
   list: (): Promise<Session[]> => fetch("/api/sessions").then((r) => json<Session[]>(r)),
 
-  create: (p: { nombre: string; repo_id?: string; historia?: Historia; rol?: string; cwd?: string }): Promise<Session> =>
-    post("/api/sessions", p).then((r) => json<Session>(r)),
+  create: (p: {
+    nombre: string;
+    repo_id?: string;
+    historia?: Historia;
+    rol?: string;
+    cwd?: string;
+    modo?: "trabajo" | "exploracion";
+    ubicacion?: "worktree" | "checkout";
+  }): Promise<Session> => post("/api/sessions", p).then((r) => json<Session>(r)),
 
   rename: (id: string, nombre: string): Promise<Session> =>
     fetch(`/api/sessions/${id}`, {

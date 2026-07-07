@@ -311,3 +311,7 @@ Verificación en la app viva (browser real), no «GET 200»:
 - v1 VERIFICADA 2026-07-07 — AC-1..AC-10 tildadas: 24/24 checks en vivo (puppeteer + Chrome
   contra la app real; commit por pathspec probado con `git show`; concurrencia sin cruce;
   migración F1 real) + suite Go/fitness/build-storybook verdes. Evidencia: ficha DH-15.
+- EVOLUCIÓN 2026-07-07 (PB-27, DH-17): §4.1 — «+ Nuevo Workspace» ya no salta directo al
+  picker: abre el wizard ubicación→propósito (`specs/nuevo-workspace/SPEC.md`). RN-1
+  evolucionada: «toda sesión CON EDICIÓN liga a un paquete»; exploración read-only no lo
+  necesita.

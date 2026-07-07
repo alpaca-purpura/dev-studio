@@ -37,6 +37,8 @@
 | PB-26 | **Instalable dogfooding + updater rebuild-local** — install.sh + .desktop + icono + versión embebida + «Actualizar» (rebuild + restart + reload). La app se actualizó a sí misma en el gate | **CAP-11** | `specs/workspace-aislado/SPEC.md` §3 | **entregada 2026-07-07** · DH-16 |
 | PB-03 | **Sistema de diseño propio: Storybook + atomic design** | CAP-06 | premisa operador 2026-07-07 | **entregada 2026-07-07 vía PB-04** (fusionada): Storybook + átomos PRENTER — RN-9 · DH-15 |
 
+| PB-27 | **Flujo «Nuevo Workspace» v2** — wizard ubicación→propósito: exploración read-only (`--permission-mode plan`) · trabajo SIEMPRE en worktree ligado a ítem · taxonomía estándar 5 tipos con branch por prefijo (murió `wt/`) · crear ítem desde el wizard. RN-1 evolucionada | CAP-09 + **CAP-12** | `specs/nuevo-workspace/SPEC.md` (CONGELADA, 10/10) | **entregada 2026-07-07** · DH-17 |
+
 ## 🟡 Próximo — shell + port por rebanadas (orden de herencia §3 de la spec clon)
 
 | ID | Ítem | Incrementa | Fuente (detalle) | Estado |

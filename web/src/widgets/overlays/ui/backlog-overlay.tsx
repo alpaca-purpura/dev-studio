@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { MOCK_BACKLOG, type MockStory } from "../../../shared/mock/backlog";
+import { TIPO_META } from "../../../shared/lib/tipos";
 import { useUi } from "../../../shared/store/ui-store";
 import { Chip, HonestBanner, PanelOverlay, StatePill, ReleaseChip, storyStateLabel, type StoryState } from "../../../shared/ui";
 import { cn } from "../../../shared/lib/cn";
@@ -31,6 +32,12 @@ function StoryCard({ story, picking, onPick }: { story: MockStory; picking: bool
           {story.rol ?? "— sin asignar"}
         </span>
         <span className="flex-1" />
+        <span
+          className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground"
+          title={`${TIPO_META[story.tipoItem].label} · branch ${TIPO_META[story.tipoItem].branch}`}
+        >
+          {TIPO_META[story.tipoItem].icon} {TIPO_META[story.tipoItem].label}
+        </span>
         <ReleaseChip release={story.release} />
       </div>
       <div className="mt-1.5 text-xs font-semibold leading-snug">{story.titulo}</div>
@@ -124,7 +131,7 @@ export function BacklogOverlay() {
                       key={s.id}
                       story={s}
                       picking={pickerMode}
-                      onPick={() => pickerMode && pickHistoria({ id: s.id, titulo: s.titulo })}
+                      onPick={() => pickerMode && pickHistoria({ id: s.id, titulo: s.titulo, tipo: s.tipoItem })}
                     />
                   ))}
                   {stories.length === 0 && (

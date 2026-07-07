@@ -73,7 +73,16 @@ toda puerta + cierre con modal conservar/borrar (jamás `--force`) → **boundar
 **Dogfooding:** la app se instala (`scripts/install.sh` → `~/.local/bin/dev-studio` +
 lanzador `.desktop` + icono PRENTER) y se ACTUALIZA desde su footer («Actualizar» = rebuild
 del repo local + restart; en el gate se actualizó a sí misma). Las rebanadas se prueban desde
-la app instalada. CAP-10/11 nuevas. **Siguiente:** banda 🟡 — PB-05 restos → PB-25 (registry)
-→ PB-06 (Roles).
+la app instalada. CAP-10/11 nuevas.
+
+**Estado (DH-17, 2026-07-07):** primer loop de dogfooding cerrado — feedback de Chris → 3
+fixes (bienvenida Chrome · colapso universal del rail · claude mudo por PATH del .desktop) +
+**PB-27**: wizard «Nuevo Workspace» (ubicación→propósito), taxonomía estándar de ítems
+(`historia·bug·hotfix·tarea·spike` → branch `feature/ bugfix/ hotfix/ chore/ spike/`, murió
+`wt/`), **sesiones de exploración read-only** (`--permission-mode plan`, edición bloqueada
+verificada en vivo), crear ítem desde el wizard. RN-1 evolucionada: «toda sesión CON EDICIÓN
+liga a un paquete». Spec: `specs/nuevo-workspace/SPEC.md` · CAP-12 nueva. **Siguiente:** banda
+🟡 — PB-05 restos → PB-25 (registry) → PB-06 (Roles); PB-07 hereda los ítems creados en
+sesiones.
 
 **Git:** trunk-based — `main` única, commit/push directo, tags semver cuando haya releases.

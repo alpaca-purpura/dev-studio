@@ -5,6 +5,7 @@ import { SessionView } from "./widgets/session-view";
 import { ChangesPanel } from "./widgets/changes-panel";
 import { BacklogOverlay, ConfigOverlay, ProductoOverlay, RolesOverlay } from "./widgets/overlays";
 import { CloseSessionModal } from "./widgets/session-close/ui/close-session-modal";
+import { NewWorkspaceWizard } from "./widgets/new-workspace/ui/new-workspace-wizard";
 import { useSessions } from "./shared/store/sessions-store";
 import { useRepos } from "./shared/store/repos-store";
 import { useUi } from "./shared/store/ui-store";
@@ -42,6 +43,7 @@ export function App() {
         <ProductoOverlay />
         <RolesOverlay />
         <CloseSessionModal />
+        <NewWorkspaceWizard />
       </div>
     </div>
   );

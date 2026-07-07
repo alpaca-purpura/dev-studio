@@ -50,6 +50,8 @@ export function ConfigOverlay() {
         repo_id: repoDestino.id,
         historia: pendingHistoria,
         rol: rol.nombre,
+        modo: "trabajo",
+        ubicacion: "worktree",
       });
       clearPending();
       resetToStudio();

@@ -150,3 +150,6 @@ instalable COMERCIAL: cross-compile + firma + ⚠ Consumer Terms — esto es la 
 - v1 2026-07-07 — borrador post-forks (ubicación WT / cierre pregunta / updater rebuild).
 - v1 CONGELADA + VERIFICADA 2026-07-07 — AC-1..AC-7 tildadas: 14/14 checks en vivo contra el
   binario INSTALADO (incl. self-update con fix vivo post-restart). Evidencia: ficha DH-16.
+- EVOLUCIÓN 2026-07-07 (PB-27, DH-17): §2.1 — la branch del worktree ya no es `wt/{slug}`:
+  lleva el prefijo estándar de su tipo (`feature/ bugfix/ hotfix/ chore/ spike/ explore/`,
+  `specs/nuevo-workspace/SPEC.md` §1). `CreateWorktree` recibe la branch completa.

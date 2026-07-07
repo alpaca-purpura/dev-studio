@@ -25,11 +25,13 @@ func listSessions(svc *usecase.SessionService) http.HandlerFunc {
 }
 
 type createSessionReq struct {
-	Nombre   string           `json:"nombre"`
-	Cwd      string           `json:"cwd"`
-	RepoID   string           `json:"repo_id"`
-	Historia *domain.Historia `json:"historia"`
-	Rol      string           `json:"rol"`
+	Nombre    string           `json:"nombre"`
+	Cwd       string           `json:"cwd"`
+	RepoID    string           `json:"repo_id"`
+	Historia  *domain.Historia `json:"historia"`
+	Rol       string           `json:"rol"`
+	Modo      string           `json:"modo"`      // trabajo (default) | exploracion (PB-27)
+	Ubicacion string           `json:"ubicacion"` // worktree (default) | checkout (solo exploración)
 }
 
 // slugify normaliza el nombre a slug de branch/carpeta (misma regla que la SPA).
@@ -70,17 +72,51 @@ func createSession(svc *usecase.SessionService, repos *usecase.RepoService, git 
 			nombre = "Nueva sesión"
 		}
 
-		p := usecase.NewSession{Nombre: nombre, RepoID: req.RepoID, Historia: req.Historia, Rol: req.Rol}
-		if req.RepoID != "" {
-			// PB-02: toda sesión de repo nace en su PROPIO workspace (worktree + wt/{slug})
+		modo := req.Modo
+		if modo == "" {
+			modo = "trabajo"
+		}
+		ubicacion := req.Ubicacion
+		if ubicacion == "" {
+			ubicacion = "worktree"
+		}
+		// Guards del wizard (spec nuevo-workspace §3) — el backend enforcea, no solo la UI:
+		if modo == "trabajo" && ubicacion == "checkout" {
+			http.Error(w, "trabajo con edición siempre en workspace aislado — el checkout actual es solo para explorar (RN-1)", http.StatusUnprocessableEntity)
+			return
+		}
+		if modo == "trabajo" && req.RepoID != "" && req.Historia == nil {
+			http.Error(w, "una sesión de trabajo liga a un paquete de trabajo (RN-1) — elegí o creá un ítem", http.StatusUnprocessableEntity)
+			return
+		}
+
+		p := usecase.NewSession{Nombre: nombre, RepoID: req.RepoID, Historia: req.Historia, Rol: req.Rol, Modo: modo}
+		if req.RepoID != "" && ubicacion == "checkout" {
+			// exploración sobre el checkout actual: raíz del repo, read-only, sin worktree —
+			// excepción acotada del boundary sesion-aislada-por-cwd (no muta nada)
+			repo, ok := repos.Get(req.RepoID)
+			if !ok {
+				http.Error(w, "repo not found", http.StatusUnprocessableEntity)
+				return
+			}
+			p.Cwd = repo.Ruta
+		} else if req.RepoID != "" {
+			// worktree propio; branch con el prefijo estándar de su tipo (PB-27)
 			repo, ok := repos.Get(req.RepoID)
 			if !ok {
 				http.Error(w, "repo not found", http.StatusUnprocessableEntity)
 				return
 			}
 			slug := slugify(nombre)
+			prefix := "explore"
+			if modo == "trabajo" {
+				prefix = "feature"
+				if req.Historia != nil {
+					prefix = req.Historia.Tipo.BranchPrefix()
+				}
+			}
 			destino := filepath.Join(workspacesDir, repo.Nombre, slug)
-			path, branch, err := git.CreateWorktree(r.Context(), repo.Ruta, destino, slug)
+			path, branch, err := git.CreateWorktree(r.Context(), repo.Ruta, destino, prefix+"/"+slug)
 			if err != nil {
 				http.Error(w, "workspace: "+err.Error(), http.StatusUnprocessableEntity)
 				return

@@ -238,7 +238,46 @@ desde la app instalada («Actualizar» tras cada entrega). Banda 🟡: PB-05 res
 (check TBD). La brecha de seguridad fundacional quedó CERRADA — la app ya puede verla gente
 fuera del equipo (con criterio).
 
-<!-- Próximas: DH-17, DH-18, … -->
+### DH-17 · Primer feedback de dogfooding: 3 fixes + flujo «Nuevo Workspace» v2 con taxonomía estándar — `decidida` · `vig:vigente`
+
+*Cruda (operador, 2026-07-07, tras probar la app instalada):* "1. Cuando ingreso por primera
+vez me sale este mensaje [bienvenida de Chrome]… 2. el colapsamiento de repositorios… no está
+funcionando… Cuando hago click en Nuevo Workspace me lleva a backlog, no debería hacer nada.
+3. cuando escribo algo en studio y mando para que me responda claude code no me responde." Y
+al proponer el flujo: "al momento de crear nuevo workspace, primero debo preguntar si es un
+nuevo worktree o el worktree actual, luego el usuario debe poder: navegar y comprender (podrá
+usar claude code pero no tendrá permisos de edición), luego podrá trabajar sobre una historia
+de usuario, bugfix, etc existente (ayudame investigando el estándar en la industria que todo
+developer maneje) o crear uno."
+
+*Desarrollo:* **Hotfix DH-16.1** (commit propio): (1) lanzador con `--no-first-run
+--no-default-browser-check` + PATH completo; (2) colapso universal del rail (incl. «(sin
+repositorio)») + reveal al activar sesión oculta; (3) claude mudo = el .desktop hereda PATH
+sin `~/.local/bin` → resolución del binario con fallbacks + la UI muestra el error real del
+turno (antes quedaba «streaming» muda) — verificado con turno `FALLBACK-OK` bajo PATH pelado.
+**PB-27** (spec `specs/nuevo-workspace/SPEC.md`, 3 forks ratificados): taxonomía estándar de
+paquetes de trabajo = convergencia Jira/Scrum issue-types + Gitflow branch-naming +
+Conventional Commits → 5 tipos (`historia·bug·hotfix·tarea·spike`) con branch por prefijo
+(`feature/ bugfix/ hotfix/ chore/ spike/` — muere `wt/`); wizard 2 pasos (¿dónde? worktree
+nuevo vs checkout actual → ¿para qué? explorar / ítem existente / ítem nuevo) con guard
+«checkout = solo explorar» enforced en backend (422); **sesiones de EXPLORACIÓN read-only**
+vía `--permission-mode plan` (mecanismo nativo de la CLI) — RN-1 evolucionada: «toda sesión
+CON EDICIÓN liga a un paquete»; crear ítem desde el wizard (tipo+título, persiste con la
+sesión hasta PB-07). **Verificación: 10/10 checks** contra el binario instalado — la joya:
+pedido de edición en exploración BLOQUEADO por plan mode («no puedo crear archivos», archivo
+inexistente) con el flag visto en el proceso real; branches `spike/…` y `bugfix/…` confirmadas
+en `git worktree list`; guards API 422×2.
+
+*Conecta:* DH-16 (la entrega que este feedback ejercitó — el loop dogfooding FUNCIONA: instalar
+→ probar → feedback → fix → Actualizar) · DH-14 (RN-1 evoluciona sin perder el espíritu) ·
+specs shell §4.1 y workspace-aislado §2.1 (changelogs anotados) · PB-27 · PB-07 (los ítems
+creados migran al board real).
+
+*Siguiente:* Chris aprieta «Actualizar» y prueba el wizard. Banda 🟡: PB-05 restos → PB-25
+(registry) → PB-06 (Roles). Nota: los ítems tipo `historia` deberán exigir capability cuando
+exista el board real (PB-07) — la regla de la casa no se negocia, hoy no hay dónde elegirla.
+
+<!-- Próximas: DH-18, DH-19, … -->
 
 ## Log
 
@@ -250,3 +289,4 @@ fuera del equipo (con criterio).
 | 2026-07-07 | Shell primero: mockup revisado (evolución sobre §0.5: studio-nav 5 ítems, overlays Producto/Roles, workspace=sesión 1:1 — rail F1 muere) + paleta confirmada = design system PRENTER (tokens sincronizados de Claude Design a `specs/shell/tokens/`) + spec v1 del shell escrita (`specs/shell/SPEC.md`, primera spec permanente: alcance ambicioso con panel Cambios git real sin push/pull, roster placeholder del registry, Storybook dentro — PB-03 fusionada en PB-04; PB-02 pasa a construirse DESPUÉS del shell, ya en la app). | DH-15 |
 | 2026-07-07 | Shell PRENTER ENTREGADO (PB-04 ⊕ PB-03 → entregadas): tokens+fuentes vendorizadas, backend git TDD, boundary `git-solo-lectura-y-commit` enforced, Storybook (RN-9), rail Repositorios→Workspaces reemplaza al rail F1, panel Cambios real con commit por pathspec, flujo picker→sesión ligada. 24/24 checks del gate en vivo (turno real, commit selectivo probado con `git show`, concurrencia sin cruce, migración F1 real). CAP-07/08/09 nuevas. Siguiente: PB-02 sobre este shell. | DH-15 |
 | 2026-07-07 | Workspace aislado + instalable ENTREGADOS (PB-02 ⊕ PB-26): toda sesión nace en su worktree `wt/{slug}` en `~/.dev-studio/workspaces/` + rutas protegidas en toda puerta + modal cierre conservar/borrar (sin --force jamás) → **boundary `sesion-aislada-por-cwd` ENFORCED (la brecha fundacional cerrada)**. Instalable dogfooding: install.sh + .desktop + icono + versión embebida + botón «Actualizar» (rebuild local + restart). 14/14 checks en vivo contra el binario instalado — incluida la app actualizándose a sí misma con un fix vivo post-restart. CAP-10/11 nuevas. | DH-16 |
+| 2026-07-07 | Primer feedback de dogfooding: 3 fixes (bienvenida Chrome · colapso universal del rail · claude mudo por PATH del .desktop — resolución con fallbacks + error visible) + **PB-27 «Nuevo Workspace» v2**: taxonomía estándar 5 tipos con branch por prefijo (feature/bugfix/hotfix/chore/spike — muere wt/), wizard ubicación→propósito con guards backend, **exploración read-only** (`--permission-mode plan`, edición BLOQUEADA verificada en vivo), crear ítem desde el wizard. RN-1 evolucionada: «toda sesión con edición liga a un paquete». 10/10 checks. CAP-12 nueva. | DH-17 |

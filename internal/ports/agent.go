@@ -24,8 +24,9 @@ type AgentEvent struct {
 
 // SpawnOpts parametriza el arranque de un agente para una sesión.
 type SpawnOpts struct {
-	Resume string // ClaudeSessionID a resumir, vacío = sesión nueva
-	Cwd    string // working dir aislado de esta sesión
+	Resume   string // ClaudeSessionID a resumir, vacío = sesión nueva
+	Cwd      string // working dir aislado de esta sesión
+	ReadOnly bool   // sesión de exploración (PB-27): el agente no puede editar archivos
 }
 
 // AgentSession es una conversación viva con un agente (un proceso, un canal de eventos).

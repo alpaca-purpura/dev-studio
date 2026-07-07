@@ -81,7 +81,7 @@ export const repoKey = (r: Repo) => r.id || "sin-repo";
 function RepoBlock({ repo, sessions, startIndex }: { repo: Repo; sessions: Session[]; startIndex: number }) {
   const expanded = useRepos((s) => s.expanded[repoKey(repo)] ?? true);
   const toggleExpanded = useRepos((s) => s.toggleExpanded);
-  const startPicker = useUi((s) => s.startPicker);
+  const openWizard = useUi((s) => s.openWizard);
   const [menuOpen, setMenuOpen] = useState(false);
   const isReal = repo.id !== "";
 
@@ -112,7 +112,7 @@ function RepoBlock({ repo, sessions, startIndex }: { repo: Repo; sessions: Sessi
           {isReal && (
             <div className="relative">
               <button
-                onClick={() => startPicker(repo.id)}
+                onClick={() => openWizard(repo.id)}
                 className="flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
               >
                 <span className="text-primary">+</span>

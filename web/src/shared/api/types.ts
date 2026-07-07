@@ -5,9 +5,12 @@ export interface Turn {
   text: string;
 }
 
+import type { TipoItem } from "../lib/tipos";
+
 export interface Historia {
   id: string;
   titulo: string;
+  tipo?: TipoItem; // vacío = historia (legacy)
 }
 
 export interface Session {
@@ -20,8 +23,9 @@ export interface Session {
   repo_id?: string;
   historia?: Historia;
   rol?: string;
-  workspace?: string; // ruta del worktree propio (PB-02); vacío = legacy
-  branch?: string; // wt/{slug}
+  workspace?: string; // ruta del worktree propio (PB-02); vacío = sin aislamiento
+  branch?: string; // {prefijo-tipo}/{slug} (PB-27)
+  modo?: string; // trabajo (default) | exploracion (read-only)
   conv: Turn[];
 }
 

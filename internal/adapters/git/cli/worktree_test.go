@@ -22,15 +22,15 @@ func TestCreateWorktreeAislado(t *testing.T) {
 	}
 
 	destino := filepath.Join(t.TempDir(), "workspaces", "demo", "mi-historia")
-	path, branch, err := g.CreateWorktree(ctx, repo, destino, "mi-historia")
+	path, branch, err := g.CreateWorktree(ctx, repo, destino, "feature/mi-historia")
 	if err != nil {
 		t.Fatalf("create worktree: %v", err)
 	}
 	if path != destino {
 		t.Errorf("path: esperaba %s, obtuve %s", destino, path)
 	}
-	if branch != "wt/mi-historia" {
-		t.Errorf("branch: esperaba wt/mi-historia, obtuve %s", branch)
+	if branch != "feature/mi-historia" {
+		t.Errorf("branch: esperaba feature/mi-historia, obtuve %s", branch)
 	}
 	// el worktree es un checkout real, aislado del repo raíz
 	if _, err := os.Stat(filepath.Join(path, "base.txt")); err != nil {
@@ -40,7 +40,7 @@ func TestCreateWorktreeAislado(t *testing.T) {
 	if err != nil {
 		t.Fatalf("status en worktree: %v", err)
 	}
-	if st.Branch != "wt/mi-historia" {
+	if st.Branch != "feature/mi-historia" {
 		t.Errorf("branch del worktree: %s", st.Branch)
 	}
 	// tocar el worktree NO ensucia el repo raíz
@@ -68,26 +68,26 @@ func TestCreateWorktreeColisionDeBranch(t *testing.T) {
 	}
 
 	base := t.TempDir()
-	_, b1, err := g.CreateWorktree(ctx, repo, filepath.Join(base, "uno"), "misma")
+	_, b1, err := g.CreateWorktree(ctx, repo, filepath.Join(base, "uno"), "bugfix/misma")
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, b2, err := g.CreateWorktree(ctx, repo, filepath.Join(base, "dos"), "misma")
+	_, b2, err := g.CreateWorktree(ctx, repo, filepath.Join(base, "dos"), "bugfix/misma")
 	if err != nil {
 		t.Fatalf("segunda con mismo slug debía resolverse con sufijo: %v", err)
 	}
 	if b1 == b2 {
 		t.Errorf("branches iguales: %s", b1)
 	}
-	if b2 != "wt/misma-2" {
-		t.Errorf("esperaba wt/misma-2, obtuve %s", b2)
+	if b2 != "bugfix/misma-2" {
+		t.Errorf("esperaba bugfix/misma-2, obtuve %s", b2)
 	}
 }
 
 func TestCreateWorktreeSinCommitsFallaHonesto(t *testing.T) {
 	repo := initRepo(t) // sin commits
 	g := cli.New()
-	_, _, err := g.CreateWorktree(context.Background(), repo, filepath.Join(t.TempDir(), "w"), "x")
+	_, _, err := g.CreateWorktree(context.Background(), repo, filepath.Join(t.TempDir(), "w"), "feature/x")
 	if err == nil {
 		t.Fatal("repo sin commits debía fallar con mensaje claro")
 	}
@@ -104,7 +104,7 @@ func TestRemoveWorktree(t *testing.T) {
 	if _, err := g.Commit(ctx, repo, []string{"a.txt"}, "base"); err != nil {
 		t.Fatal(err)
 	}
-	path, _, err := g.CreateWorktree(ctx, repo, filepath.Join(t.TempDir(), "w"), "efimero")
+	path, _, err := g.CreateWorktree(ctx, repo, filepath.Join(t.TempDir(), "w"), "chore/efimero")
 	if err != nil {
 		t.Fatal(err)
 	}

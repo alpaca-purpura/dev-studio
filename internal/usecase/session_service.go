@@ -111,7 +111,8 @@ type NewSession struct {
 	Historia  *domain.Historia
 	Rol       string
 	Workspace string // ruta del worktree propio (PB-02)
-	Branch    string // wt/{slug}
+	Branch    string // branch del workspace ({prefijo-tipo}/{slug}, PB-27)
+	Modo      string // trabajo (default) | exploracion
 }
 
 // Create registra una sesión nueva. Ningún proceso `claude` se lanza todavía —
@@ -126,7 +127,7 @@ func (s *SessionService) CreateSession(p NewSession) (domain.Session, error) {
 	sess := domain.Session{
 		ID: newID(), Nombre: p.Nombre, Cwd: p.Cwd, Status: domain.StatusIdle,
 		RepoID: p.RepoID, Historia: p.Historia, Rol: p.Rol,
-		Workspace: p.Workspace, Branch: p.Branch, Conv: []domain.Turn{},
+		Workspace: p.Workspace, Branch: p.Branch, Modo: p.Modo, Conv: []domain.Turn{},
 	}
 	s.rt[sess.ID] = &sessionRuntime{meta: &sess}
 	s.order = append(s.order, sess.ID)
@@ -202,7 +203,11 @@ func (s *SessionService) Turn(id, text string) error {
 
 // spawnLocked asume s.mu ya tomado.
 func (s *SessionService) spawnLocked(id string, r *sessionRuntime) error {
-	live, err := s.agent.Spawn(s.baseCtx, ports.SpawnOpts{Resume: r.meta.ClaudeSessionID, Cwd: r.meta.Cwd})
+	live, err := s.agent.Spawn(s.baseCtx, ports.SpawnOpts{
+		Resume:   r.meta.ClaudeSessionID,
+		Cwd:      r.meta.Cwd,
+		ReadOnly: r.meta.Modo == "exploracion", // PB-27: exploración = plan mode, sin edición
+	})
 	if err != nil {
 		return fmt.Errorf("session %s: spawn: %w", id, err)
 	}

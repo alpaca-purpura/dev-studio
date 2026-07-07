@@ -13,7 +13,14 @@ interface SessionsState {
   queue: Record<string, string[]>;
 
   init: () => Promise<void>;
-  create: (p: { nombre: string; repo_id?: string; historia?: Historia; rol?: string }) => Promise<Session>;
+  create: (p: {
+    nombre: string;
+    repo_id?: string;
+    historia?: Historia;
+    rol?: string;
+    modo?: "trabajo" | "exploracion";
+    ubicacion?: "worktree" | "checkout";
+  }) => Promise<Session>;
   closeSession: (id: string, workspace?: "keep" | "remove") => Promise<CloseSessionResp>;
   rename: (id: string, nombre: string) => Promise<void>;
   switchTo: (id: string) => void;

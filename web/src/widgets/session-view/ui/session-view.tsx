@@ -101,8 +101,16 @@ export function SessionView() {
           </div>
         </div>
         <span className="flex-1" />
+        {session.modo === "exploracion" && (
+          <Chip
+            className="border-primary/40 bg-accent-soft text-primary"
+            title="Sesión de exploración: Claude Code en modo plan — lee y analiza, sin permisos de edición"
+          >
+            🔍 Exploración · solo lectura
+          </Chip>
+        )}
         {session.branch && <Chip title={`Workspace aislado: ${session.workspace ?? ""}`}>⎇ {session.branch}</Chip>}
-        {session.historia && <Chip title="Historia ligada (RN-1)">📋 {session.historia.titulo}</Chip>}
+        {session.historia && <Chip title="Paquete de trabajo ligado (RN-1)">📋 {session.historia.titulo}</Chip>}
       </div>
 
       {/* conversación */}

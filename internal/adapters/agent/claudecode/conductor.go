@@ -59,7 +59,9 @@ func resolveClaudeBin() string {
 	return "claude" // que el error de spawn lo diga claro — la UI ya lo muestra
 }
 
-func (c *Conductor) Spawn(ctx context.Context, opts ports.SpawnOpts) (ports.AgentSession, error) {
+// buildArgs arma la línea del subproceso — pura, testeable. Exploración (PB-27) usa el
+// mecanismo NATIVO read-only de la CLI: --permission-mode plan (lee/analiza, no edita).
+func buildArgs(opts ports.SpawnOpts) []string {
 	args := []string{
 		"-p",
 		"--input-format", "stream-json",
@@ -67,11 +69,17 @@ func (c *Conductor) Spawn(ctx context.Context, opts ports.SpawnOpts) (ports.Agen
 		"--include-partial-messages",
 		"--verbose",
 	}
+	if opts.ReadOnly {
+		args = append(args, "--permission-mode", "plan")
+	}
 	if opts.Resume != "" {
 		args = append(args, "--resume", opts.Resume)
 	}
+	return args
+}
 
-	cmd := exec.CommandContext(ctx, c.bin, args...)
+func (c *Conductor) Spawn(ctx context.Context, opts ports.SpawnOpts) (ports.AgentSession, error) {
+	cmd := exec.CommandContext(ctx, c.bin, buildArgs(opts)...)
 	cmd.Dir = opts.Cwd
 
 	stdin, err := cmd.StdinPipe()
