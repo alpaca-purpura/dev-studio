@@ -16,13 +16,18 @@ type Turn struct {
 	Text string `json:"text"`
 }
 
-// Session es un frente de trabajo: una conversación viva de Claude Code, N:1 con un directorio.
+// Session es un frente de trabajo: una conversación viva de Claude Code, 1:1 con un
+// workspace (spec shell RN-2). RepoID/Historia/Rol entran con el shell PRENTER (DH-15);
+// una sesión previa al shell puede no tener RepoID (se agrupa bajo «(sin repositorio)»).
 type Session struct {
-	ID              string `json:"id"`
-	Nombre          string `json:"nombre"`
-	Cwd             string `json:"cwd"`
-	Status          Status `json:"status"`
-	ClaudeSessionID string `json:"claude_session_id,omitempty"`
-	Model           string `json:"model,omitempty"`
-	Conv            []Turn `json:"conv"`
+	ID              string    `json:"id"`
+	Nombre          string    `json:"nombre"`
+	Cwd             string    `json:"cwd"`
+	Status          Status    `json:"status"`
+	ClaudeSessionID string    `json:"claude_session_id,omitempty"`
+	Model           string    `json:"model,omitempty"`
+	RepoID          string    `json:"repo_id,omitempty"`
+	Historia        *Historia `json:"historia,omitempty"`
+	Rol             string    `json:"rol,omitempty"`
+	Conv            []Turn    `json:"conv"`
 }

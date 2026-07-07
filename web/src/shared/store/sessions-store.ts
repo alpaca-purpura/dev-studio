@@ -1,21 +1,23 @@
 import { create } from "zustand";
 import { api } from "../api/client";
 import { connectDock } from "../api/sse";
-import type { DockFrame, Session } from "../api/types";
+import type { DockFrame, Historia, Session } from "../api/types";
 
 interface SessionsState {
   sessions: Session[];
   activeId: string | null;
-  railCollapsed: boolean;
   streamBuffer: Record<string, string>;
+  /** Cola de mensajes por sesión (Encolar ⇒). Client-side, respeta un-turno-a-la-vez (RN-8):
+   *  el siguiente mensaje se despacha recién cuando llega result/error del turno en curso. */
+  queue: Record<string, string[]>;
 
   init: () => Promise<void>;
-  create: (cwd: string) => Promise<void>;
+  create: (p: { nombre: string; repo_id?: string; historia?: Historia; rol?: string }) => Promise<Session>;
   closeSession: (id: string) => Promise<void>;
   rename: (id: string, nombre: string) => Promise<void>;
   switchTo: (id: string) => void;
-  toggleRail: () => void;
   sendTurn: (id: string, text: string) => Promise<void>;
+  enqueue: (id: string, text: string) => void;
   onDock: (f: DockFrame) => void;
 }
 
@@ -24,8 +26,8 @@ let disconnect: (() => void) | null = null;
 export const useSessions = create<SessionsState>((set, get) => ({
   sessions: [],
   activeId: null,
-  railCollapsed: false,
   streamBuffer: {},
+  queue: {},
 
   init: async () => {
     const sessions = await api.list();
@@ -34,9 +36,10 @@ export const useSessions = create<SessionsState>((set, get) => ({
     disconnect = connectDock((f) => get().onDock(f));
   },
 
-  create: async (cwd: string) => {
-    const sess = await api.create("Nueva sesión", cwd);
+  create: async (p) => {
+    const sess = await api.create(p);
     set((st) => ({ sessions: [...st.sessions, sess], activeId: sess.id }));
+    return sess;
   },
 
   closeSession: async (id: string) => {
@@ -56,7 +59,6 @@ export const useSessions = create<SessionsState>((set, get) => ({
   },
 
   switchTo: (id: string) => set({ activeId: id }),
-  toggleRail: () => set((st) => ({ railCollapsed: !st.railCollapsed })),
 
   sendTurn: async (id: string, text: string) => {
     set((st) => ({
@@ -67,6 +69,15 @@ export const useSessions = create<SessionsState>((set, get) => ({
       ),
     }));
     await api.turn(id, text);
+  },
+
+  enqueue: (id: string, text: string) => {
+    const sess = get().sessions.find((s) => s.id === id);
+    if (sess && sess.status !== "streaming") {
+      void get().sendTurn(id, text);
+      return;
+    }
+    set((st) => ({ queue: { ...st.queue, [id]: [...(st.queue[id] ?? []), text] } }));
   },
 
   onDock: (f: DockFrame) => {
@@ -125,5 +136,16 @@ export const useSessions = create<SessionsState>((set, get) => ({
           return {};
       }
     });
+
+    // turno terminado → despachar el siguiente de la cola (RN-8: nunca en paralelo)
+    if (f.kind === "result" || f.kind === "error") {
+      const { queue, sendTurn } = get();
+      const pending = queue[f.session_id];
+      if (pending && pending.length > 0) {
+        const [next, ...rest] = pending;
+        set((st) => ({ queue: { ...st.queue, [f.session_id]: rest } }));
+        void sendTurn(f.session_id, next);
+      }
+    }
   },
 }));

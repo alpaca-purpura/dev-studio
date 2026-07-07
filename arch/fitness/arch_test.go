@@ -5,10 +5,12 @@ package fitness
 import (
 	"context"
 	"errors"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
 
+	gitcli "github.com/alpacapurpura/dev-studio/internal/adapters/git/cli"
 	"github.com/alpacapurpura/dev-studio/internal/domain"
 	"github.com/alpacapurpura/dev-studio/internal/ports"
 	"github.com/alpacapurpura/dev-studio/internal/usecase"
@@ -63,6 +65,51 @@ func TestOneTurnAtATime(t *testing.T) {
 func TestDomainNoTransportImport(t *testing.T) {
 	assertNoDep(t, "./internal/domain/...", "net/http")
 	assertNoDep(t, "./internal/usecase/...", "net/http")
+}
+
+// TestGitAdapterSinVerbosProhibidos enforça git-solo-lectura-y-commit: el fuente del
+// adaptador git no contiene los verbos que tocan el remoto o reescriben historia.
+func TestGitAdapterSinVerbosProhibidos(t *testing.T) {
+	dir := "../../internal/adapters/git/cli"
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("leer %s: %v", dir, err)
+	}
+	forbidden := []string{"push", "pull", "fetch", "reset", "rebase"}
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".go") {
+			continue
+		}
+		src, err := os.ReadFile(dir + "/" + e.Name())
+		if err != nil {
+			t.Fatal(err)
+		}
+		// se escanea CÓDIGO, no comentarios (la doc del boundary nombra los verbos a propósito)
+		var code strings.Builder
+		for _, line := range strings.Split(string(src), "\n") {
+			if strings.HasPrefix(strings.TrimSpace(line), "//") {
+				continue
+			}
+			if i := strings.Index(line, "//"); i >= 0 && !strings.Contains(line[:i], `"`) {
+				line = line[:i]
+			}
+			code.WriteString(strings.ToLower(line))
+			code.WriteString("\n")
+		}
+		for _, verb := range forbidden {
+			if strings.Contains(code.String(), verb) {
+				t.Errorf("%s contiene el verbo prohibido %q — viola git-solo-lectura-y-commit", e.Name(), verb)
+			}
+		}
+	}
+}
+
+// TestGitCommitExigePathspec enforça RN-5: commit sin paths explícitos = error, siempre.
+func TestGitCommitExigePathspec(t *testing.T) {
+	g := gitcli.New()
+	if _, err := g.Commit(context.Background(), t.TempDir(), nil, "x"); err == nil {
+		t.Fatal("Commit sin paths debía fallar (RN-5)")
+	}
 }
 
 func assertNoDep(t *testing.T, pkg, forbidden string) {

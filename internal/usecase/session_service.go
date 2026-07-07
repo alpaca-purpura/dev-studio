@@ -101,11 +101,30 @@ func (s *SessionService) Get(id string) (domain.Session, bool) {
 	return *r.meta, true
 }
 
+// NewSession parametriza la creación de una sesión (spec shell §4.1): desde el shell toda
+// sesión nace ligada a un repo + historia + rol; los campos extra son opcionales para
+// mantener compatibilidad con sesiones sueltas (tests, F1).
+type NewSession struct {
+	Nombre   string
+	Cwd      string
+	RepoID   string
+	Historia *domain.Historia
+	Rol      string
+}
+
 // Create registra una sesión nueva. Ningún proceso `claude` se lanza todavía —
 // el conductor arranca recién en el primer Turn().
 func (s *SessionService) Create(nombre, cwd string) (domain.Session, error) {
+	return s.CreateSession(NewSession{Nombre: nombre, Cwd: cwd})
+}
+
+// CreateSession registra una sesión con su ligadura completa (repo/historia/rol).
+func (s *SessionService) CreateSession(p NewSession) (domain.Session, error) {
 	s.mu.Lock()
-	sess := domain.Session{ID: newID(), Nombre: nombre, Cwd: cwd, Status: domain.StatusIdle, Conv: []domain.Turn{}}
+	sess := domain.Session{
+		ID: newID(), Nombre: p.Nombre, Cwd: p.Cwd, Status: domain.StatusIdle,
+		RepoID: p.RepoID, Historia: p.Historia, Rol: p.Rol, Conv: []domain.Turn{},
+	}
 	s.rt[sess.ID] = &sessionRuntime{meta: &sess}
 	s.order = append(s.order, sess.ID)
 	err := s.persistLocked()

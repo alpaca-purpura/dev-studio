@@ -13,3 +13,6 @@ bin/
 *.log
 .env
 .env.*
+
+# Storybook build
+storybook-static/

@@ -1,107 +1,134 @@
-/* Tokens de color/radio/espacio/tipografía — estilo copiado 1:1 de harness-studio
-   (web/src/app/styles/theme.css, HS-05) porque el goal pide "copiar el estilo gráfico
-   del storybook a la fecha". Todo lo demás (kind.*, chart.*, heat.*) se deja: dev-studio
-   no tiene esos dominios todavía, pero no rompe nada tenerlos disponibles como tokens. */
-:root {
-	--background: #f2f4f7;
-	--foreground: #212832;
-	--card: #ffffff;
-	--card-foreground: #212832;
-	--popover: #ffffff;
-	--popover-foreground: #212832;
-	--primary: #a8742c;
-	--primary-foreground: #ffffff;
-	--secondary: #e9edf2;
-	--secondary-foreground: #212832;
-	--muted: #e9edf2;
-	--muted-foreground: #5d6a79;
-	--accent: #e9edf2;
-	--accent-foreground: #212832;
-	--accent-soft: rgba(168, 116, 44, 0.14);
-	--destructive: #c94545;
+/* Tokens de color/radio/espacio/tipografía — design system PRENTER (DH-15, spec shell §2).
+   SSoT visual: Claude Design «PRENTER Design System» (a98c2e0d…), sincronizado en
+   specs/shell/tokens/*.css; este archivo es el mapping semántico de aplicación (convención
+   shadcn/Tailwind v4). Dark-first: :root = dark (identidad principal de la marca);
+   data-theme="light" = respiro de lectura. Teal = ÚNICO acento saturado (regla de marca). */
+
+@font-face {
+	font-family: "Jost";
+	font-style: normal;
+	font-weight: 300 700;
+	font-display: swap;
+	src: url("../fonts/jost-latin.woff2") format("woff2");
+}
+@font-face {
+	font-family: "Mulish";
+	font-style: normal;
+	font-weight: 300 700;
+	font-display: swap;
+	src: url("../fonts/mulish-latin.woff2") format("woff2");
+}
+@font-face {
+	font-family: "JetBrains Mono";
+	font-style: normal;
+	font-weight: 400 700;
+	font-display: swap;
+	src: url("../fonts/jetbrains-mono-latin.woff2") format("woff2");
+}
+
+:root,
+:root[data-theme="dark"] {
+	--background: #08090a;
+	--foreground: #ffffff;
+	--card: #0c1110;
+	--card-foreground: #ffffff;
+	--popover: #0c1110;
+	--popover-foreground: #ffffff;
+	--primary: #1fc6b8; /* teal-400 sobre dark */
+	--primary-foreground: #04211f;
+	--secondary: #121817;
+	--secondary-foreground: #ffffff;
+	--muted: #121817;
+	--muted-foreground: rgba(255, 255, 255, 0.55);
+	--accent: #121817;
+	--accent-foreground: #ffffff;
+	--accent-soft: rgba(31, 198, 184, 0.14);
+	--destructive: #d0483c;
 	--destructive-foreground: #ffffff;
-	--border: #d5dbe3;
-	--input: #c3cbd6;
-	--ring: #a8742c;
-	/* sidebar (Session Rail) */
-	--sidebar: #ffffff;
-	--sidebar-foreground: #5d6a79;
-	--sidebar-primary: #a8742c;
-	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: #e9edf2;
-	--sidebar-accent-foreground: #212832;
-	--sidebar-border: #d5dbe3;
-	--sidebar-ring: #a8742c;
-	/* health */
-	--ok: #2e8f5e;
-	--warn: #c96a2e;
-	--crit: #c94545;
-	--ok-soft: rgba(46, 143, 94, 0.13);
-	--warn-soft: rgba(201, 106, 46, 0.13);
-	--crit-soft: rgba(201, 69, 69, 0.12);
-	/* radius */
-	--radius-sm: 6px;
+	--border: #1f2826;
+	--input: #2a3432;
+	--ring: #1fc6b8;
+	/* sidebar (rail Repositorios→Workspaces + studio-nav) */
+	--sidebar: #0c1110;
+	--sidebar-foreground: rgba(255, 255, 255, 0.55);
+	--sidebar-primary: #1fc6b8;
+	--sidebar-primary-foreground: #04211f;
+	--sidebar-accent: #121817;
+	--sidebar-accent-foreground: #ffffff;
+	--sidebar-border: #1f2826;
+	--sidebar-ring: #1fc6b8;
+	/* estado (semánticos PRENTER, apagados/corporativos) */
+	--ok: #1f9d6b;
+	--warn: #c98a16;
+	--crit: #d0483c;
+	--ok-soft: rgba(31, 157, 107, 0.16);
+	--warn-soft: rgba(201, 138, 22, 0.16);
+	--crit-soft: rgba(208, 72, 60, 0.16);
+	--muted-soft: rgba(255, 255, 255, 0.1);
+	/* glow de marca — solo CTA primaria */
+	--shadow-glow: 0 8px 24px rgba(0, 183, 170, 0.22);
+	/* radius (escala PRENTER) */
+	--radius-sm: 4px;
 	--radius-md: 8px;
-	--radius-lg: 9px;
-	--radius-xl: 12px;
+	--radius-lg: 14px;
+	--radius-xl: 22px;
 	--radius-full: 9999px;
-	/* space */
+	/* space (base 4px, PRENTER) */
 	--space-1: 4px;
 	--space-2: 8px;
 	--space-3: 12px;
 	--space-4: 16px;
-	--space-5: 20px;
-	--space-6: 24px;
-	--space-8: 32px;
-	--space-10: 40px;
-	--space-12: 48px;
-	/* text */
+	--space-5: 24px;
+	--space-6: 32px;
+	--space-8: 48px;
+	--space-10: 64px;
+	/* text (escala compacta de aplicación — spec shell §2) */
 	--text-xs: 11px;
 	--text-sm: 12.5px;
 	--text-base: 14px;
 	--text-lg: 16px;
 	--text-xl: 20px;
 	--text-2xl: 26px;
-	/* font */
-	--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-	--font-mono:
-		ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono",
-		monospace;
+	/* font (sustitutos vigentes de Coco Gothic/Sansation — vendorizadas, sin red) */
+	--font-sans: "Mulish", system-ui, -apple-system, "Segoe UI", sans-serif;
+	--font-display: "Jost", "Mulish", system-ui, sans-serif;
+	--font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
-:root[data-theme="dark"] {
-	--background: #14171c;
-	--foreground: #e8ecf1;
-	--card: #1b2027;
-	--card-foreground: #e8ecf1;
-	--popover: #1b2027;
-	--popover-foreground: #e8ecf1;
-	--primary: #d9a35b;
+:root[data-theme="light"] {
+	--background: #f6f8f8;
+	--foreground: #0e1312;
+	--card: #ffffff;
+	--card-foreground: #0e1312;
+	--popover: #ffffff;
+	--popover-foreground: #0e1312;
+	--primary: #009d92; /* teal-600 sobre claro */
 	--primary-foreground: #ffffff;
-	--secondary: #242b34;
-	--secondary-foreground: #e8ecf1;
-	--muted: #242b34;
-	--muted-foreground: #94a1af;
-	--accent: #242b34;
-	--accent-foreground: #e8ecf1;
-	--accent-soft: rgba(217, 163, 91, 0.14);
-	--destructive: #e25b5b;
+	--secondary: #eef1f1;
+	--secondary-foreground: #0e1312;
+	--muted: #eef1f1;
+	--muted-foreground: #6b7676;
+	--accent: #eef1f1;
+	--accent-foreground: #0e1312;
+	--accent-soft: rgba(0, 157, 146, 0.14);
+	--destructive: #d0483c;
 	--destructive-foreground: #ffffff;
-	--border: #2d3743;
-	--input: #3a4655;
-	--ring: #d9a35b;
-	--sidebar: #1b2027;
-	--sidebar-foreground: #94a1af;
-	--sidebar-primary: #d9a35b;
+	--border: #dde3e2;
+	--input: #c7cfce;
+	--ring: #009d92;
+	--sidebar: #ffffff;
+	--sidebar-foreground: #6b7676;
+	--sidebar-primary: #009d92;
 	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: #242b34;
-	--sidebar-accent-foreground: #e8ecf1;
-	--sidebar-border: #2d3743;
-	--sidebar-ring: #d9a35b;
-	--ok: #57b380;
-	--warn: #e0904f;
-	--crit: #e25b5b;
-	--ok-soft: rgba(87, 179, 128, 0.14);
-	--warn-soft: rgba(224, 144, 79, 0.14);
-	--crit-soft: rgba(226, 91, 91, 0.13);
+	--sidebar-accent: #eef1f1;
+	--sidebar-accent-foreground: #0e1312;
+	--sidebar-border: #dde3e2;
+	--sidebar-ring: #009d92;
+	--ok: #1f9d6b;
+	--warn: #c98a16;
+	--crit: #d0483c;
+	--ok-soft: rgba(31, 157, 107, 0.13);
+	--warn-soft: rgba(201, 138, 22, 0.13);
+	--crit-soft: rgba(208, 72, 60, 0.12);
+	--muted-soft: rgba(14, 19, 18, 0.08);
 }

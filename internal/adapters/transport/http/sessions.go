@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alpacapurpura/dev-studio/internal/domain"
 	"github.com/alpacapurpura/dev-studio/internal/usecase"
 )
 
@@ -23,11 +24,14 @@ func listSessions(svc *usecase.SessionService) http.HandlerFunc {
 }
 
 type createSessionReq struct {
-	Nombre string `json:"nombre"`
-	Cwd    string `json:"cwd"`
+	Nombre   string           `json:"nombre"`
+	Cwd      string           `json:"cwd"`
+	RepoID   string           `json:"repo_id"`
+	Historia *domain.Historia `json:"historia"`
+	Rol      string           `json:"rol"`
 }
 
-func createSession(svc *usecase.SessionService) http.HandlerFunc {
+func createSession(svc *usecase.SessionService, repos *usecase.RepoService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req createSessionReq
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -35,6 +39,16 @@ func createSession(svc *usecase.SessionService) http.HandlerFunc {
 			return
 		}
 		cwd := req.Cwd
+		if req.RepoID != "" {
+			repo, ok := repos.Get(req.RepoID)
+			if !ok {
+				http.Error(w, "repo not found", http.StatusUnprocessableEntity)
+				return
+			}
+			// v1 pre-PB-02: la sesión trabaja sobre la raíz del repo; el workspace
+			// aislado (worktree+branch) entra en la rebanada siguiente.
+			cwd = repo.Ruta
+		}
 		if cwd == "" {
 			cwd, _ = os.UserHomeDir()
 		}
@@ -43,7 +57,9 @@ func createSession(svc *usecase.SessionService) http.HandlerFunc {
 		if nombre == "" {
 			nombre = "Nueva sesión"
 		}
-		sess, err := svc.Create(nombre, cwd)
+		sess, err := svc.CreateSession(usecase.NewSession{
+			Nombre: nombre, Cwd: cwd, RepoID: req.RepoID, Historia: req.Historia, Rol: req.Rol,
+		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

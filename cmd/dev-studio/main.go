@@ -16,6 +16,7 @@ import (
 	"syscall"
 
 	claudecode "github.com/alpacapurpura/dev-studio/internal/adapters/agent/claudecode"
+	gitcli "github.com/alpacapurpura/dev-studio/internal/adapters/git/cli"
 	"github.com/alpacapurpura/dev-studio/internal/adapters/store"
 	httptransport "github.com/alpacapurpura/dev-studio/internal/adapters/transport/http"
 	"github.com/alpacapurpura/dev-studio/internal/adapters/transport/sse"
@@ -35,16 +36,24 @@ func main() {
 	if err != nil {
 		log.Fatalf("dev-studio: home dir: %v", err)
 	}
-	registryPath := filepath.Join(home, ".dev-studio", "sessions.json")
+	statePath := filepath.Join(home, ".dev-studio", "state.json")
+	legacyPath := filepath.Join(home, ".dev-studio", "sessions.json") // F1 → migra solo
 
 	broker := sse.NewBroker()
 	agent := claudecode.New(*claudeBin)
-	sessions, err := usecase.NewSessionService(ctx, agent, store.NewRegistry(registryPath), broker)
+	appState := store.NewState(statePath, legacyPath)
+	sessions, err := usecase.NewSessionService(ctx, agent, appState, broker)
 	if err != nil {
 		log.Fatalf("dev-studio: session service: %v", err)
 	}
+	repos, err := usecase.NewRepoService(ctx, appState)
+	if err != nil {
+		log.Fatalf("dev-studio: repo service: %v", err)
+	}
+	gitAdapter := gitcli.New()
+	git := usecase.NewGitService(gitAdapter, gitAdapter)
 
-	api := httptransport.NewRouter(sessions, broker)
+	api := httptransport.NewRouter(sessions, repos, git, broker)
 	ui := uiHandler()
 
 	mux := http.NewServeMux()

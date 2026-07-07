@@ -5,6 +5,11 @@ export interface Turn {
   text: string;
 }
 
+export interface Historia {
+  id: string;
+  titulo: string;
+}
+
 export interface Session {
   id: string;
   nombre: string;
@@ -12,7 +17,43 @@ export interface Session {
   status: SessionStatus;
   claude_session_id?: string;
   model?: string;
+  repo_id?: string;
+  historia?: Historia;
+  rol?: string;
   conv: Turn[];
+}
+
+export interface Repo {
+  id: string;
+  nombre: string;
+  ruta: string;
+}
+
+export interface GitFile {
+  path: string;
+  state: string; // M | A | D | R
+}
+
+export interface GitStatus {
+  branch: string;
+  files: GitFile[];
+  add: number;
+  del: number;
+}
+
+export interface GitDiff {
+  path: string;
+  unified: string;
+  original: string;
+  modified: string;
+  binary: boolean;
+}
+
+export interface GitLogEntry {
+  sha: string;
+  mensaje: string;
+  autor: string;
+  fecha: string;
 }
 
 export interface DockFrame {

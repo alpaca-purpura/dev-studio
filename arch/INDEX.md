@@ -35,9 +35,10 @@
 | [`boundaries/sesion-un-turno-a-la-vez.md`](./boundaries/sesion-un-turno-a-la-vez.md) | Un turno concurrente por sesión, rechazo explícito (no cola silenciosa) | 🌳 enforced | 2 | `fitness/arch_test.go:TestOneTurnAtATime` |
 | [`boundaries/dominio-independiente-de-transporte.md`](./boundaries/dominio-independiente-de-transporte.md) | `domain`/`usecase` no importan `net/http` | 🌳 enforced | 2 | `fitness/arch_test.go:TestDomainNoTransportImport` |
 | [`boundaries/sesion-aislada-por-cwd.md`](./boundaries/sesion-aislada-por-cwd.md) | Cada sesión confinada a su cwd — **parcial, brecha documentada** | 🌱 proposed | 3 (1 ✅, 2 ❌ TBD) | ninguno todavía (validación de path pendiente) |
+| [`boundaries/git-solo-lectura-y-commit.md`](./boundaries/git-solo-lectura-y-commit.md) | La app nunca push/pull/fetch/reset/rebase; commit solo por pathspec explícito | 🌳 enforced | 2 | `fitness/arch_test.go:TestGitAdapterSinVerbosProhibidos` + `TestGitCommitExigePathspec` |
 
 Leyenda: 🌱 proposed (declarado, chequeo manual o pendiente) · 🌳 enforced (código + test
-corriendo). **Total: 5 boundaries · 11 checks · 2 enforced con test real** (`go test
+corriendo). **Total: 6 boundaries · 13 checks · 3 enforced con test real** (`go test
 ./arch/fitness/...` pasa hoy).
 
 > **Honestidad (heredada de la casa, vía `harness-studio`/METODOLOGIA):** este árbol es
@@ -62,7 +63,8 @@ corriendo). **Total: 5 boundaries · 11 checks · 2 enforced con test real** (`g
 |---|---|---|
 | Backend | binario Go único `dev-studio` (`cmd/dev-studio`) | hexagonal: `domain` → `usecase` → `ports` ← `adapters` |
 | Conexión CC | subproceso `claude` + `stream-json` stdin/stdout | mismo patrón conductor que `harness-studio`, implementación propia |
-| Persistencia | JSON plano (`~/.dev-studio/sessions.json`), escritura atómica | sin SQLite todavía — no hace falta índice a este tamaño |
+| Persistencia | JSON plano (`~/.dev-studio/state.json`: repos + sesiones; migra `sessions.json` F1 solo), escritura atómica | sin SQLite todavía — no hace falta índice a este tamaño |
+| Git del usuario | subproceso `git` (adapter `adapters/git/cli`) — status/diff/log/commit, nada más | boundary `git-solo-lectura-y-commit` (DH-15) |
 | Transporte realtime | SSE (`/events`, un solo tipo de evento `dock`) | sin replay por `Last-Event-ID` todavía (TBD) |
 | Frontend | Vite + React 19 SPA, `go:embed` | Zustand (store de sesiones), sin router (una sola página) |
 | Estilo | Tailwind v4 + tokens copiados de `harness-studio` (`theme.css`) | dark por `data-theme`, mismo mecanismo |

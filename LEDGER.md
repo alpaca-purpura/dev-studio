@@ -171,9 +171,28 @@ sigue el mismo espíritu: subproceso del `git` del usuario) · PB-04/PB-03/PB-02
 `specs/shell/SPEC.md` · `specs/shell/tokens/` · marca PRENTER (`~/Proyectos/prenter/marketing/
 brand-guidelines.md` + Claude Design `a98c2e0d`).
 
-*Siguiente:* Chris ratifica la spec (cabecera → CONGELADA) → construir la rebanada siguiendo
-§5 → verificación AC-1..AC-10 en vivo → CAP nuevas/actualizadas en INCREMENTO en el mismo
-commit → inmediatamente después: PB-02 (workspace aislado) sobre este shell.
+*Entrega (mismo día, 2026-07-07):* spec ratificada (CONGELADA) y rebanada CONSTRUIDA +
+VERIFICADA: tokens PRENTER en `theme.css` (dark default + light) con Jost/Mulish/JetBrains
+Mono vendorizadas (3 woff2 en el binario, sin Google Fonts en runtime) · backend TDD (adapter
+`git/cli` con 6 tests reales sobre repos git de fixture; `RepoService` con validación `.git`;
+store `state.json` con migración automática de `sessions.json`; endpoints repos+git) ·
+boundary `git-solo-lectura-y-commit` ENFORCED (2 fitness tests: scan de verbos prohibidos en
+código + pathspec obligatorio) · Storybook 10 con átomos + organismos (RN-9) · shell completo
+(repos-rail, studio-nav, session-view con Encolar real, changes-panel, 4 overlays). El rail F1
+y el chat-panel viejos ELIMINADOS. **Verificación real: 24/24 checks** del gate (AC-1..AC-7
+vía puppeteer + Chrome contra la app viva: registro de repos con rechazo de ruta inválida,
+picker→sesión ligada→turno `SHELL-OK` real, commit por pathspec verificado con `git show`
+—el archivo destildado quedó fuera—, 2 sesiones en repos distintos con turnos concurrentes
+`ALFA-1`/`BETA-2` sin cruce, rails clickeables bajo overlays por hit-test, Esc→Studio) +
+AC-8/9/10 (build-storybook verde · grep ámbar=0 · `go test ./...` + fitness verdes · migración
+real: 2 sesiones F1 visibles bajo «(sin repositorio)»). Bugs cazados en verificación: selector
+zustand fabricando `[]` por snapshot (loop React #185) y falso-positivo del script por
+`text-transform: uppercase` — ambos documentados en el fix. INCREMENTO: CAP-01/03/04/05/06
+actualizadas + **CAP-07/08/09 nuevas**.
+
+*Siguiente:* **PB-02 — workspace aislado por sesión (worktree + branch + validación de rutas
+protegidas), ya sobre este shell** (forma firmada en F0; el rail ya pinta branch/status/dots
+para recibirla). Después: banda 🟡 (PB-05 restos → PB-25 registry → PB-06 Roles).
 
 <!-- Próximas: DH-16, DH-17, … -->
 
@@ -185,3 +204,4 @@ commit → inmediatamente después: PB-02 (workspace aislado) sobre este shell.
 | 2026-07-06 | F1 esqueleto de la app entregado: driver CLI-nativo propio (subproceso `claude` + stream-json, multisesión real verificada con 2 procesos concurrentes) + rail de sesiones colapsable (estilo Storybook de `harness-studio` copiado 1:1, dominio simplificado) + arquitectura as code propia (`arch/`, 5 boundaries, 2 enforced con test) con brecha de seguridad documentada sin ocultar. | DH-13 |
 | 2026-07-07 | F0 norte FIRMADO (cierra PB-01 y la deuda de DH-13): journeys ×4 (CTO = hueco declarado) + 7 principios + reframe Rol = arnés instalado desde REGISTRY PROPIO (solo marketplace, cero roles locales; permisos por puesto con multi-usuario) + orden de herencia Proyecto→Rol→Sesión-workspace→Historia/Capability→Proceso + dudas §9 resueltas (multi-usuario TBD sin bloquear; PB-02 = worktree + validación rutas) + seam completo (value_stream 10 estados, wip_caps advisory). | DH-14 |
 | 2026-07-07 | Shell primero: mockup revisado (evolución sobre §0.5: studio-nav 5 ítems, overlays Producto/Roles, workspace=sesión 1:1 — rail F1 muere) + paleta confirmada = design system PRENTER (tokens sincronizados de Claude Design a `specs/shell/tokens/`) + spec v1 del shell escrita (`specs/shell/SPEC.md`, primera spec permanente: alcance ambicioso con panel Cambios git real sin push/pull, roster placeholder del registry, Storybook dentro — PB-03 fusionada en PB-04; PB-02 pasa a construirse DESPUÉS del shell, ya en la app). | DH-15 |
+| 2026-07-07 | Shell PRENTER ENTREGADO (PB-04 ⊕ PB-03 → entregadas): tokens+fuentes vendorizadas, backend git TDD, boundary `git-solo-lectura-y-commit` enforced, Storybook (RN-9), rail Repositorios→Workspaces reemplaza al rail F1, panel Cambios real con commit por pathspec, flujo picker→sesión ligada. 24/24 checks del gate en vivo (turno real, commit selectivo probado con `git show`, concurrencia sin cruce, migración F1 real). CAP-07/08/09 nuevas. Siguiente: PB-02 sobre este shell. | DH-15 |

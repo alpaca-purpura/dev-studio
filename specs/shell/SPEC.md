@@ -259,29 +259,29 @@ como está (brecha declarada — la cierra PB-02 sobre este shell).
 
 Verificación en la app viva (browser real), no «GET 200»:
 
-- [ ] **AC-1** — Registrar este mismo repo (`~/Proyectos/dev-studio`) por ruta desde la UI; el
+- [x] **AC-1** — Registrar este mismo repo (`~/Proyectos/dev-studio`) por ruta desde la UI; el
   repo aparece con su contador. Registrar una ruta sin `.git` → error claro y visible.
-- [ ] **AC-2** — Flujo completo: `+ Nuevo Workspace` → picker → elegir historia → Config con
+- [x] **AC-2** — Flujo completo: `+ Nuevo Workspace` → picker → elegir historia → Config con
   chip del paquete → rol → `Crear sesión aislada` → la sesión aparece en el árbol, ligada
   (chip 📋 en el header), y RESPONDE un turno real de `claude`.
-- [ ] **AC-3** — Intentar crear sesión desde ⚙ sin paquete → hint + redirección al picker
+- [x] **AC-3** — Intentar crear sesión desde ⚙ sin paquete → hint + redirección al picker
   (RN-1 observada).
-- [ ] **AC-4** — Con archivos modificados reales en el cwd: panel Cambios lista los archivos;
+- [x] **AC-4** — Con archivos modificados reales en el cwd: panel Cambios lista los archivos;
   quick-look muestra el diff real; side-by-side navega N/M; tildar un subconjunto + mensaje +
   Confirmar → `git log` (terminal) muestra el commit SOLO con esos paths. Historial de la UI
   lo refleja.
-- [ ] **AC-5** — Botones push/pull/fetch deshabilitados; `grep` del adapter git no contiene
+- [x] **AC-5** — Botones push/pull/fetch deshabilitados; `grep` del adapter git no contiene
   verbos prohibidos; fitness test `git-solo-lectura-y-commit` en verde.
-- [ ] **AC-6** — Dos sesiones concurrentes en repos/wd distintos: panel Cambios de cada una
+- [x] **AC-6** — Dos sesiones concurrentes en repos/wd distintos: panel Cambios de cada una
   muestra SU status sin cruce; turnos sin cruce (regresión CAP-02).
-- [ ] **AC-7** — Overlays Backlog/Config/Producto abren tapando solo chat+panel; rails
+- [x] **AC-7** — Overlays Backlog/Config/Producto abren tapando solo chat+panel; rails
   siempre clickeables; Esc vuelve a Studio. Banners de honestidad visibles en
   Backlog/Config/Producto.
-- [ ] **AC-8** — `npm run storybook` levanta el catálogo con TODOS los átomos de §2 en dark y
+- [x] **AC-8** — `npm run storybook` levanta el catálogo con TODOS los átomos de §2 en dark y
   light; la app no contiene componentes visuales sin story (revisión de PR).
-- [ ] **AC-9** — Toda la UI renderiza tokens PRENTER (teal, Jost/Mulish/JetBrains Mono
+- [x] **AC-9** — Toda la UI renderiza tokens PRENTER (teal, Jost/Mulish/JetBrains Mono
   embebidas, sin ámbar residual) — verificación visual + grep `#a8742c` = 0.
-- [ ] **AC-10** — `go test ./...` + `go test ./arch/fitness/...` + build embebido verdes;
+- [x] **AC-10** — `go test ./...` + `go test ./arch/fitness/...` + build embebido verdes;
   sesiones F1 preexistentes visibles bajo «(sin repositorio)» tras migrar.
 
 ## 9. Fuera de alcance (explícito, con destino)
@@ -308,3 +308,6 @@ Verificación en la app viva (browser real), no «GET 200»:
 
 - v1 2026-07-07 — borrador post-forks (paleta/roster/alcance/storybook firmados en sesión).
 - v1 CONGELADA 2026-07-07 — ratificada por Chris (DH-15) sin ajustes.
+- v1 VERIFICADA 2026-07-07 — AC-1..AC-10 tildadas: 24/24 checks en vivo (puppeteer + Chrome
+  contra la app real; commit por pathspec probado con `git show`; concurrencia sin cruce;
+  migración F1 real) + suite Go/fitness/build-storybook verdes. Evidencia: ficha DH-15.
