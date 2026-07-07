@@ -15,9 +15,9 @@
   decisiones de arquitectura, no las de producto.
 - [`../LEDGER.md`](../LEDGER.md) — el diario firmado. Cada boundary cita `ledger: DH-13` (la
   ficha que entregó el esqueleto F1 de la épica «Experiencia Orquestada»).
-- [`../epicas/experiencia-orquestada/NORTE-BORRADOR.md`](../epicas/experiencia-orquestada/NORTE-BORRADOR.md)
-  — el borrador de norte que gobierna QUÉ entra y en qué orden; `arch/` documenta CÓMO se
-  construyó lo que ya entró (F1: esqueleto + driver CLI-nativo).
+- [`../epicas/experiencia-orquestada/NORTE-FIRMADO.md`](../epicas/experiencia-orquestada/NORTE-FIRMADO.md)
+  — el norte FIRMADO (F0 cerrada 2026-07-07, DH-14) que gobierna QUÉ entra y en qué orden;
+  `arch/` documenta CÓMO se construyó lo que ya entró (F1: esqueleto + driver CLI-nativo).
 
 ## Las dos capas (en cada boundary node)
 

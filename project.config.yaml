@@ -63,13 +63,34 @@ live_verify_infra: "go build ./cmd/dev-studio && ./dev-studio --addr 127.0.0.1:4
 design_system_ref: "web/src/app/styles/theme.css (tokens Tailwind v4, copiados de harness-studio HS-05)"
 
 # domain_modules · the business modules the process talks about.
-domain_modules: __FILL_ME__
+# firmado Chris 2026-07-07 (DH-14, F0) · provenance: NORTE-FIRMADO + spec clon §3 + reframe registry
+domain_modules:
+  - proyecto
+  - sesion
+  - rol
+  - historia
+  - capability
+  - proceso
+  - registry        # F0: registry PROPIO de arneses — rol = arnés instalado (PB-25)
+  - organizacion    # TBD — PB-21, dueño Chris; no bloquea el port (mono-usuario mientras tanto)
 
 # agent_roster · worker roles (builder/auditor split) stories route to.
-agent_roster: __FILL_ME__
+# firmado Chris 2026-07-07 (DH-14, F0) · provenance: stack real del repo (Go backend + React web;
+# sin superficie móvil) — NO el roster aspiracional del producto (ese vive en el registry, PB-25)
+agent_roster:
+  builder: [backend-go, frontend-web]
+  auditor: [qa, seguridad, arquitecto-software]
+  humano-complementario: [product-owner]
 
 # value_stream · stages the product map derives zones from.
-value_stream: __FILL_ME__
+# firmado Chris 2026-07-07 (DH-14, F0) · provenance: modelo de 10 estados de Story en la herencia
+# (types.ts:205) reusado 1:1 — Chris eligió los 10 COMPLETOS (parked/dropped incluidos)
+value_stream: [idea, refining, refined, ready, developing, developed, reviewing, done, parked, dropped]
 
 # wip_caps · work-in-progress limits the closure gates enforce.
-wip_caps: __FILL_ME__
+# firmado Chris 2026-07-07 (DH-14, F0): ADVISORY — "se visualizan pero no restringe".
+# Los umbrales son referencia visual (propuesta F0), no límite duro; gates reportan, no bloquean.
+wip_caps:
+  enforcement: advisory
+  developing_por_proyecto: 2
+  reviewing_por_proyecto: 1

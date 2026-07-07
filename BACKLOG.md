@@ -31,8 +31,8 @@
 
 | ID | Ítem | Incrementa | Fuente (detalle) | Estado |
 |---|---|---|---|---|
-| PB-01 | **F0: firmar el norte de la épica** — journeys por rol, principios, modelo de organización, orden de herencia, dudas abiertas §9. Gate de definición: deuda reconocida en DH-13 (F1 entregó código sin norte firmado) | — (gate) | `epicas/experiencia-orquestada/NORTE-BORRADOR.md` + `CLON-AGENTSROOM-SPEC.md` §8-9 | propuesta |
-| PB-02 | **Workspace aislado por sesión** (git worktree + branch) — cierra la brecha de seguridad `sesion-aislada-por-cwd` convirtiéndola en feature (patrón Conductor) | CAP-02 | `arch/boundaries/sesion-aislada-por-cwd.md` · spec clon §5.1 · LEDGER DH-13 §Siguiente (candidata DH-14) | propuesta |
+| PB-01 | **F0: firmar el norte de la épica** — journeys por rol, principios, modelo de organización, orden de herencia, dudas abiertas §9. Gate de definición: deuda reconocida en DH-13 (F1 entregó código sin norte firmado) | — (gate) | `epicas/experiencia-orquestada/NORTE-FIRMADO.md` + `CLON-AGENTSROOM-SPEC.md` §8-9 | **entregada 2026-07-07** (gate — sin CAP) · DH-14 |
+| PB-02 | **Workspace aislado por sesión** (git worktree + branch) **+ validación de rutas protegidas** ($HOME, ~/.ssh…) en la misma entrega — forma firmada en F0. Cierra la brecha `sesion-aislada-por-cwd` convirtiéndola en feature (patrón Conductor) | CAP-02 | `arch/boundaries/sesion-aislada-por-cwd.md` · spec clon §5.1 · NORTE-FIRMADO §Dudas (DH-14) | propuesta |
 | PB-03 | **Sistema de diseño propio: Storybook + atomic design** — hoy solo hay tokens copiados (`theme.css`); toda UI que viene debe componerse de átomos catalogados. Fundacional: precede a las rebanadas de UI | CAP-06 | premisa operador 2026-07-07 · `project.config.yaml § design_system_ref` | propuesta |
 
 ## 🟡 Próximo — shell + port por rebanadas (orden de herencia §3 de la spec clon)
@@ -41,7 +41,8 @@
 |---|---|---|---|---|
 | PB-04 | **Shell nuevo**: sidebar Repositorios→Workspaces + overlays Backlog/Configuración — pasar el mockup ratificado (§0.5) a la app real | nueva (navegación) | spec clon §0.5 + `mockup-clon-agentsroom.html` (SSoT del shell) | propuesta |
 | PB-05 | **Proyecto/Repositorio** como contenedor (rebanada 1 del port) | nueva | spec clon §3 (herencia `registryProject`) | propuesta |
-| PB-06 | **Rol** — plantillas (prompt + proveedor/modelo), roster corto curado | nueva | spec clon §3 + §6 (no catálogo de 235) | propuesta |
+| PB-25 | **Registry propio de arneses** — formato + repositorio de plugins + conexión de la app (decisión F0: registry PROPIO, no el sistema de plugins nativo de CC; el payload se materializa en el proyecto como artefactos que el `claude` spawneado carga — DH-10 intacto) | nueva | NORTE-FIRMADO §Modelo Rol/Registry (DH-14) | propuesta |
+| PB-06 | **Rol** — vista Roles conectada al registry propio: navegar arneses, instalar por proyecto (rol = arnés instalado; cero roles locales, sin catálogo en la app). Redefinida en F0 — depende de PB-25 | nueva | NORTE-FIRMADO §Modelo Rol/Registry · spec clon §3 (nota ★) | propuesta |
 | PB-07 | **Historia + Capability en la app** — kanban 10 estados como overlay, tarjeta muestra su capability, regla dura sesión↔historia (picker de `+ Nueva sesión`) | nueva | spec clon §0.5 + §3 (herencia `Story`/`Capability`) | propuesta |
 | PB-08 | **Proceso as code** — interpretar descriptor I-77 (estados/gates/dueños) + visor Proceso | nueva | spec clon §3 + §7 · decisión vigente I-77 | propuesta |
 
@@ -71,14 +72,16 @@
 
 | ID | Ítem | Incrementa | Fuente (detalle) | Estado |
 |---|---|---|---|---|
-| PB-21 | Organización multi-usuario vía GitHub (qué sincroniza el repo) — terreno propio, ningún referente lo tiene | nueva | VISION §TBD · spec clon §6 (hallazgo central) | bloqueada: F0 decide |
-| PB-22 | Vista CTO multi-proyecto (hueco reconocido tras eliminar la Torre) | PB-21 | spec clon §4 CTO + §0.5 | bloqueada: PB-21 |
-| PB-23 | Roles/accesos de primera clase (auth) | PB-21 | VISION §TBD | bloqueada: PB-21 |
-| PB-24 | Instalable v1: cross-compile Win/Linux/mac + firma + updater. ⚠ Antes de vender: verificar Consumer Terms de Anthropic por escrito | nueva | NORTE-BORRADOR §FN · VISION §Arquitectura ⚠ | bloqueada: rebanadas F2+ |
+| PB-21 | Organización multi-usuario vía GitHub (qué sincroniza el repo) — terreno propio, ningún referente lo tiene. Incluye permisos por puesto sobre el registry (reframe F0) | nueva | VISION §TBD · spec clon §6 (hallazgo central) · NORTE-FIRMADO §Fuera | **TBD firmado F0 2026-07-07** — dueño Chris; decidir antes de PB-22/PB-23. No bloquea el port |
+| PB-22 | Vista CTO multi-proyecto (journey CTO firmado como hueco declarado en F0) | PB-21 | spec clon §4 CTO + §0.5 · NORTE-FIRMADO §Journeys | bloqueada: PB-21 |
+| PB-23 | Roles/accesos de primera clase (auth) + permisos por puesto («lo que mi jefe me habilita») | PB-21 | VISION §TBD · NORTE-FIRMADO §Modelo Rol/Registry | bloqueada: PB-21 |
+| PB-24 | Instalable v1: cross-compile Win/Linux/mac + firma + updater. ⚠ Antes de vender: verificar Consumer Terms de Anthropic por escrito | nueva | NORTE-FIRMADO §Fases · VISION §Arquitectura ⚠ | bloqueada: rebanadas F2+ |
 
 ## Trabajo de PROYECTO relacionado (no es backlog de producto — solo punteros)
 
-- Rellenar los 4 slots `__FILL_ME__` de `project.config.yaml` (`domain_modules`, `agent_roster`,
-  `value_stream`, `wip_caps`) — propuesta concreta ya escrita en spec clon §3, falta ratificar.
-- Al cerrar F0: promover lo permanente de la épica a `specs/` (carpeta aún no existe) y borrar
-  la carpeta temporal, como manda el patrón.
+- ~~Rellenar los 4 slots `__FILL_ME__` de `project.config.yaml`~~ — HECHO 2026-07-07 (DH-14):
+  los 4 rellenos con firma (registry en domain_modules · roster ajustado al repo · 10 estados ·
+  wip_caps advisory).
+- Al cerrar la ÉPICA (no F0 — corregido en DH-14): promover lo permanente a `specs/` (carpeta
+  aún no existe) y borrar la carpeta temporal, como manda el patrón. El norte firmado vive en
+  la carpeta mientras la épica corra.

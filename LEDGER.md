@@ -79,8 +79,8 @@ cierre de sesión limpiando el proceso.
 
 *Conecta:* DH-10 (driver CLI-nativo, decisión heredada que esta ficha materializa por primera
 vez en código propio) · DH-12 (fundación del repo) · épica
-[`epicas/experiencia-orquestada/NORTE-BORRADOR.md`](./epicas/experiencia-orquestada/NORTE-BORRADOR.md)
-(candidato de fase F1 «esqueleto de la app») · `harness-studio` (proyecto hermano, misma
+[`epicas/experiencia-orquestada/NORTE-FIRMADO.md`](./epicas/experiencia-orquestada/NORTE-FIRMADO.md)
+(entonces `NORTE-BORRADOR.md`; candidato de fase F1 «esqueleto de la app») · `harness-studio` (proyecto hermano, misma
 metodología, fuente del patrón `arch/` y del estilo `SessionRail`) · `arch/INDEX.md` (el árbol
 nuevo) · `arch/boundaries/sesion-aislada-por-cwd.md` (brecha de seguridad declarada, no oculta).
 
@@ -89,7 +89,50 @@ protegidas antes de exponer la app fuera de este equipo) + F0 de la épica (nort
 todavía pendiente pese a que F1 ya entregó código) + decidir si el segundo adaptador de agente
 (prueba real de intercambiabilidad) entra antes o después del port por rebanadas.
 
-<!-- Próximas: DH-14, DH-15, … -->
+### DH-14 · F0 norte firmado de la épica — rol = arnés instalado desde registry propio — `decidida` · `vig:vigente`
+
+*Cruda (operador, 2026-07-07):* "los 'roles', el 'proceso', en sí vienen de los 'arneses' que
+estamos creando en ArnesIA. Es decir, al instalar la aplicación me conectaré a un repositorio
+de plugins y desde allí en la vista 'Roles' miraré cuáles hay (Todos son complementarios) y
+añadiré los que me correspondan o los que mi jefe me ha permitido de acuerdo a mi puesto. Y
+esto es por Proyecto y de acuerdo a eso se pinta el backlog y con esos arneses son los que
+trabajará el claude code en ese proyecto específico."
+
+*Desarrollo:* sesión F0 de la épica «Experiencia Orquestada» (= PB-01, gate en banda 🔴) —
+norte debatido y firmado bloque por bloque vía AskUserQuestion. Firmas: **(1) journeys ×4**
+(spec clon §4): Developer/PO/DevOps tal cual con el reframe integrado; CTO como HUECO DECLARADO
+(paso 1 —vista multi-proyecto— bloqueado por PB-21→PB-22 desde que la Torre se eliminó).
+**(2) 7 principios de la experiencia** (la estrella es quien orquesta · la experiencia manda el
+port · todo deriva del dato as-code · nada huérfano sesión→historia→capability · aislamiento
+por defecto · el repositorio es el conector · honestidad de superficie). **(3) El reframe** (la
+decisión más grande): Rol = arnés instalado desde marketplace — SOLO marketplace, cero roles
+locales; mecanismo = **registry PROPIO de DevStudio** (fork firmado contra la recomendación de
+usar el sistema de plugins nativo de CC); permisos por puesto = con multi-usuario. Supersede la
+definición de Rol de spec §3 («plantilla local + catálogo curado»). **(4) Orden de herencia**:
+Proyecto → Rol → Sesión-workspace → Historia/Capability → Proceso (spec §3 tal cual; PB-02
+sigue adelantada en 🔴 por seguridad). **(5) Dudas §9**: multi-usuario TBD formal sin bloquear
+(PB-21 dueño Chris) · PB-02 = worktree + validación de rutas protegidas en la misma entrega ·
+catálogo disuelto por el reframe · operonapp cerrada sin revisar. **(6) Slots del seam**:
+domain_modules spec §3 + `registry` · agent_roster ajustado al repo real (backend-go /
+frontend-web) · value_stream 10 estados completos (incluye parked/dropped) · wip_caps advisory
+(se visualizan, no restringen). Artefactos del cierre: `NORTE-BORRADOR.md` →
+`NORTE-FIRMADO.md` · slots `__FILL_ME__` rellenos en `project.config.yaml` · spec §9 marcada
+resuelta · BACKLOG: PB-01 entregada (gate, sin CAP), PB-06 redefinida por el reframe, **PB-25
+nueva** (registry propio), PB-21 desbloqueada a TBD-con-dueño.
+
+*Conecta:* DH-12 (I-77: «el kit lo shipea, DevStudio lo interpreta» — hoy extendido al rol
+entero) · DH-13 (F1 entregada; la deuda «F0 sin firmar» que esta ficha salda) · DH-10 (driver
+CLI-nativo intacto: el arnés se materializa como artefactos que el `claude` spawneado carga) ·
+[`epicas/experiencia-orquestada/NORTE-FIRMADO.md`](./epicas/experiencia-orquestada/NORTE-FIRMADO.md)
+(el norte) · `CLON-AGENTSROOM-SPEC.md` §9 (dudas resueltas) · `project.config.yaml` (seam
+completo) · BACKLOG PB-01/PB-06/PB-21/PB-25.
+
+*Siguiente:* banda 🔴 del BACKLOG: PB-02 (workspace aislado + validación de rutas — forma
+firmada hoy) y PB-03 (Storybook + atomic design). Diseñar el registry propio (PB-25) antes o
+junto a la rebanada Rol (PB-06). Promover lo permanente de la épica a `specs/` recién al cierre
+de la ÉPICA.
+
+<!-- Próximas: DH-15, DH-16, … -->
 
 ## Log
 
@@ -97,3 +140,4 @@ todavía pendiente pese a que F1 ya entregó código) + decidir si el segundo ad
 |---|---|---|
 | 2026-07-04 | Fundación del repo propio: graduación de P2 (nombre DevStudio confirmado — binario `dev-studio`, muere la colisión `cockpit` de nacimiento); visión ampliada = construir y mantener software basado en proceso y arquitectura, trabajo orquestado multi-usuario (CTO·developer·devops·PO), GitHub conector; célula del monorepo congelada como fuente del port gradual; kit dev como plugin del marketplace; épica «Experiencia Orquestada» sembrada (F0 por firmar). | DH-12 |
 | 2026-07-06 | F1 esqueleto de la app entregado: driver CLI-nativo propio (subproceso `claude` + stream-json, multisesión real verificada con 2 procesos concurrentes) + rail de sesiones colapsable (estilo Storybook de `harness-studio` copiado 1:1, dominio simplificado) + arquitectura as code propia (`arch/`, 5 boundaries, 2 enforced con test) con brecha de seguridad documentada sin ocultar. | DH-13 |
+| 2026-07-07 | F0 norte FIRMADO (cierra PB-01 y la deuda de DH-13): journeys ×4 (CTO = hueco declarado) + 7 principios + reframe Rol = arnés instalado desde REGISTRY PROPIO (solo marketplace, cero roles locales; permisos por puesto con multi-usuario) + orden de herencia Proyecto→Rol→Sesión-workspace→Historia/Capability→Proceso + dudas §9 resueltas (multi-usuario TBD sin bloquear; PB-02 = worktree + validación rutas) + seam completo (value_stream 10 estados, wip_caps advisory). | DH-14 |

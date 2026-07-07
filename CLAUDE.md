@@ -46,9 +46,16 @@ respuestas) navegando por tabs en el navegador. Arquitectura as code propia en
 [`arch/INDEX.md`](./arch/INDEX.md) — 5 boundaries, 2 con test corriendo (`go test
 ./arch/fitness/...`), 1 brecha de seguridad documentada sin ocultar
 ([`arch/boundaries/sesion-aislada-por-cwd.md`](./arch/boundaries/sesion-aislada-por-cwd.md): sin
-validación de rutas protegidas todavía). **Falta:** F0 (norte firmado de la épica, hoy solo
-borrador) todavía no se firmó pese a que F1 ya tiene código — deuda reconocida en DH-13; cerrar
-la brecha de cwd antes de exponer la app fuera del equipo; toolchain aún no reflejado en
-`project.config.yaml` (seams a rellenar: ver DH-13).
+validación de rutas protegidas todavía). **Falta:** cerrar la brecha de cwd (PB-02: worktree +
+validación de rutas, forma firmada en F0) antes de exponer la app fuera del equipo.
+
+**Estado (DH-14, 2026-07-07):** F0 cerrada — norte FIRMADO en
+[`epicas/experiencia-orquestada/NORTE-FIRMADO.md`](./epicas/experiencia-orquestada/NORTE-FIRMADO.md):
+journeys ×4 (CTO = hueco declarado, bloqueado por PB-21→22) · 7 principios · **reframe Rol: rol
+= arnés instalado desde REGISTRY PROPIO de DevStudio** (solo marketplace, cero roles locales;
+el descriptor I-77 y el rol entero viajan EN el arnés; permisos por puesto = con multi-usuario)
+· orden de port Proyecto→Rol→Sesión-workspace→Historia/Capability→Proceso · multi-usuario TBD
+formal sin bloquear (PB-21, dueño Chris). Seam `project.config.yaml` completo (los 4 slots
+firmados: +registry, roster real del repo, 10 estados, wip_caps advisory).
 
 **Git:** trunk-based — `main` única, commit/push directo, tags semver cuando haya releases.

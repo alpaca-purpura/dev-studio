@@ -1,6 +1,6 @@
 # Spec — Clon de AgentsRoom con espíritu propio (insumo F0 · sin firmar)
 
-> ⚠ Insumo para **F0** de la épica [«Experiencia Orquestada»](./NORTE-BORRADOR.md) — no la
+> ⚠ Insumo para **F0** de la épica [«Experiencia Orquestada»](./NORTE-FIRMADO.md) — no la
 > reemplaza ni la firma. Aporta benchmark competitivo verificado + una propuesta concreta de
 > modelo de dominio y de journeys por rol, que es exactamente lo que F0 pide debatir y firmar.
 > La mayoría de este documento es propuesta sin ratificar — **excepto §0.5**, que documenta
@@ -135,6 +135,12 @@ app móvil) es superficie — se puede o no copiar según §7.
 
 ## 3. Modelo de dominio propuesto
 
+> ★ **F0 2026-07-07 (DH-14): la definición de Rol de esta sección quedó SUPERSEDIDA** por el
+> reframe firmado — Rol = arnés (plugin) instalado desde el **registry propio** de DevStudio
+> (PB-25); cero plantillas locales, sin catálogo curado en la app (la curaduría vive en el
+> registry). Ver `NORTE-FIRMADO.md § Modelo Rol/Registry`. El resto del modelo (Proyecto,
+> Sesión, Historia, Capability, Proceso) sigue vigente tal como está.
+
 Dev Studio hoy (`internal/domain/session.go`) tiene un único concepto: `Session` con `Cwd` suelto,
 sin contenedor. Es deliberadamente mínimo (F1 = esqueleto). La célula congelada
 (`prenter-harness/products/devhub`) ya construyó, y verificó, un modelo de dominio mucho más rico
@@ -177,8 +183,11 @@ wip_caps:
   # mapea a procesoEstado.Wip, ya existe como campo en la herencia
 ```
 
-Estos son propuestas de esta spec, no están firmados — quedan para que Chris los ratifique en F0
-junto con el resto.
+**Ratificados en F0 (2026-07-07, DH-14) con ajustes:** `domain_modules` + `registry` ·
+`agent_roster` ajustado al repo real (backend-go/frontend-web, sin móvil) · `value_stream` con
+los 10 estados COMPLETOS (parked/dropped incluidos) · `wip_caps` advisory (se visualizan, no
+restringen). El SSoT es `project.config.yaml` — este bloque queda como registro histórico de la
+propuesta.
 
 ## 4. Journeys por rol (lo que F0 pide explícitamente)
 
@@ -298,7 +307,7 @@ con Capability agregada donde agentsroom no la tiene.
 | **Biblioteca de prompts / skills** | Ídem | Igual, exportable a Claude/Cursor/Codex como ya hacen ellos |
 | **Proceso** (visor del descriptor) | No existe en agentsroom | Nuevo — de la herencia (`ProcesoProvider`), visualiza estados/gates/dueños |
 
-## 8. Fases propuestas (diálogo directo con los candidatos de `NORTE-BORRADOR.md`)
+## 8. Fases propuestas (diálogo directo con los candidatos de `NORTE-FIRMADO.md`, entonces borrador)
 
 - **F0** (sin cerrar): además de journey-por-rol + principios, firmar explícitamente **el orden
   de herencia de §3** (Proyecto → Rol → Sesión-workspace → Historia/Capability → Proceso-as-code) y
@@ -314,16 +323,19 @@ con Capability agregada donde agentsroom no la tiene.
 
 ## 9. Dudas abiertas (para Chris, antes de firmar F0)
 
-- [ ] ¿El modelo de organización multi-usuario (§6) es un requisito de F0/F2 temprano, o puede
-  vivir como TBD hasta más adelante sin bloquear el port de Proyecto/Rol/Historia/Capability
-  (que sí tienen sentido en versión mono-usuario mientras tanto)?
-- [ ] ¿Confirmamos workspace aislado por sesión como la forma de cerrar DH-14, en vez de (o además
-  de) la validación de rutas protegidas ya planteada?
-- [ ] ¿El catálogo de roles curado (§6) arranca con la lista corta propuesta en §3, o Chris quiere
-  ver primero el system-prompt completo de algún rol de "The Agency" antes de decidir cuánto
-  catálogo externo vale la pena importar?
-- [ ] `operonapp.dev` — ¿Chris tiene una URL/captura directa? No se encontró indexado; si hay algo
-  puntual que rescatar de ahí, vale una vuelta antes de firmar F0.
+- [x] ~~¿El modelo de organización multi-usuario (§6) es requisito temprano o TBD…?~~ RESUELTO
+  2026-07-07 (F0/DH-14): **TBD formal SIN bloquear el port** — las rebanadas se portan
+  mono-usuario; PB-21 queda ⚪ con dueño Chris, a decidir antes de PB-22 (vista CTO) y PB-23
+  (auth). Los permisos por puesto del reframe también llegan con multi-usuario.
+- [x] ~~¿Workspace aislado por sesión como forma de cerrar DH-14…?~~ RESUELTO 2026-07-07
+  (F0/DH-14): **sí, Y ADEMÁS validación de rutas protegidas en la misma entrega** (PB-02) — el
+  worktree aísla sesiones entre sí pero no impide registrar un proyecto en ruta peligrosa.
+- [x] ~~¿El catálogo de roles curado arranca con la lista corta de §3…?~~ RESUELTO 2026-07-07
+  (F0/DH-14): **duda disuelta por el reframe** — Rol = arnés instalado desde el registry propio
+  (ver nota ★ en §3); sin catálogo local ni import de "The Agency". La curaduría vive en el
+  registry.
+- [x] ~~`operonapp.dev` — ¿URL/captura directa?~~ RESUELTO 2026-07-07 (F0/DH-14): **cerrada sin
+  revisar** — agentsroom + conductor cubren el patrón dominante; no condiciona el norte.
 - [x] ~~¿La Torre (inbox global) es F2 temprano o puede esperar...?~~ RESUELTO 2026-07-06:
   eliminada del shell, ver §0.5. No se clona.
 
