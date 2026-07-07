@@ -18,6 +18,8 @@ interface ReposState {
   refreshStatus: (repoId: string) => Promise<void>;
   refreshSessionStatus: (sessionId: string) => Promise<void>;
   toggleExpanded: (repoId: string) => void;
+  /** garantiza grupo abierto (reveal al activar una sesión oculta, p. ej. por ⌘N) */
+  ensureExpanded: (repoId: string) => void;
   setAddOpen: (v: boolean) => void;
 }
 
@@ -76,6 +78,9 @@ export const useRepos = create<ReposState>((set, get) => ({
 
   toggleExpanded: (repoId: string) =>
     set((st) => ({ expanded: { ...st.expanded, [repoId]: !(st.expanded[repoId] ?? true) } })),
+
+  ensureExpanded: (repoId: string) =>
+    set((st) => ((st.expanded[repoId] ?? true) ? st : { expanded: { ...st.expanded, [repoId]: true } })),
 
   setAddOpen: (v: boolean) => set({ addOpen: v, addError: null }),
 }));

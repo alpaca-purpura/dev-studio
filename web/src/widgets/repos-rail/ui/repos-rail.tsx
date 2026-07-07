@@ -74,8 +74,12 @@ function WorkspaceItem({ session, index }: { session: Session; index: number }) 
   );
 }
 
+/** clave de grupo estable — el pseudo-repo «(sin repositorio)» también colapsa (UX estándar
+ *  de tree views: todo grupo colapsa, el contador siempre visible; bug dogfooding DH-16.1) */
+export const repoKey = (r: Repo) => r.id || "sin-repo";
+
 function RepoBlock({ repo, sessions, startIndex }: { repo: Repo; sessions: Session[]; startIndex: number }) {
-  const expanded = useRepos((s) => s.expanded[repo.id] ?? true);
+  const expanded = useRepos((s) => s.expanded[repoKey(repo)] ?? true);
   const toggleExpanded = useRepos((s) => s.toggleExpanded);
   const startPicker = useUi((s) => s.startPicker);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -84,7 +88,8 @@ function RepoBlock({ repo, sessions, startIndex }: { repo: Repo; sessions: Sessi
   return (
     <section className="py-1">
       <button
-        onClick={() => isReal && toggleExpanded(repo.id)}
+        onClick={() => toggleExpanded(repoKey(repo))}
+        aria-expanded={expanded}
         className="flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-left hover:bg-sidebar-accent"
       >
         <svg
@@ -190,6 +195,15 @@ export function ReposRail() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [flat, switchTo]);
+
+  // reveal: activar una sesión (clic/⌘N) expande su grupo si estaba colapsado
+  const activeId = useSessions((s) => s.activeId);
+  const ensureExpanded = useRepos((s) => s.ensureExpanded);
+  useEffect(() => {
+    if (!activeId) return;
+    const sess = sessions.find((s) => s.id === activeId);
+    if (sess) ensureExpanded(sess.repo_id || "sin-repo");
+  }, [activeId, sessions, ensureExpanded]);
 
   const submitAdd = async () => {
     const r = ruta.trim();

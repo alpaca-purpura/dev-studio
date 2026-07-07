@@ -9,7 +9,9 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"sync"
 
 	"github.com/alpacapurpura/dev-studio/internal/ports"
@@ -25,12 +27,36 @@ type Conductor struct {
 // adaptador-agente-intercambiable (arch/boundaries/adaptador-agente-intercambiable.md).
 var _ ports.AgentPort = (*Conductor)(nil)
 
-// New crea un Conductor. bin vacío usa "claude" del PATH.
+// New crea un Conductor. bin vacío = resolver "claude" del PATH con fallbacks a las rutas
+// de instalación típicas — lanzada desde un .desktop, la app hereda un PATH pelado que no
+// incluye ~/.local/bin (bug real cazado en dogfooding, DH-16.1).
 func New(bin string) *Conductor {
 	if bin == "" {
-		bin = "claude"
+		bin = resolveClaudeBin()
 	}
 	return &Conductor{bin: bin}
+}
+
+func resolveClaudeBin() string {
+	if p, err := exec.LookPath("claude"); err == nil {
+		return p
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "claude"
+	}
+	for _, cand := range []string{
+		filepath.Join(home, ".local", "bin", "claude"),
+		filepath.Join(home, "bin", "claude"),
+		filepath.Join(home, ".npm-global", "bin", "claude"),
+		"/usr/local/bin/claude",
+		"/opt/homebrew/bin/claude",
+	} {
+		if fi, err := os.Stat(cand); err == nil && !fi.IsDir() {
+			return cand
+		}
+	}
+	return "claude" // que el error de spawn lo diga claro — la UI ya lo muestra
 }
 
 func (c *Conductor) Spawn(ctx context.Context, opts ports.SpawnOpts) (ports.AgentSession, error) {

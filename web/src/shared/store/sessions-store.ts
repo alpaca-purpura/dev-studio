@@ -70,7 +70,20 @@ export const useSessions = create<SessionsState>((set, get) => ({
           : s,
       ),
     }));
-    await api.turn(id, text);
+    try {
+      await api.turn(id, text);
+    } catch (e) {
+      // el POST falló (p. ej. spawn de claude imposible): jamás quedar «streaming» mudo —
+      // se revierte el estado y el error REAL entra como burbuja (bug dogfooding DH-16.1)
+      const msg = e instanceof Error ? e.message : String(e);
+      set((st) => ({
+        sessions: st.sessions.map((s) =>
+          s.id === id
+            ? { ...s, status: "idle", conv: [...s.conv, { role: "assistant", text: `⚠ No se pudo enviar el turno: ${msg}` }] }
+            : s,
+        ),
+      }));
+    }
   },
 
   enqueue: (id: string, text: string) => {

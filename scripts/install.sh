@@ -42,6 +42,8 @@ if [ "$MODE" != "--update" ]; then
   cat > "$BIN_DIR/dev-studio-open" << 'LAUNCHER'
 #!/usr/bin/env bash
 set -u
+# PATH completo aunque el entorno .desktop venga pelado (claude/go/npm viven en ~/.local/bin)
+export PATH="$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH"
 ADDR="127.0.0.1:4173"
 URL="http://$ADDR"
 if ! curl -sf --max-time 1 "$URL/api/version" > /dev/null 2>&1; then
@@ -52,7 +54,9 @@ if ! curl -sf --max-time 1 "$URL/api/version" > /dev/null 2>&1; then
   done
 fi
 if command -v google-chrome > /dev/null 2>&1; then
-  exec google-chrome --app="$URL" --user-data-dir="$HOME/.dev-studio/chrome-profile"
+  # ventana propia, sin diálogos de primera vez del perfil dedicado
+  exec google-chrome --app="$URL" --user-data-dir="$HOME/.dev-studio/chrome-profile" \
+    --no-first-run --no-default-browser-check --disable-features=DefaultBrowserPrompt
 fi
 exec xdg-open "$URL"
 LAUNCHER
