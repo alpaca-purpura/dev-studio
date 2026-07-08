@@ -47,6 +47,23 @@ export interface Repo {
   ruta: string;
 }
 
+/** Arnés del registry (PB-25) — formato ArnesIA (nomenclatura-arnes v1): meta rol×proceso. */
+export interface Arnes {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  rol: string;
+  proceso?: string;
+  version: string;
+  canal?: string;
+  fases?: string[];
+}
+
+export interface RegistryEstado {
+  source: string;
+  arneses: Arnes[] | null;
+}
+
 export interface GitFile {
   path: string;
   state: string; // M | A | D | R

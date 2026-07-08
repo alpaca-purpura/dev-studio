@@ -5,7 +5,7 @@ import { useSessions } from "../../../shared/store/sessions-store";
 import { useUi } from "../../../shared/store/ui-store";
 import { cn } from "../../../shared/lib/cn";
 import { Button, DiffStat, Input, Kbd, StatusDot, statusLabel, type WorkspaceState } from "../../../shared/ui";
-import { UpdateFooter } from "./update-footer";
+import { ConfigFooter } from "./config-footer";
 
 /** Pseudo-repo para sesiones F1 sin repo_id (migración, spec shell §6). */
 const SIN_REPO: Repo = { id: "", nombre: "(sin repositorio)", ruta: "" };
@@ -288,7 +288,7 @@ export function ReposRail() {
         })}
       </div>
 
-      <UpdateFooter />
+      <ConfigFooter />
     </nav>
   );
 }

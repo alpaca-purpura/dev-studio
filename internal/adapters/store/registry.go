@@ -17,6 +17,11 @@ import (
 type stateFile struct {
 	Repos    []domain.Repo    `json:"repos"`
 	Sessions []domain.Session `json:"sessions"`
+	Registry *registryConfig  `json:"registry,omitempty"` // conexión al marketplace de arneses (PB-25)
+}
+
+type registryConfig struct {
+	Source string `json:"source"`
 }
 
 // State implementa ports.SessionStore + ports.RepoStore sobre UN archivo state.json.
@@ -135,5 +140,29 @@ func (s *State) SaveRepos(_ context.Context, repos []domain.Repo) error {
 		repos = []domain.Repo{}
 	}
 	s.data.Repos = repos
+	return s.persistLocked()
+}
+
+// --- ports.RegistryConfigStore (PB-25) ---
+
+func (s *State) LoadRegistrySource(_ context.Context) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if err := s.ensureLoadedLocked(); err != nil {
+		return "", err
+	}
+	if s.data.Registry == nil {
+		return "", nil
+	}
+	return s.data.Registry.Source, nil
+}
+
+func (s *State) SaveRegistrySource(_ context.Context, source string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if err := s.ensureLoadedLocked(); err != nil {
+		return err
+	}
+	s.data.Registry = &registryConfig{Source: source}
 	return s.persistLocked()
 }

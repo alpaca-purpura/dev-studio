@@ -16,7 +16,11 @@ import (
 	"syscall"
 
 	claudecode "github.com/alpacapurpura/dev-studio/internal/adapters/agent/claudecode"
+	arnescache "github.com/alpacapurpura/dev-studio/internal/adapters/arneses/cache"
+	"github.com/alpacapurpura/dev-studio/internal/adapters/arneses/lockfile"
 	gitcli "github.com/alpacapurpura/dev-studio/internal/adapters/git/cli"
+	"github.com/alpacapurpura/dev-studio/internal/adapters/registry/fscatalog"
+	"github.com/alpacapurpura/dev-studio/internal/adapters/registry/gitsync"
 	"github.com/alpacapurpura/dev-studio/internal/adapters/store"
 	httptransport "github.com/alpacapurpura/dev-studio/internal/adapters/transport/http"
 	"github.com/alpacapurpura/dev-studio/internal/adapters/transport/sse"
@@ -59,7 +63,28 @@ func main() {
 	gitAdapter := gitcli.New()
 	git := usecase.NewGitService(gitAdapter, gitAdapter, gitAdapter)
 
-	api := httptransport.NewRouter(sessions, repos, git, broker, httptransport.Deps{
+	// registry de arneses (PB-25): sync confinado a ~/.dev-studio/registry + caché de
+	// forma-plugin + lock as-code en el repo; el rol se inyecta al spawn por flags.
+	arneses, err := usecase.NewArnesService(ctx,
+		gitsync.New("git", filepath.Join(home, ".dev-studio", "registry")),
+		fscatalog.New(),
+		lockfile.New(),
+		arnescache.New(filepath.Join(home, ".dev-studio", "arneses")),
+		gitAdapter,
+		appState,
+	)
+	if err != nil {
+		log.Fatalf("dev-studio: arnes service: %v", err)
+	}
+	sessions.SetArnesResolver(func(repoID, rol string) (usecase.ArnesInjection, error) {
+		repo, ok := repos.Get(repoID)
+		if !ok {
+			return usecase.ArnesInjection{}, usecase.ErrNotFound
+		}
+		return arneses.Injection(ctx, repo.Ruta, rol)
+	})
+
+	api := httptransport.NewRouter(sessions, repos, git, arneses, broker, httptransport.Deps{
 		Home:          home,
 		WorkspacesDir: filepath.Join(home, ".dev-studio", "workspaces"),
 		Version:       version,

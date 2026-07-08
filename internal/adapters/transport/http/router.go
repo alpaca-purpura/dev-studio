@@ -21,12 +21,13 @@ type Deps struct {
 	BinPath       string // ~/.local/bin/dev-studio (destino del rebuild + exec)
 }
 
-// NewRouter monta la API local (sesiones + repos + git + versión/update + eventos).
-func NewRouter(sessions *usecase.SessionService, repos *usecase.RepoService, git *usecase.GitService, broker *sse.Broker, deps Deps) http.Handler {
+// NewRouter monta la API local (sesiones + repos + git + registry de arneses +
+// versión/update + eventos).
+func NewRouter(sessions *usecase.SessionService, repos *usecase.RepoService, git *usecase.GitService, arneses *usecase.ArnesService, broker *sse.Broker, deps Deps) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /api/sessions", listSessions(sessions))
-	mux.HandleFunc("POST /api/sessions", createSession(sessions, repos, git, deps.Home, deps.WorkspacesDir))
+	mux.HandleFunc("POST /api/sessions", createSession(sessions, repos, git, arneses, deps.Home, deps.WorkspacesDir))
 	mux.HandleFunc("GET /api/sessions/{id}", getSession(sessions))
 	mux.HandleFunc("PATCH /api/sessions/{id}", patchSession(sessions))
 	mux.HandleFunc("DELETE /api/sessions/{id}", deleteSession(sessions, repos, git))
@@ -44,6 +45,14 @@ func NewRouter(sessions *usecase.SessionService, repos *usecase.RepoService, git
 	mux.HandleFunc("POST /api/repos", registerRepo(repos))
 	mux.HandleFunc("DELETE /api/repos/{id}", deleteRepo(repos))
 	mux.HandleFunc("GET /api/repos/{id}/git/status", repoGitStatus(repos, git))
+
+	// registry de arneses (PB-25): conexión a nivel app + roster por repo
+	mux.HandleFunc("GET /api/registry", getRegistry(arneses))
+	mux.HandleFunc("PUT /api/registry", putRegistry(arneses))
+	mux.HandleFunc("POST /api/registry/sync", syncRegistry(arneses))
+	mux.HandleFunc("GET /api/repos/{id}/arneses", listArnesesInstalados(arneses, repos))
+	mux.HandleFunc("POST /api/repos/{id}/arneses", instalarArnes(arneses, repos))
+	mux.HandleFunc("DELETE /api/repos/{id}/arneses/{arnesId}", desinstalarArnes(arneses, repos))
 
 	mux.HandleFunc("GET /events", broker.ServeHTTP)
 

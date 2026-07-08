@@ -277,7 +277,90 @@ creados migran al board real).
 (registry) → PB-06 (Roles). Nota: los ítems tipo `historia` deberán exigir capability cuando
 exista el board real (PB-07) — la regla de la casa no se negocia, hoy no hay dónde elegirla.
 
-<!-- Próximas: DH-18, DH-19, … -->
+### DH-18 · Registry de arneses — DevStudio adopta el estándar ArnesIA (PB-25 ⊕ PB-05) — `decidida` · `vig:vigente`
+
+*Cruda (operador, 2026-07-07):* "Solo te pido revises y converses con ~/Proyectos/harness-studio
+porque aquí se crean los arneses, el formato que necesites debes pasarselo de alguna forma que
+pueda constuirlos así, o ve como los construye según su doctrina y te adaptas, pero no
+construyas por construir." Y ante el análisis: "quiero saber cuál es mejor, debido a que
+arnesia esta construyendose tmb… si nos adaptamos o modificamos arnesia o un cruce de ambos."
+
+*Desarrollo:* sesión banda 🟡. **(1) Auditoría PB-05:** vaciada por el reframe DH-14 — su único
+resto con journey (roster por proyecto + conexión del registry) ES PB-25 → **fusionada** (fork
+firmado); metadatos declarados sin journey. **(2) Revisión profunda de ArnesIA** (mandato «no
+construyas por construir»): la fábrica YA firmó e implementó su formato —
+`arch/contracts/nomenclatura-arnes.md` v1 (forma-plugin: plugin.json + `arnes.l0.json` con meta
+rol×proceso + spine + skills con contrato + CLAUDE.md banda Base; loader round-trip 13/13) —,
+su VISION ya dibuja el eslabón exacto («publica → marketplace git → instala → proyecto →
+ejecuta ← apps de rol»: DevStudio ES la app de rol), el marketplace git corre en producción
+(prenter-marketplace: marketplace.json + catalogo.json) y su METODOLOGIA §9 manda inyección
+por flags, jamás escribir la maquinaria en el árbol del proyecto. Dos forks firmados en sesión
+quedaron SUPERSEDIDOS el mismo día y se RE-firmaron: **formato = ArnesIA as-is** (muere el
+arnes.yaml propio) y **materialización = CRUCE**: lock as-code `.devstudio/arneses.yaml`
+committeado (roster viaja por GitHub, modelo npm: payload rehidratable) + caché forma-plugin
+INTACTA en `~/.dev-studio/arneses/` + inyección por sesión con los MISMOS flags que la fábrica
+usa para su kit (`--plugin-dir` + system prompt). Prompt de interop entregado a Chris para la
+sesión ArnesIA (ratificar formato del publish fase-5 · `categoria` semántica en el spine
+[puente a I-77, para PB-08] · campo `nombre` · postura multi-arnés/lock). **(3) Construcción
+TDD:** dominio `Arnes`/lock · puertos RegistrySync/RegistryCatalog/ArnesLock/ArnesCache ·
+adapters `registry/gitsync` (clone/pull confinado POR CONSTRUCCIÓN a `~/.dev-studio/registry/`
+— boundary git-solo-lectura-y-commit v1.1 con fitness nuevo `registry-sin-push`) +
+`registry/fscatalog` + `arneses/lockfile` (YAML) + `arneses/cache` · `ArnesService` (conectar/
+instalar/desinstalar/inyección con rehidratación) · commit del lock por pathspec · guard RN-5
+(422) · SpawnOpts+buildArgs · Config overlay v2 (sección Registry + roster real por proceso +
+catálogo instalar/desinstalar — **MOCK_ROSTER MUERTO**, grep=0) + stories RN-9.
+**(4) Verificación: 7/7 checks** contra el binario instalado **con el arnés REAL
+`dev-full-cycle` de ArnesIA** (interop de verdad): catálogo con rol/proceso/fases del
+manifiesto real · caché `diff -r`=0 · commit solo-lock (`git show`) · sesión con rol desde el
+wizard → flags en `/proc/{pid}/cmdline` → **el turno respondió EXACTO las 4 skills namespaced**
+(`dev-full-cycle:builder/releaser/reviewer/spec-writer`) · ciclo desinstalar + 422s. **La app
+se actualizó a sí misma 2 veces EN el gate** y cada vuelta cazó un bug real: (a) updater muerto
+bajo el PATH pelado del .desktop (`npm` de nvm no entra por `bash -lc` → fallbacks explícitos
+en install.sh); (b) `--append-system-prompt` y `--append-system-prompt-file` son EXCLUYENTES
+en la CLI (proceso claude defunct al nacer) → la banda Base viaja EMBEBIDA en el único prompt.
+**(5) Feedback dogfooding en la misma sesión (DH-18.1):** globo «No se puede actualizar
+Chrome» dentro de la ventana app → flag `OutdatedBuildDetector` deshabilitado en el lanzador
+(la causa raíz es el Chrome del sistema; Tauri sigue siendo PB-24) · **Config se muda a su
+zona**: sale del studio-nav (zona por sesión) al footer del rail de repositorios (zona app,
+patrón ArnesIA) y versión+«Actualizar» viven DENTRO del overlay (§ Aplicación) — spec shell
+§3.2 evolucionada con changelog; verificado en vivo tras otro self-update.
+
+*Conecta:* DH-14 (el reframe que esto materializa — rol = arnés instalado, cero roles locales)
+· DH-10 (intacto: archivos en disco + flags nativos, cero API) · DH-16/17 (el loop dogfooding
+que cazó los 2 bugs) · ArnesIA HS-10/HS-11 (nomenclatura v1 + los 3 cuerpos — los contratos
+cross-repo que esta ficha consume) · I-77 (spine⟷descriptor: reconciliación diferida a PB-08,
+pedido `categoria` en el prompt interop) · `specs/registry-arneses/SPEC.md` · BACKLOG
+PB-05/PB-25/PB-06 · INCREMENTO CAP-13/CAP-02.
+
+*Siguiente:* Chris pega el prompt interop en la sesión ArnesIA (las respuestas entran por
+changelog de la spec — nada bloquea). Banda 🟡: PB-06 (vista Roles rica) → PB-07 (Historia/
+Capability). Registry duradero RESUELTO en el mismo cierre: `~/Proyectos/marketplace-arneses`
+(repo git semilla con dev-full-cycle de ArnesIA + README que declara «los arneses nacen en
+ArnesIA, acá solo se publican»); la app quedó CONECTADA a él (persistido en state.json) y el
+lock de demo-gamma re-apunta. Cuando ArnesIA entregue su publish fase-5, alimenta ese repo (o
+su URL en GitHub) sin tocar DevStudio.
+
+**(6) Interop RESPONDIDO (DH-18.2, mismo día — ficha HS-12 de la fábrica, 4 firmas + 1
+reparación):** los 5 pedidos volvieron y entraron por changelog v1.1 de la spec (mecanismo
+firmado arriba). (1) Publish fase-5 RATIFICADO con contrato estable (marketplace.json +
+forma-plugin + catalogo.json canales/versiones — evolución solo aditiva; base firme para
+PB-06 upgrade). (2) `spine.categorias` ACEPTADO: enum FIJO = I-77 RN-28, terminalidad
+derivada — ya en schema L0 + dogfood; semilla 0.1.0 sin mutar → PB-08 rehidrata del dogfood
+actualizado o espera publish. (3) `arnes.l0.nombre` = campo canónico (ArnesIA REPARÓ su
+schema: §2 lo nombraba pero lo rechazaba); cadena de fallback bendecida
+`nombre → name → id` ídem descripcion → fscatalog ALINEADO con TDD (leía plugin.json
+pisando `l0.descripcion` + faltaba el eslabón final →id; 2 tests nuevos, suite verde).
+(4) Lock `.devstudio/arneses.yaml` BENDECIDO como superficie de auditoría in situ (detector
+3° de nomenclatura-arnes v1.1, la fábrica lo lee read-only); **pedido recíproco CUMPLIDO:
+contrato estable declarado** — campos `registry` + `arneses[].{id, version, canal}`, solo
+aditivo (spec §2). (5) spine⟷I-77 CONFORME con nuestra lectura: spine(+categorias) =
+subconjunto navegable canónico; gates/dueños DERIVADOS de contratos por caja; el arnés NO
+shipea descriptor I-77 (materializado = export/proyección); derivación bendecida (dueño de
+estado = caja cuya transición llega · dueño-caja = rol, resto = operador · terminalidad =
+categoría). **PB-08 re-redactada con este modelo — el pendiente externo de DH-18 queda
+CERRADO; nada quedó bloqueado.**
+
+<!-- Próximas: DH-19, DH-20, … -->
 
 ## Log
 
@@ -290,3 +373,5 @@ exista el board real (PB-07) — la regla de la casa no se negocia, hoy no hay d
 | 2026-07-07 | Shell PRENTER ENTREGADO (PB-04 ⊕ PB-03 → entregadas): tokens+fuentes vendorizadas, backend git TDD, boundary `git-solo-lectura-y-commit` enforced, Storybook (RN-9), rail Repositorios→Workspaces reemplaza al rail F1, panel Cambios real con commit por pathspec, flujo picker→sesión ligada. 24/24 checks del gate en vivo (turno real, commit selectivo probado con `git show`, concurrencia sin cruce, migración F1 real). CAP-07/08/09 nuevas. Siguiente: PB-02 sobre este shell. | DH-15 |
 | 2026-07-07 | Workspace aislado + instalable ENTREGADOS (PB-02 ⊕ PB-26): toda sesión nace en su worktree `wt/{slug}` en `~/.dev-studio/workspaces/` + rutas protegidas en toda puerta + modal cierre conservar/borrar (sin --force jamás) → **boundary `sesion-aislada-por-cwd` ENFORCED (la brecha fundacional cerrada)**. Instalable dogfooding: install.sh + .desktop + icono + versión embebida + botón «Actualizar» (rebuild local + restart). 14/14 checks en vivo contra el binario instalado — incluida la app actualizándose a sí misma con un fix vivo post-restart. CAP-10/11 nuevas. | DH-16 |
 | 2026-07-07 | Primer feedback de dogfooding: 3 fixes (bienvenida Chrome · colapso universal del rail · claude mudo por PATH del .desktop — resolución con fallbacks + error visible) + **PB-27 «Nuevo Workspace» v2**: taxonomía estándar 5 tipos con branch por prefijo (feature/bugfix/hotfix/chore/spike — muere wt/), wizard ubicación→propósito con guards backend, **exploración read-only** (`--permission-mode plan`, edición BLOQUEADA verificada en vivo), crear ítem desde el wizard. RN-1 evolucionada: «toda sesión con edición liga a un paquete». 10/10 checks. CAP-12 nueva. | DH-17 |
+| 2026-07-07 | Registry de arneses ENTREGADO (PB-25 ⊕ PB-05 fusionada): DevStudio ADOPTA el estándar ArnesIA (nomenclatura-arnes v1 + marketplace git en producción — «no construyas por construir») con materialización CRUCE: lock as-code committeado + caché forma-plugin + inyección por sesión `--plugin-dir`+system-prompt (patrón HS-11 de la fábrica; DH-10 intacto). Roster mock MUERTO; guard RN-5. Boundary git-solo-lectura-y-commit v1.1 (registry confinado, fitness nuevo). 7/7 checks en vivo con el arnés REAL dev-full-cycle de ArnesIA — las 4 skills namespaced respondidas por el claude de la sesión. 2 bugs cazados EN el gate (updater PATH .desktop · flags de prompt excluyentes). CAP-13 nueva. Prompt interop → sesión ArnesIA. | DH-18 |
+| 2026-07-07 | Interop ArnesIA RESPONDIDO (HS-12 → DH-18.2): publish fase-5 ratificado con contrato estable · `spine.categorias` aceptado (enum I-77 RN-28, terminalidad derivada) · `arnes.l0.nombre` canónico + cadena fallback bendecida (fscatalog alineado TDD) · lock bendecido como detector 3° + **contrato estable recíproco declarado** (`registry·id·version·canal`, solo aditivo, spec §2) · spine⟷I-77 CONFORME: gates/dueños se derivan de contratos por caja, el arnés no shipea I-77 (export/proyección) → PB-08 re-redactada. Pendiente externo de DH-18 CERRADO. | DH-18 |

@@ -75,6 +75,14 @@ func buildArgs(opts ports.SpawnOpts) []string {
 	if opts.Resume != "" {
 		args = append(args, "--resume", opts.Resume)
 	}
+	// Arnés del rol (PB-25): forma-plugin por --plugin-dir + un solo system prompt
+	// (preámbulo + banda Base embebida — la CLI no acepta prompt y file a la vez).
+	for _, d := range opts.PluginDirs {
+		args = append(args, "--plugin-dir", d)
+	}
+	if opts.SystemPrompt != "" {
+		args = append(args, "--append-system-prompt", opts.SystemPrompt)
+	}
 	return args
 }
 

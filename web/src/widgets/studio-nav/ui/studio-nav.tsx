@@ -8,13 +8,14 @@ interface NavItem {
   path: string;
 }
 
-/** studio-nav (spec shell §3.2): microcopy en español (RN-10) — «Producto», no "Product". */
+/** studio-nav (spec shell §3.2): microcopy en español (RN-10) — «Producto», no "Product".
+ *  Config NO vive acá (feedback dogfooding DH-18.1): es de TODA la app, no de la zona por
+ *  sesión — su puerta es el footer del rail de repositorios (como ArnesIA). */
 const ITEMS: NavItem[] = [
   { key: "studio", label: "Studio", path: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
   { key: "backlog", label: "Backlog", path: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" },
   { key: "producto", label: "Producto", path: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" },
   { key: "roles", label: "Roles", soon: true, path: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2.5 20c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6M18 11.3a2.3 2.3 0 1 0 0-4.6M15.8 14.3c2.6.5 4.7 2.7 4.7 5.7" },
-  { key: "config", label: "Config", path: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" },
 ];
 
 export function StudioNav() {

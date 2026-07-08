@@ -1,0 +1,16 @@
+{
+  "name": "marketplace-fixture",
+  "owner": { "name": "Fixture", "email": "fixture@test" },
+  "plugins": [
+    {
+      "name": "dev-full-cycle",
+      "source": "./plugins/dev-full-cycle/0.1.0",
+      "description": "Arnés de prueba: desarrollo end-to-end."
+    },
+    {
+      "name": "demo-auditor",
+      "source": "./plugins/demo-auditor/0.2.0",
+      "description": "Arnés de prueba: auditoría."
+    }
+  ]
+}

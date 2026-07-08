@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { MOCK_ROSTER } from "../../../shared/mock/backlog";
+import { useEffect, useMemo, useState } from "react";
+import { useArneses } from "../../../shared/store/arneses-store";
 import { useSessions } from "../../../shared/store/sessions-store";
 import { useRepos } from "../../../shared/store/repos-store";
 import { useUi } from "../../../shared/store/ui-store";
-import { Avatar, Button, Chip, FieldLabel, HonestBanner, PanelOverlay, Pill, Select } from "../../../shared/ui";
-import { cn } from "../../../shared/lib/cn";
+import { Button, Chip, FieldLabel, HonestBanner, Input, PanelOverlay, Select } from "../../../shared/ui";
+import { ArnesCard, ArnesDetalle } from "./arnes-card";
+import { AppUpdateSection } from "./app-update-section";
 
 function slugify(s: string): string {
   return (
@@ -30,14 +31,56 @@ export function ConfigOverlay() {
   const clearPending = useUi((s) => s.clearPending);
   const repos = useRepos((s) => s.repos);
   const create = useSessions((s) => s.create);
-  const [busy, setBusy] = useState(false);
 
-  const rol = MOCK_ROSTER.find((r) => r.nombre === rolElegido) ?? MOCK_ROSTER[0];
-  const grupos = ["Builder", "Auditor", "Humano-complementario"] as const;
+  const registry = useArneses((s) => s.registry);
+  const instaladosPorRepo = useArneses((s) => s.instalados);
+  const arnesesError = useArneses((s) => s.error);
+  const arnesesBusy = useArneses((s) => s.busy);
+  const initArneses = useArneses((s) => s.init);
+  const conectar = useArneses((s) => s.conectar);
+  const syncRegistry = useArneses((s) => s.sync);
+  const refreshInstalados = useArneses((s) => s.refreshInstalados);
+  const instalar = useArneses((s) => s.instalar);
+  const desinstalar = useArneses((s) => s.desinstalar);
+
+  const [busy, setBusy] = useState(false);
+  const [source, setSource] = useState("");
+
+  const abierto = nav === "config";
   const repoDestino = repos.find((r) => r.id === pendingRepoId) ?? repos[0];
+  const instalados = useMemo(
+    () => (repoDestino ? (instaladosPorRepo[repoDestino.id] ?? []) : []),
+    [instaladosPorRepo, repoDestino],
+  );
+  const catalogo = registry?.arneses ?? [];
+  const conectado = Boolean(registry?.source);
+
+  useEffect(() => {
+    if (!abierto) return;
+    void initArneses();
+    if (repoDestino) void refreshInstalados(repoDestino.id);
+  }, [abierto, repoDestino, initArneses, refreshInstalados]);
+
+  useEffect(() => {
+    if (registry?.source) setSource(registry.source);
+  }, [registry?.source]);
+
+  // el rol elegido debe ser un arnés INSTALADO (RN-5); si no, cae al primero (o ninguno)
+  const arnesElegido = instalados.find((a) => a.id === rolElegido) ?? instalados[0] ?? null;
+
+  // roster agrupado por proceso (el meta rol×proceso de la fábrica — los grupos
+  // Builder/Auditor/Humano del mock murieron con el mock)
+  const grupos = useMemo(() => {
+    const g = new Map<string, typeof instalados>();
+    for (const a of instalados) {
+      const k = a.proceso || "sin proceso declarado";
+      g.set(k, [...(g.get(k) ?? []), a]);
+    }
+    return [...g.entries()];
+  }, [instalados]);
 
   const crear = async () => {
-    // RN-1: no hay sesión sin paquete — sin historia elegida, al Backlog en modo picker.
+    // RN-1: no hay sesión de trabajo sin paquete — sin historia elegida, al picker.
     if (!pendingHistoria) {
       if (repoDestino) startPicker(repoDestino.id);
       return;
@@ -49,7 +92,7 @@ export function ConfigOverlay() {
         nombre: slugify(pendingHistoria.titulo),
         repo_id: repoDestino.id,
         historia: pendingHistoria,
-        rol: rol.nombre,
+        rol: arnesElegido?.id ?? "",
         modo: "trabajo",
         ubicacion: "worktree",
       });
@@ -62,56 +105,126 @@ export function ConfigOverlay() {
 
   return (
     <PanelOverlay
-      open={nav === "config"}
+      open={abierto}
       onClose={() => {
         clearPending();
         resetToStudio();
       }}
       title="Configuración"
-      subtitle="Ajustes del proyecto. De momento: el roster de roles disponibles para nuevas sesiones."
+      subtitle="Registry de arneses de tu organización + roster del proyecto (rol = arnés instalado, DH-14)."
     >
       <div className="space-y-4 p-4">
-        <HonestBanner>
-          Los roles vienen del registry de arneses de tu organización — registry propio en
-          construcción (PB-25). Este roster es una vista previa estática (DH-14: rol = arnés
-          instalado; cero roles locales).
-        </HonestBanner>
+        {/* --- registry (nivel app) --- */}
+        <section className="space-y-2 rounded-md border border-border bg-card p-3">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+            Registry de arneses
+          </div>
+          <div className="flex max-w-2xl gap-2">
+            <Input
+              placeholder="URL git del marketplace o ruta local (p. ej. git@github.com:org/marketplace)"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              className="flex-1 font-mono text-xs"
+            />
+            <Button
+              variant="outline"
+              disabled={arnesesBusy || !source.trim()}
+              onClick={() => void conectar(source.trim())}
+            >
+              {conectado ? "Reconectar" : "Conectar"}
+            </Button>
+            {conectado && (
+              <Button variant="ghost" disabled={arnesesBusy} onClick={() => void syncRegistry()}>
+                Actualizar
+              </Button>
+            )}
+          </div>
+          {arnesesError && <p className="text-xs text-warn">{arnesesError}</p>}
+          {!conectado && !arnesesError && (
+            <HonestBanner>
+              Sin registry conectado no hay roles: DevStudio no crea roles locales — la curaduría
+              vive en el marketplace git de tu organización (formato ArnesIA).
+            </HonestBanner>
+          )}
+        </section>
 
         <div className="flex gap-4">
-          {/* roster */}
-          <nav className="w-56 shrink-0 space-y-3">
-            {grupos.map((g) => (
-              <div key={g}>
-                <div className="mb-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  {g}
-                </div>
-                {MOCK_ROSTER.filter((r) => r.grupo === g).map((r) => (
-                  <button
-                    key={r.sigla}
-                    onClick={() => setRol(r.nombre)}
-                    className={cn(
-                      "flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
-                      rol.nombre === r.nombre
-                        ? "bg-accent-soft font-semibold text-primary"
-                        : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-                    )}
-                  >
-                    <Avatar label={r.sigla} className="size-6 text-[8px]" />
-                    {r.nombre}
-                  </button>
-                ))}
+          {/* --- roster instalado + catálogo --- */}
+          <nav className="w-64 shrink-0 space-y-4">
+            <div>
+              <div className="mb-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                Roster del proyecto{repoDestino ? ` · ${repoDestino.nombre}` : ""}
               </div>
-            ))}
-            {/* «+ Rol personalizado» ELIMINADO a propósito (spec §3.5): rol custom = publicarlo al registry */}
+              {grupos.length === 0 && (
+                <p className="rounded-md border border-dashed border-border p-2 text-xs leading-relaxed text-muted-foreground">
+                  Ningún arnés instalado en este proyecto todavía — instalá uno del catálogo de
+                  abajo. Una sesión también puede crearse sin rol.
+                </p>
+              )}
+              {grupos.map(([proceso, lista]) => (
+                <div key={proceso} className="mb-2">
+                  <div className="mb-1 truncate text-[10px] text-muted-foreground" title={proceso}>
+                    {proceso}
+                  </div>
+                  {lista.map((a) => (
+                    <ArnesCard
+                      key={a.id}
+                      arnes={a}
+                      selected={arnesElegido?.id === a.id}
+                      onSelect={() => setRol(a.id)}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {conectado && (
+              <div>
+                <div className="mb-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                  Catálogo del registry
+                </div>
+                {catalogo.length === 0 && (
+                  <p className="text-xs text-muted-foreground">El marketplace no publica arneses aún.</p>
+                )}
+                {catalogo.map((a) => {
+                  const instalado = instalados.some((i) => i.id === a.id);
+                  return (
+                    <ArnesCard
+                      key={a.id}
+                      arnes={a}
+                      accion={
+                        repoDestino && (
+                          <Button
+                            variant="ghost"
+                            className="shrink-0 px-2 py-1 text-xs"
+                            disabled={arnesesBusy}
+                            onClick={() =>
+                              void (instalado
+                                ? desinstalar(repoDestino.id, a.id)
+                                : instalar(repoDestino.id, a.id))
+                            }
+                          >
+                            {instalado ? "Desinstalar" : "Instalar"}
+                          </Button>
+                        )
+                      }
+                    />
+                  );
+                })}
+              </div>
+            )}
           </nav>
 
-          {/* detalle del rol */}
+          {/* --- detalle + crear sesión --- */}
           <div className="min-w-0 flex-1 space-y-3">
-            <div className="flex items-center gap-2">
-              <h3 className="font-display text-lg font-semibold">{rol.nombre}</h3>
-              <Pill tone="primary">Rol del roster</Pill>
-            </div>
-            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">{rol.descripcion}</p>
+            {arnesElegido ? (
+              <ArnesDetalle arnes={arnesElegido} />
+            ) : (
+              <div className="max-w-xl rounded-md border border-dashed border-border p-3 text-xs leading-relaxed text-muted-foreground">
+                Sin rol elegido: la sesión nace <b className="text-foreground">sin arnés</b> (Claude
+                Code pelado). Instalá un arnés del registry para trabajar con rol.
+              </div>
+            )}
 
             {pendingHistoria ? (
               <Chip className="border-primary/40 bg-accent-soft text-primary">
@@ -119,15 +232,11 @@ export function ConfigOverlay() {
               </Chip>
             ) : (
               <div className="max-w-xl rounded-md border border-dashed border-border p-3 text-xs leading-relaxed text-muted-foreground">
-                Todavía no elegiste un paquete de trabajo. Toda sesión debe ligarse a una historia
-                del Backlog (RN-1) — <b className="text-foreground">Crear sesión aislada</b> te
-                llevará ahí a elegirla.
+                Todavía no elegiste un paquete de trabajo. Toda sesión con edición liga a un ítem
+                (RN-1) — <b className="text-foreground">Crear sesión aislada</b> te llevará ahí a
+                elegirlo.
               </div>
             )}
-
-            <pre className="max-w-xl overflow-x-auto whitespace-pre-wrap rounded-md border border-border bg-card p-3 font-mono text-xs leading-relaxed text-muted-foreground">
-              {rol.prompt}
-            </pre>
 
             <div className="flex max-w-xl gap-3">
               <div className="flex-1">
@@ -154,7 +263,8 @@ export function ConfigOverlay() {
               <p className="text-xs text-muted-foreground">
                 Repositorio destino: <b className="font-mono text-foreground">{repoDestino.nombre}</b>
                 <span className="ml-2 text-[10px]">
-                  — la sesión nace en su propio workspace aislado (worktree + branch wt/…, PB-02)
+                  — la sesión nace en su workspace aislado; el arnés se inyecta al claude por flags
+                  (PB-25)
                 </span>
               </p>
             ) : (
@@ -166,6 +276,9 @@ export function ConfigOverlay() {
             </Button>
           </div>
         </div>
+
+        {/* app-level: versión + updater (movidos del footer del rail — DH-18.1) */}
+        <AppUpdateSection />
       </div>
     </PanelOverlay>
   );

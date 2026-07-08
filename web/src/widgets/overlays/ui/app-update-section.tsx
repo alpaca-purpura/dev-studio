@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { api } from "../../../shared/api/client";
 import { Button, ModalShell } from "../../../shared/ui";
 
-/** Footer del rail (PB-26): versión del binario corriendo + «Actualizar» (rebuild local →
- *  restart → esta SPA pollea la versión y recarga sola cuando cambia — RN-5). */
-export function UpdateFooter() {
+/** Sección «Aplicación» del overlay Configuración (movida del footer del rail —
+ *  feedback dogfooding DH-18.1): versión del binario corriendo + «Actualizar» (PB-26:
+ *  rebuild local → restart → esta SPA pollea la versión y recarga sola cuando cambia). */
+export function AppUpdateSection() {
   const [version, setVersion] = useState<string>("…");
   const [stamp, setStamp] = useState<string>(""); // version@build_date — cambia en CADA rebuild
   const [source, setSource] = useState<string>("");
@@ -56,22 +57,26 @@ export function UpdateFooter() {
   };
 
   return (
-    <div className="border-t border-sidebar-border p-2">
-      <div className="flex items-center gap-2">
+    <section className="space-y-2 rounded-md border border-border bg-card p-3">
+      <div className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        Aplicación
+      </div>
+      <div className="flex max-w-2xl items-center gap-2">
         <span
-          className="min-w-0 flex-1 truncate font-mono text-[9px] uppercase tracking-wider text-muted-foreground"
+          className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground"
           title={source ? `Binario ${version} — rebuild desde ${source}` : `Versión ${version} (sin app.json: corré scripts/install.sh)`}
         >
           v {version}
+          {source && <span className="ml-2 text-[10px]">— fuente: {source}</span>}
         </span>
-        <button
+        <Button
+          variant="outline"
           onClick={() => void actualizar()}
           disabled={estado !== "idle"}
           title="Rebuild del repo local + reinicio (PB-26)"
-          className="cursor-pointer rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-wait disabled:opacity-60"
         >
           {estado === "idle" ? "↻ Actualizar" : estado === "updating" ? "Compilando…" : "Reiniciando…"}
-        </button>
+        </Button>
       </div>
 
       <ModalShell
@@ -87,6 +92,6 @@ export function UpdateFooter() {
           {error}
         </pre>
       </ModalShell>
-    </div>
+    </section>
   );
 }

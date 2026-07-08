@@ -22,6 +22,21 @@ DATE="$(date -Iseconds)"
 
 echo "── DevStudio install (${MODE}) · versión ${VERSION}"
 
+# El proceso lanzado por .desktop hereda un PATH pelado (bug real DH-16.1/DH-18): npm vive
+# en nvm (init en .bashrc — bash -lc NO lo trae) y go en ~/.local/go. Fallbacks explícitos.
+if ! command -v npm > /dev/null 2>&1; then
+  for d in "$HOME"/.nvm/versions/node/*/bin /usr/local/bin; do
+    [ -x "$d/npm" ] && PATH="$d:$PATH" && break
+  done
+fi
+if ! command -v go > /dev/null 2>&1; then
+  for d in "$HOME/.local/go/bin" /usr/local/go/bin; do
+    [ -x "$d/go" ] && PATH="$d:$PATH" && break
+  done
+fi
+command -v npm > /dev/null 2>&1 || { echo "✗ npm no encontrado (ni en nvm) — no puedo compilar la SPA" >&2; exit 1; }
+command -v go > /dev/null 2>&1 || { echo "✗ go no encontrado — no puedo compilar el binario" >&2; exit 1; }
+
 echo "→ build SPA (vite)"
 npm --prefix "$ROOT/web" run build --silent
 
@@ -57,9 +72,12 @@ if command -v google-chrome > /dev/null 2>&1; then
   # ventana propia, sin diálogos de primera vez del perfil dedicado.
   # --class (X11) + --wayland-app-id (Wayland): WM_CLASS/app-id = dev-studio → la barra de
   # tareas agrupa la ventana bajo NUESTRO .desktop (StartupWMClass), no bajo Google Chrome.
+  # OutdatedBuildDetector: mata el globo «No se puede actualizar Chrome» dentro de la
+  # ventana app (el updater de Chrome es asunto del sistema, no de DevStudio — DH-18.1)
   exec google-chrome --app="$URL" --user-data-dir="$HOME/.dev-studio/chrome-profile" \
     --class=dev-studio --wayland-app-id=dev-studio \
-    --no-first-run --no-default-browser-check --disable-features=DefaultBrowserPrompt
+    --no-first-run --no-default-browser-check \
+    --disable-features=DefaultBrowserPrompt,OutdatedBuildDetector
 fi
 exec xdg-open "$URL"
 LAUNCHER

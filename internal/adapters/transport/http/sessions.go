@@ -60,7 +60,7 @@ func slugify(s string) string {
 	return out
 }
 
-func createSession(svc *usecase.SessionService, repos *usecase.RepoService, git *usecase.GitService, home, workspacesDir string) http.HandlerFunc {
+func createSession(svc *usecase.SessionService, repos *usecase.RepoService, git *usecase.GitService, arneses *usecase.ArnesService, home, workspacesDir string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req createSessionReq
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -88,6 +88,18 @@ func createSession(svc *usecase.SessionService, repos *usecase.RepoService, git 
 		if modo == "trabajo" && req.RepoID != "" && req.Historia == nil {
 			http.Error(w, "una sesión de trabajo liga a un paquete de trabajo (RN-1) — elegí o creá un ítem", http.StatusUnprocessableEntity)
 			return
+		}
+		// Guard RN-5 (PB-25): rol = arnés INSTALADO en el proyecto — la app no finge roles.
+		if req.Rol != "" && req.RepoID != "" && arneses != nil {
+			repo, ok := repos.Get(req.RepoID)
+			if !ok {
+				http.Error(w, "repo not found", http.StatusUnprocessableEntity)
+				return
+			}
+			if err := arneses.VerificarInstalado(r.Context(), repo.Ruta, req.Rol); err != nil {
+				http.Error(w, "rol: "+err.Error()+" — instalalo desde el registry (Configuración)", http.StatusUnprocessableEntity)
+				return
+			}
 		}
 
 		p := usecase.NewSession{Nombre: nombre, RepoID: req.RepoID, Historia: req.Historia, Rol: req.Rol, Modo: modo}

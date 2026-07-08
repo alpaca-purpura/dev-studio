@@ -27,6 +27,14 @@ type SpawnOpts struct {
 	Resume   string // ClaudeSessionID a resumir, vacío = sesión nueva
 	Cwd      string // working dir aislado de esta sesión
 	ReadOnly bool   // sesión de exploración (PB-27): el agente no puede editar archivos
+
+	// Inyección del arnés del rol (PB-25, patrón HS-11 de la fábrica): la forma-plugin
+	// intacta se carga con flags nativos de la CLI — jamás se escribe en el árbol del
+	// proyecto (METODOLOGIA §9 ArnesIA; DH-10 intacto: archivos + flags, cero API).
+	// La banda Base (CLAUDE.md del arnés) viaja EMBEBIDA en SystemPrompt: la CLI exige
+	// UNO de --append-system-prompt / --append-system-prompt-file, no ambos (gate DH-18).
+	PluginDirs   []string // --plugin-dir por cada uno (el arnés del rol de ESTA sesión)
+	SystemPrompt string   // --append-system-prompt (preámbulo del rol + banda Base)
 }
 
 // AgentSession es una conversación viva con un agente (un proceso, un canal de eventos).

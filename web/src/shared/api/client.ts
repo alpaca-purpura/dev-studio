@@ -1,4 +1,4 @@
-import type { CloseSessionResp, GitDiff, GitLogEntry, GitStatus, Historia, Repo, Session, VersionInfo } from "./types";
+import type { Arnes, CloseSessionResp, GitDiff, GitLogEntry, GitStatus, Historia, RegistryEstado, Repo, Session, VersionInfo } from "./types";
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
@@ -57,6 +57,30 @@ export const api = {
 
   repoGitStatus: (id: string): Promise<GitStatus> =>
     fetch(`/api/repos/${id}/git/status`).then((r) => json<GitStatus>(r)),
+
+  // --- registry de arneses (PB-25) ---
+  registry: (): Promise<RegistryEstado> => fetch("/api/registry").then((r) => json<RegistryEstado>(r)),
+
+  conectarRegistry: (source: string): Promise<RegistryEstado> =>
+    fetch("/api/registry", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source }),
+    }).then((r) => json<RegistryEstado>(r)),
+
+  syncRegistry: (): Promise<RegistryEstado> =>
+    post("/api/registry/sync", {}).then((r) => json<RegistryEstado>(r)),
+
+  arnesesInstalados: (repoId: string): Promise<Arnes[]> =>
+    fetch(`/api/repos/${repoId}/arneses`).then((r) => json<Arnes[]>(r)),
+
+  instalarArnes: (repoId: string, arnesId: string): Promise<Arnes> =>
+    post(`/api/repos/${repoId}/arneses`, { arnes_id: arnesId }).then((r) => json<Arnes>(r)),
+
+  desinstalarArnes: (repoId: string, arnesId: string): Promise<void> =>
+    fetch(`/api/repos/${repoId}/arneses/${arnesId}`, { method: "DELETE" }).then(async (r) => {
+      if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+    }),
 
   // --- git de la sesión ---
   gitStatus: (sessionId: string): Promise<GitStatus> =>

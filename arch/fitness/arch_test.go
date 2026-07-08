@@ -104,6 +104,41 @@ func TestGitAdapterSinVerbosProhibidos(t *testing.T) {
 	}
 }
 
+// TestRegistrySyncSinVerbosProhibidos enforça la nota v1.1 de git-solo-lectura-y-commit
+// (RN-3 spec registry-arneses): el sync del registry puede clone/pull (estado PROPIO de
+// la app, confinado a ~/.dev-studio/registry por construcción) pero jamás push, ni
+// reescribir historia. El adapter git/cli del usuario sigue cubierto por su propio scan.
+func TestRegistrySyncSinVerbosProhibidos(t *testing.T) {
+	dir := "../../internal/adapters/registry/gitsync"
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("leer %s: %v", dir, err)
+	}
+	forbidden := []string{"push", "reset", "rebase", "--force"}
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".go") || strings.HasSuffix(e.Name(), "_test.go") {
+			continue
+		}
+		src, err := os.ReadFile(dir + "/" + e.Name())
+		if err != nil {
+			t.Fatal(err)
+		}
+		var code strings.Builder
+		for _, line := range strings.Split(string(src), "\n") {
+			if strings.HasPrefix(strings.TrimSpace(line), "//") {
+				continue
+			}
+			code.WriteString(strings.ToLower(line))
+			code.WriteString("\n")
+		}
+		for _, verb := range forbidden {
+			if strings.Contains(code.String(), verb) {
+				t.Errorf("%s contiene %q — el sync del registry es solo clone/pull confinado", e.Name(), verb)
+			}
+		}
+	}
+}
+
 // TestGitCommitExigePathspec enforça RN-5: commit sin paths explícitos = error, siempre.
 func TestGitCommitExigePathspec(t *testing.T) {
 	g := gitcli.New()

@@ -52,6 +52,11 @@ type SessionService struct {
 	store   ports.SessionStore
 	pub     EventPublisher
 	baseCtx context.Context
+
+	// resolveArnes resuelve la inyección del rol al spawn (PB-25). Se resuelve FRESCO en
+	// cada spawn (no se persiste en la sesión) — un upgrade del arnés aplica al próximo
+	// conductor. nil o sesión sin rol = spawn sin inyección (legacy/exploración).
+	resolveArnes func(repoID, rol string) (ArnesInjection, error)
 }
 
 func NewSessionService(baseCtx context.Context, agent ports.AgentPort, store ports.SessionStore, pub EventPublisher) (*SessionService, error) {
@@ -201,13 +206,28 @@ func (s *SessionService) Turn(id, text string) error {
 	return live.Send(s.baseCtx, text)
 }
 
+// SetArnesResolver conecta la resolución de arneses (PB-25) — opcional, la wirea main.
+func (s *SessionService) SetArnesResolver(f func(repoID, rol string) (ArnesInjection, error)) {
+	s.resolveArnes = f
+}
+
 // spawnLocked asume s.mu ya tomado.
 func (s *SessionService) spawnLocked(id string, r *sessionRuntime) error {
-	live, err := s.agent.Spawn(s.baseCtx, ports.SpawnOpts{
+	opts := ports.SpawnOpts{
 		Resume:   r.meta.ClaudeSessionID,
 		Cwd:      r.meta.Cwd,
 		ReadOnly: r.meta.Modo == "exploracion", // PB-27: exploración = plan mode, sin edición
-	})
+	}
+	if r.meta.Rol != "" && s.resolveArnes != nil {
+		inj, err := s.resolveArnes(r.meta.RepoID, r.meta.Rol)
+		if err != nil {
+			// RN-5: sin arnés no se finge el rol — el turno falla con el error visible
+			return fmt.Errorf("session %s: rol %q: %w", id, r.meta.Rol, err)
+		}
+		opts.PluginDirs = []string{inj.PluginDir}
+		opts.SystemPrompt = inj.SystemPrompt
+	}
+	live, err := s.agent.Spawn(s.baseCtx, opts)
 	if err != nil {
 		return fmt.Errorf("session %s: spawn: %w", id, err)
 	}

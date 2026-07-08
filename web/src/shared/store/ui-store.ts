@@ -39,7 +39,7 @@ export const useUi = create<UiState>((set) => ({
   pickerMode: false,
   pendingHistoria: null,
   pendingRepoId: null,
-  rolElegido: "Full-Stack",
+  rolElegido: "", // id del arnés instalado elegido; vacío = sesión sin rol (PB-25)
 
   setNav: (k) => set({ nav: k, pickerMode: false }),
   requestClose: (sessionId) => set({ closeRequestId: sessionId }),

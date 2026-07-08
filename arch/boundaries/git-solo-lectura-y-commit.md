@@ -1,6 +1,6 @@
 ---
 regla: git-solo-lectura-y-commit
-version: 1.0
+version: 1.1
 updated: 2026-07-07
 status: enforced
 ledger: DH-15
@@ -11,6 +11,7 @@ sources:
 enforced_by:
   - fitness/arch_test.go:TestGitAdapterSinVerbosProhibidos
   - fitness/arch_test.go:TestGitCommitExigePathspec
+  - fitness/arch_test.go:TestRegistrySyncSinVerbosProhibidos
 severity: high
 ---
 
@@ -36,12 +37,23 @@ registrar commits locales de archivos explícitamente elegidos.
 - La UI muestra los botones fetch/pull/push DESHABILITADOS con tooltip honesto (RN-7) — la
   decisión de ofrecerlos es de una rebanada futura (PR-flow, PB-14), no un hueco.
 
+## Nota v1.1 — scope: repo DEL USUARIO vs estado propio de la app (PB-25)
+
+El sync del registry de arneses (`adapters/registry/gitsync`) clona/actualiza el
+marketplace git de la organización — **estado PROPIO de la app**, confinado por
+construcción a `~/.dev-studio/registry/` (el destino se deriva SIEMPRE del base; no
+existe parámetro de destino). NO es una excepción a este boundary: el scope de L1 es el
+repositorio del usuario, y ese paquete no puede verlo. Lo que sí comparte: push y
+reescritura de historia tampoco existen allá (`TestRegistrySyncSinVerbosProhibidos` —
+solo `clone` + `pull --ff-only`).
+
 ## Checklist evaluable
 
 | id | qué chequea | severidad | señal en el mapa | enforcer |
 |----|-------------|-----------|-------------------|----------|
 | sin-verbos-prohibidos | el fuente de `adapters/git/cli` no contiene push/pull/fetch/reset/rebase | error | «la app tocó el remoto o reescribió historia del usuario» | `arch_test.go:TestGitAdapterSinVerbosProhibidos` |
 | commit-exige-pathspec | `Commit` con paths vacío devuelve error | error | «un commit silencioso barrió archivos no elegidos» | `arch_test.go:TestGitCommitExigePathspec` |
+| registry-sin-push | `adapters/registry/gitsync` no contiene push/reset/rebase/--force (solo clone+pull confinados a `~/.dev-studio/registry/`) | error | «el sync del registry salió de su jaula» | `arch_test.go:TestRegistrySyncSinVerbosProhibidos` |
 
 ## Changelog
 

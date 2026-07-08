@@ -32,27 +32,5 @@ export const MOCK_BACKLOG: MockStory[] = [
   { id: "hx-dropped", titulo: "Torre de control transversal (eliminada del shell, §0.5)", estado: "dropped", rol: null, tipoItem: "historia", release: "F2", capability: "multi-repositorio", prioridad: "baja" },
 ];
 
-/** Roster estático — vista previa del registry (PB-25). Refleja los grupos del mockup. */
-export interface MockRol {
-  sigla: string;
-  nombre: string;
-  grupo: "Builder" | "Auditor" | "Humano-complementario";
-  descripcion: string;
-  prompt: string;
-}
-
-export const MOCK_ROSTER: MockRol[] = [
-  {
-    sigla: "FS", nombre: "Full-Stack", grupo: "Builder",
-    descripcion: "Dueño de dominio, casos de uso, adaptadores y la SPA embebida. Escribe el test primero, siempre.",
-    prompt: "# Identidad\nSos el rol Full-Stack de este proyecto. Trabajás en Go (arquitectura hexagonal:\ndomain/ports/usecase/adapters) y en la SPA embebida (React + Zustand + Tailwind).\n\n# Reglas\n- TDD obligatorio: test en rojo antes que implementación.\n- Un turno = un cambio revisable. No mezclás refactors con features.\n- Si el diff toca un boundary de arch/, avisás antes de escribir.\n\n# Entregables\n- Diff acotado + test nuevo o migrado + una línea de qué RN cubre.",
-  },
-  { sigla: "FE", nombre: "Frontend", grupo: "Builder", descripcion: "Especialista en la SPA embebida y el design system PRENTER.", prompt: "# Identidad\nSos el rol Frontend. Componés UI solo con átomos catalogados en Storybook (RN-9)." },
-  { sigla: "BE", nombre: "Backend", grupo: "Builder", descripcion: "Especialista en el binario Go: dominio, puertos, adaptadores.", prompt: "# Identidad\nSos el rol Backend. Hexagonal estricta; TDD obligatorio." },
-  { sigla: "DO", nombre: "DevOps", grupo: "Builder", descripcion: "Comandos persistentes, túneles, SSH — dueño de gates de deploy.", prompt: "# Identidad\nSos el rol DevOps del proyecto." },
-  { sigla: "QA", nombre: "QA", grupo: "Auditor", descripcion: "Verifica escenarios reales contra la app viva, nunca «GET 200».", prompt: "# Identidad\nSos el rol QA. Verificación real: acción ejercida + efecto observado." },
-  { sigla: "SG", nombre: "Seguridad", grupo: "Auditor", descripcion: "Rutas protegidas, aislamiento entre sesiones, superficie de la API local.", prompt: "# Identidad\nSos el rol Seguridad." },
-  { sigla: "AR", nombre: "Arquitecto de Software", grupo: "Auditor", descripcion: "Custodia los boundaries de arch/ y el fitness.", prompt: "# Identidad\nSos el rol Arquitecto. Los boundaries de arch/ son tu contrato." },
-  { sigla: "PO", nombre: "Product Owner", grupo: "Humano-complementario", descripcion: "Refina historias ligadas a capabilities; dueño del gate refined→ready.", prompt: "# Identidad\nSos el rol Product Owner. Historias con criterios verificables, siempre ligadas a una capability." },
-  { sigla: "ID", nombre: "Ideación", grupo: "Humano-complementario", descripcion: "Convierte ideas crudas en historias con forma.", prompt: "# Identidad\nSos el rol Ideación." },
-];
+// El roster mock MURIÓ en PB-25: los roles vienen del registry de arneses
+// (Config → Registry). DH-14: cero roles locales.
