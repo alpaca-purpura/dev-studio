@@ -78,7 +78,7 @@
 | PB-21 | Organización multi-usuario vía GitHub (qué sincroniza el repo) — terreno propio, ningún referente lo tiene. Incluye permisos por puesto sobre el registry (reframe F0) | nueva | VISION §TBD · spec clon §6 (hallazgo central) · NORTE-FIRMADO §Fuera | **TBD firmado F0 2026-07-07** — dueño Chris; decidir antes de PB-22/PB-23. No bloquea el port |
 | PB-22 | Vista CTO multi-proyecto (journey CTO firmado como hueco declarado en F0) | PB-21 | spec clon §4 CTO + §0.5 · NORTE-FIRMADO §Journeys | bloqueada: PB-21 |
 | PB-23 | Roles/accesos de primera clase (auth) + permisos por puesto («lo que mi jefe me habilita») | PB-21 | VISION §TBD · NORTE-FIRMADO §Modelo Rol/Registry | bloqueada: PB-21 |
-| PB-24 | Instalable v1: **ventana nativa (evaluar Wails — Go+webview, patrón arnesia que usa Tauri/WebKitGTK, binario ~6MB sin Chrome)** + cross-compile Win/Linux/mac + firma + updater. ⚠ Antes de vender: verificar Consumer Terms de Anthropic por escrito | nueva | NORTE-FIRMADO §Fases · VISION §Arquitectura ⚠ · hallazgo dogfooding 2026-07-07 (arnesia = Tauri) | bloqueada: rebanadas F2+ |
+| PB-24 | Instalable v1: **ventana nativa — fork Tauri-2-shell-tonto (patrón arnesia HS-04: daemon Go = sidecar, Rust mínimo, know-how casa ya pagado: mitigaciones WebKitGTK/Mint) vs Wails (un solo toolchain Go, menos maduro — watchlist de arnesia)** + cross-compile + firma + updater. ⚠ Antes de vender: Consumer Terms de Anthropic por escrito | nueva | NORTE-FIRMADO §Fases · VISION §Arquitectura ⚠ · harness-studio HS-04 + research fase3 (2026-07-05) | bloqueada: rebanadas F2+ |
 
 ## Trabajo de PROYECTO relacionado (no es backlog de producto — solo punteros)
 
