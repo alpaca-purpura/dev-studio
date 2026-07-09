@@ -360,7 +360,52 @@ estado = caja cuya transición llega · dueño-caja = rol, resto = operador · t
 categoría). **PB-08 re-redactada con este modelo — el pendiente externo de DH-18 queda
 CERRADO; nada quedó bloqueado.**
 
-<!-- Próximas: DH-19, DH-20, … -->
+### DH-19 · F0 norte firmado — épica «Conversación terminal-auténtica» (Híbrido 3a) — `decidida` · `vig:vigente`
+
+*Cruda (operador, 2026-07-09):* "quiero saber cómo se hizo esta web
+https://www.anthropic.com/features/making-of-claude-code y cómo podríamos tomar el cómo se ve para la
+conversación del dev studio, considerando que nos colgaremos de anthropic, quiero que se sienta lo más
+real, tal como https://agentsroom.dev/es#demo … en el caso de agentsroom se muy detallista ya que se
+puede conversar por el chat de conversación o escribiendo directo en su «terminal». Quiero dar ese
+efecto." + "Elevar a épica para atenderla de una vez."
+
+*Desarrollo:* sesión F0 de la épica «Conversación terminal-auténtica» (= PB-28, banda 🔴). Sobre el
+research previo (docs `00`–`06` + `mock-conversacion.html` + Artifact) se firmó el norte **fork por
+fork vía AskUserQuestion**. **Norte:** que la conversación se sienta como un terminal REAL (estética
+making-of de Claude Code) con **doble input** — chat ↔ terminal, ambos al MISMO stdin del `claude` real;
+AgentsRoom lo FINGE, DevStudio lo hace LITERAL (el driver ya spawnea stream-json). **Veredicto técnico
+ratificado = Híbrido 3a:** un proceso stream-json → dos superficies (cards estructuradas + xterm.js en
+modo controlado, deltas reales = typing auténtico, SIN PTY). **8 invariantes ratificados** (terminal
+literal · doble input = un solo stdin · un proceso dos superficies · teal único + amber solo semántico ·
+degradación por `Capabilities` · Envelope ACP-aligned · cero API/BYO licencia DH-10 intacto · boundary
+`conductor-no-parsea-jsonl`). **Decisiones A–E firmadas:** **A** probe R0 primero = SÍ (protocolo de
+control `can_use_tool` sub-doc + version-dependiente, bugs #34046/#12235; **`claude` v2.1.205 pineada**).
+**B** = **MULTI-PROVEEDOR DESDE F1** (Chris DIVERGIÓ del recomendado «Claude primero»): consecuencia
+firmada = el `Envelope` nace ACP-aligned en R1 (no refactor tardío en R4), `Capabilities()` +
+`ProviderSessionID` (hueco #4) se adelantan al núcleo de F1, y el segundo adapter Amp (near drop-in)
+entra al alcance FIRME (R5 deja de ser «fase 2 aparte») como prueba de intercambiabilidad de `AgentPort`
+(absorbe PB-20). **C** terminal = faux/modo-controlado 3a (PTY real = escalón futuro). **D** slicing
+LEDGER = **DH por rebanada entregada R1–R5** (cada una + CAP en su commit); esta firma de F0 = DH-19
+aparte. **E** PB-24 (shell nativo Tauri/Wails) NO bloquea (3a corre en el HTTP+webview actual; se decide
+aparte). **Fases reordenadas por B:** F1 (R0 probe + R1 tool-cards + núcleo Envelope/Capabilities) → F2
+(permisos modal de rama + terminal xterm.js + doble input) → F3 (cierre normalización) → F4 (2do adapter
++ multi-CLI). Artefactos del cierre: `NORTE-BORRADOR.md` → `NORTE-FIRMADO.md` · `05-plan…` con decisiones
+CERRADAS + §Reordenamiento-por-B · README actualizado · BACKLOG PB-28 = «F0 firmada».
+
+*Conecta:* DH-10 (driver CLI-nativo intacto — el terminal auténtico se cablea sobre el proceso real, cero
+API) · DH-13 (el `conductor.go` que esta épica extiende: los 4 huecos) · DH-14/DH-18 (el registry de
+arneses = eje «qué colaborador», ortogonal al eje «qué runtime CLI» que esta épica abre; PB-25) ·
+[`epicas/conversacion-terminal-autentica/NORTE-FIRMADO.md`](./epicas/conversacion-terminal-autentica/NORTE-FIRMADO.md)
+(el norte) + `06-especificacion-mockup.md` + `mock-conversacion.html` (SSoT de forma) · BACKLOG PB-28
+(absorbe PB-09; toca PB-20/PB-24/PB-25) · «Experiencia Orquestada» NORTE-FIRMADO (el shell que hereda).
+
+*Siguiente:* **F1** — R0 probe del protocolo de control `can_use_tool` (spike 1 archivo descartable:
+spawn `claude` con `--permission-prompt-tool stdio`, disparar un tool gated, loguear stdin/stdout crudo →
+`.md` con el shape verificado) ANTES de R2. Después R1 (tool-cards + Envelope ACP-aligned + Capabilities
+desde el inicio, por B). Cada rebanada = su DH + CAP al entregar. Promover a `specs/` recién al cierre de
+la ÉPICA (probable `specs/conversacion-sesion/` + `specs/driver-multiproveedor/`).
+
+<!-- Próximas: DH-20, DH-21, … -->
 
 ## Log
 
@@ -375,3 +420,4 @@ CERRADO; nada quedó bloqueado.**
 | 2026-07-07 | Primer feedback de dogfooding: 3 fixes (bienvenida Chrome · colapso universal del rail · claude mudo por PATH del .desktop — resolución con fallbacks + error visible) + **PB-27 «Nuevo Workspace» v2**: taxonomía estándar 5 tipos con branch por prefijo (feature/bugfix/hotfix/chore/spike — muere wt/), wizard ubicación→propósito con guards backend, **exploración read-only** (`--permission-mode plan`, edición BLOQUEADA verificada en vivo), crear ítem desde el wizard. RN-1 evolucionada: «toda sesión con edición liga a un paquete». 10/10 checks. CAP-12 nueva. | DH-17 |
 | 2026-07-07 | Registry de arneses ENTREGADO (PB-25 ⊕ PB-05 fusionada): DevStudio ADOPTA el estándar ArnesIA (nomenclatura-arnes v1 + marketplace git en producción — «no construyas por construir») con materialización CRUCE: lock as-code committeado + caché forma-plugin + inyección por sesión `--plugin-dir`+system-prompt (patrón HS-11 de la fábrica; DH-10 intacto). Roster mock MUERTO; guard RN-5. Boundary git-solo-lectura-y-commit v1.1 (registry confinado, fitness nuevo). 7/7 checks en vivo con el arnés REAL dev-full-cycle de ArnesIA — las 4 skills namespaced respondidas por el claude de la sesión. 2 bugs cazados EN el gate (updater PATH .desktop · flags de prompt excluyentes). CAP-13 nueva. Prompt interop → sesión ArnesIA. | DH-18 |
 | 2026-07-07 | Interop ArnesIA RESPONDIDO (HS-12 → DH-18.2): publish fase-5 ratificado con contrato estable · `spine.categorias` aceptado (enum I-77 RN-28, terminalidad derivada) · `arnes.l0.nombre` canónico + cadena fallback bendecida (fscatalog alineado TDD) · lock bendecido como detector 3° + **contrato estable recíproco declarado** (`registry·id·version·canal`, solo aditivo, spec §2) · spine⟷I-77 CONFORME: gates/dueños se derivan de contratos por caja, el arnés no shipea I-77 (export/proyección) → PB-08 re-redactada. Pendiente externo de DH-18 CERRADO. | DH-18 |
+| 2026-07-09 | F0 norte FIRMADO — épica «Conversación terminal-auténtica» (Híbrido 3a, PB-28 banda 🔴): doble input literal (chat ↔ terminal, mismo stdin del `claude` real) sobre el driver DH-10. 8 invariantes ratificados (terminal literal · teal único + amber semántico · Envelope ACP-aligned · degradación por Capabilities). Decisiones A–E: A probe R0 primero SÍ (`claude` v2.1.205 pineada) · **B multi-proveedor DESDE F1 (Chris divergió): Envelope nace ACP-aligned + Capabilities temprano + 2do adapter Amp en alcance firme = PB-20)** · C terminal faux/3a (PTY diferido) · D DH por rebanada R1–R5 · E PB-24 no bloquea. NORTE-BORRADOR→FIRMADO. Siguiente: F1 = R0 probe + R1 tool-cards. | DH-19 |

@@ -39,6 +39,8 @@
 
 | PB-27 | **Flujo «Nuevo Workspace» v2** — wizard ubicación→propósito: exploración read-only (`--permission-mode plan`) · trabajo SIEMPRE en worktree ligado a ítem · taxonomía estándar 5 tipos con branch por prefijo (murió `wt/`) · crear ítem desde el wizard. RN-1 evolucionada | CAP-09 + **CAP-12** | `specs/nuevo-workspace/SPEC.md` (CONGELADA, 10/10) | **entregada 2026-07-07** · DH-17 |
 
+| PB-28 | **Conversación terminal-auténtica (Híbrido 3a)** — que la conversación se sienta como un terminal REAL (estética *making-of* de Claude Code de Anthropic) con **doble input**: chat ↔ terminal, ambos al MISMO stdin del proceso `claude` (AgentsRoom lo finge; DevStudio lo hace literal porque ya spawnea stream-json real). **Veredicto:** 1 proceso stream-json → 2 superficies (cards estructuradas + xterm.js en modo controlado, deltas reales = typing auténtico; sin PTY). **MVP = 4 huecos en `conductor.go`:** (1) parsear `tool_use`/`tool_result` → tool-cards (hoy `default: return false`); (2) `control_request:can_use_tool` → modal de rama + `ReplyPermission` (hoy no hay canal de permisos); (3) exponer raw-PTY; (4) `ProviderSessionID` + `Capabilities()`. **R0 probe** del protocolo de control ANTES de UI (sub-documentado + version-dependiente: bugs #34046/#12235). **Eje multi-CLI (fase 2):** `Envelope` alineado a **ACP**, 4 familias (stdio-NDJSON · JSON-RPC · HTTP+SSE OpenCode con Go SDK · raw Aider), Amp = near drop-in (encaja PB-20). Teal único PRENTER + JetBrains Mono (ya vendorizada = match Anthropic); descarta el multi-accent de AgentsRoom. **Absorbe/refina PB-09.** **Elevada a ÉPICA** (Chris 2026-07-09) → gobierna `epicas/conversacion-terminal-autentica/NORTE-FIRMADO.md`. **F0 ✅ FIRMADA 2026-07-09 (DH-19):** A probe R0 primero (`claude` v2.1.205) · **B = multi-proveedor DESDE F1** (Chris divergió: Envelope nace ACP-aligned + Capabilities temprano + 2do adapter Amp en alcance firme = PB-20) · C terminal faux/3a · D DH por rebanada R1–R5 · E PB-24 no bloquea | CAP-02/03 (refina) + **nueva** | `epicas/conversacion-terminal-autentica/` (NORTE-FIRMADO + README + `05-plan…` + `06-mockup`; detalle 00–04) + mock (Artifact) | **en curso · F0 firmada (DH-19)** (banda 🔴 — «atenderla de una vez»); **próximo: F1 (R0 probe + R1 tool-cards)**; refina PB-09, toca PB-24/PB-25/PB-20 |
+
 ## 🟡 Próximo — shell + port por rebanadas (orden de herencia §3 de la spec clon)
 
 | ID | Ítem | Incrementa | Fuente (detalle) | Estado |
@@ -53,7 +55,7 @@
 
 | ID | Ítem | Incrementa | Fuente (detalle) | Estado |
 |---|---|---|---|---|
-| PB-09 | Vista Sesión completa: terminal embebido, composer (7 acciones, cola de mensajes, redimensionable) | CAP-02/03 | spec clon §10.1 | propuesta |
+| PB-09 | Vista Sesión completa: terminal embebido, composer (7 acciones, cola de mensajes, redimensionable) | CAP-02/03 | spec clon §10.1 · research en PB-28 | **refinada/absorbida en PB-28 2026-07-09** (conversación terminal-auténtica Híbrido 3a) |
 | PB-10 | Tab Cambios: quick-look + revisar side-by-side, chips por rol, commit por lote + adjuntar conversación | nueva | spec clon §10.2 | propuesta |
 | PB-11 | Diff conversacional (comentar inline, el rol resuelve) — diferenciador genuino, ningún referente lo tiene | PB-10 | spec clon §5.2 + §10.2.4 | propuesta |
 | PB-12 | Checkpoints/revert por turno (git ref privado) | CAP-02 | spec clon §5.3 | propuesta |
