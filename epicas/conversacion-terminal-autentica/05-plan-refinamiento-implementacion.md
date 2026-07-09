@@ -42,11 +42,14 @@ El slicing R0–R5 de abajo se escribió asumiendo «Claude primero». Con B fir
 > **Piso HARD**: verificación REAL en vivo (ejercer la acción real + leer logs + confirmar efecto), no
 > "HTTP 200". Bug fix = regression test RED primero. (test-design-doctrine.md, tdd-mandatory.md.)
 
-**R0 · Probe del protocolo de control** (spike, 1 archivo, descartable)
-- Spawn `claude --input-format stream-json --output-format stream-json --verbose --permission-prompt-tool
-  stdio`, mandar un turno que dispare un tool gated (ej. Bash fuera de allowlist), loguear stdin/stdout
-  crudo. Documentar el envelope REAL (`control_request`/`control_response` shape + `request_id`) + la
-  versión de `claude`. Salida: un `.md` con el shape verificado. **Precede a R2.**
+**R0 · Probe del protocolo de control** (spike, 1 archivo, descartable) — ✅ **EJECUTADA 2026-07-09 → [`07-R0-probe-findings.md`](./07-R0-probe-findings.md)** (`claude` v2.1.205 pineada)
+- Hecho: se spawneó el `claude` real en stream-json, se disparó un tool gated (Bash) y se logueó
+  stdin/stdout crudo + se desensambló el binario. **Hallazgos clave:** (1) `--permission-prompt-tool
+  stdio` está MAL (el flag exige un MCP tool, no `"stdio"`); (2) el modo `default` headless AUTO-PERMITE
+  los tools (no hay «ask» por defecto); (3) el handshake `initialize` funciona pero el `initialize`
+  mínimo NO enruta el permiso; (4) shapes de `init`/`tool_use`/`tool_result`/`text_delta`/`result`
+  capturados EN VIVO (R1 des-riesgado); (5) el «ask» es `control_request{subtype:can_use_tool}` ⇄
+  `control_response{behavior:allow|deny}` — falta pinear el disparador (primera tarea de R2).
 
 **R1 · Tool-cards** (hueco 1 · `conductor.go`)
 - `translate()`: parsear bloques `tool_use` (en `assistant`) + `tool_result` (en `user`) → nuevos
@@ -54,14 +57,19 @@ El slicing R0–R5 de abajo se escribió asumiendo «Claude primero». Con B fir
   `session-view.tsx`. Render estilo mock (tarjeta con `⎿ Read path · OK`, diff add/del).
 - AC: un turno que usa Read+Edit muestra 2 tool-cards con input + output/diff reales.
 
-**R2 · Permisos + modal de rama** (hueco 2 · depende de R0)
-- Spawn con `--permission-prompt-tool stdio`. `conductor.go`: parsear `control_request:can_use_tool` →
-  `EvPermissionReq`; implementar `ReplyPermission(requestID, allow, [message])` que escribe
-  `control_response` en stdin. Nuevo endpoint `POST /api/sessions/{id}/permission` + reducer. UI: modal de
-  rama estilo terminal (`❯ 1. Permitir · 2. Siempre · 3. Rechazar`) como el mock.
-- Fallback si el canal falla: `--permission-mode acceptEdits` + allow-rules (degrada UX, no bloquea).
-- AC: un tool gated pausa el turno, muestra el modal, la respuesta del usuario permite/rechaza en vivo
-  (leer logs: el proceso continúa/aborta según la elección).
+**R2 · Permisos + modal de rama** (hueco 2 · depende de R0) — ⚠️ **RE-SCOPEADA por R0** (ver `07` §2/§4)
+- **PRIMERO (spike A→C, continuación de R0):** pinear cómo el CLI enruta `can_use_tool` al cliente sobre
+  stdio + capturar UNA transacción viva (allow Y deny) ANTES de la UI. `--permission-prompt-tool stdio`
+  del plan viejo NO sirve (§0 de `07`). Tres caminos (`07` §4): **A** control-protocol `canUseTool`
+  (recomendado — todo en el stream, `updatedInput`/`updatedPermissions` = opciones 1/2 del modal);
+  **B** `--permission-prompt-tool mcp__…` (MCP tool in-process); **C** PreToolUse hook (lo que el binario
+  bendice como fallback). Piso HARD: no construir el modal sin captura viva de `can_use_tool`.
+- Después: `conductor.go` parsea `control_request{subtype:can_use_tool}` → `EvPermissionReq`;
+  `ReplyPermission(requestID, allow, [message])` escribe `control_response{response:{behavior}}` en stdin.
+  Endpoint `POST /api/sessions/{id}/permission` + reducer. UI: modal de rama (`❯ 1. Permitir · 2. Siempre
+  · 3. Rechazar`) — «2. Siempre» = `updatedPermissions`; «3. Rechazar» = `behavior:deny` + `message`.
+- Fallback de degradación: `--permission-mode acceptEdits` + allow-rules (no bloquea; se pierde el modal).
+- AC: un tool gated pausa el turno, muestra el modal, la respuesta permite/rechaza en vivo (leer logs).
 
 **R3 · Terminal xterm.js modo controlado + doble input** (hueco 3 + segundo input path)
 - FE: agregar `@xterm/xterm` + addons `fit`/`webgl`/`web-links`. Pane terminal que `term.write()` los
@@ -111,5 +119,7 @@ El slicing R0–R5 de abajo se escribió asumiendo «Claude primero». Con B fir
 - `03-multi-cli-interop.md` — normalización multi-CLI + contrato Go + ACP (completo).
 - `04-mapa-codigo-actual.md` — file:line del código actual + GAP summary.
 - `05-plan-refinamiento-implementacion.md` — este plan.
+- `06-especificacion-mockup.md` — cada propuesta del mockup (P1–P6) especificada.
+- `07-R0-probe-findings.md` — hallazgos del probe R0 en vivo (shapes verificados + mecanismo de permisos).
 - `mock-conversacion.html` — mock visual (Artifact publicado; ver README para URL).
 - `*.png` — capturas de referencia (Anthropic making-of, AgentsRoom, render del mock).

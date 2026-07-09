@@ -33,6 +33,8 @@
 4. **`04-mapa-codigo-actual.md`** — dónde tocar (file:line) + GAP summary.
 5. **`02-claude-code-protocol.md`** — protocolo stream-json + terminal-en-webview (detalle completo).
 6. **`03-multi-cli-interop.md`** — normalización multi-CLI + contrato Go + ACP (detalle completo).
+6b. **★ `07-R0-probe-findings.md`** — hallazgos del probe R0 EN VIVO (shapes verificados de `claude`
+   v2.1.205 + corrección del mecanismo de permisos para R2). Leer antes de tocar `conductor.go`.
 7. **`05-plan-refinamiento-implementacion.md`** — plan accionable: R0 probe → R1 tool-cards → R2 permisos →
    R3 terminal+doble input → R4 Capabilities → R5 multi-CLI. Decisiones pendientes para Chris.
 
