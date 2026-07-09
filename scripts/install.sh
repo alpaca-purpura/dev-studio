@@ -73,10 +73,15 @@ if command -v google-chrome > /dev/null 2>&1; then
   # --class (X11) + --wayland-app-id (Wayland): WM_CLASS/app-id = dev-studio → la barra de
   # tareas agrupa la ventana bajo NUESTRO .desktop (StartupWMClass), no bajo Google Chrome.
   # OutdatedBuildDetector: mata el globo «No se puede actualizar Chrome» dentro de la
-  # ventana app (el updater de Chrome es asunto del sistema, no de DevStudio — DH-18.1)
+  # ventana app (el updater de Chrome es asunto del sistema, no de DevStudio — DH-18.1).
+  # --disable-gpu(+compositing): compositor por software. Sin esto, en máquinas con el driver
+  # de GPU trabado Chrome no produce frames → VENTANA BLANCA (procesos gpu-process en estado D,
+  # Page.captureScreenshot cuelga). Diagnosticado por CDP 2026-07-09: con GPU off la app
+  # renderiza completa. El software compositing es de sobra para esta UI (no hay 3D/canvas pesado).
   exec google-chrome --app="$URL" --user-data-dir="$HOME/.dev-studio/chrome-profile" \
     --class=dev-studio --wayland-app-id=dev-studio \
     --no-first-run --no-default-browser-check \
+    --disable-gpu --disable-gpu-compositing \
     --disable-features=DefaultBrowserPrompt,OutdatedBuildDetector
 fi
 exec xdg-open "$URL"
