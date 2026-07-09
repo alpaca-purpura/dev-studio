@@ -11,7 +11,11 @@ import (
 )
 
 // scriptAgent emite una secuencia fija de eventos y cierra el canal (un turno completo).
-type scriptAgent struct{ evs []ports.AgentEvent }
+// hist = transcript que devuelve History() (R1.5).
+type scriptAgent struct {
+	evs  []ports.AgentEvent
+	hist []ports.TranscriptItem
+}
 
 func (a *scriptAgent) Spawn(context.Context, ports.SpawnOpts) (ports.AgentSession, error) {
 	ch := make(chan ports.AgentEvent, len(a.evs)+1)
@@ -20,6 +24,10 @@ func (a *scriptAgent) Spawn(context.Context, ports.SpawnOpts) (ports.AgentSessio
 	}
 	close(ch)
 	return &scriptSession{events: ch}, nil
+}
+
+func (a *scriptAgent) History(context.Context, string, string) ([]ports.TranscriptItem, error) {
+	return a.hist, nil
 }
 
 type scriptSession struct{ events chan ports.AgentEvent }
@@ -108,6 +116,65 @@ func TestConsumePublicaToolCards(t *testing.T) {
 	// la sesión debe quedar idle tras el result — las cards no interfieren con el ciclo del turno.
 	if got, _ := svc.Get(sess.ID); got.Status != "idle" {
 		t.Errorf("status tras el turno = %q, quería idle", got.Status)
+	}
+}
+
+// runClosedTurn corre un turno cuyo agente cierra el canal (EventInit + EventResult), y espera a
+// que la sesión quede idle con su ClaudeSessionID puesto (camino real del consume).
+func runClosedTurn(t *testing.T, agent ports.AgentPort, text string) (*SessionService, string) {
+	t.Helper()
+	svc, err := NewSessionService(context.Background(), agent, nullStore{}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sess, _ := svc.CreateSession(NewSession{Nombre: "s", Cwd: "/tmp"})
+	if err := svc.Turn(sess.ID, text); err != nil {
+		t.Fatal(err)
+	}
+	waitFor(t, func() bool { g, _ := svc.Get(sess.ID); return g.ClaudeSessionID != "" && g.Status == "idle" })
+	return svc, sess.ID
+}
+
+// TestTranscriptPathHistory (R1.5): una sesión que ya corrió (tiene ClaudeSessionID) reconstruye
+// su transcript ordenado (texto + tool-cards en su lugar) desde History del adapter.
+func TestTranscriptPathHistory(t *testing.T) {
+	hist := []ports.TranscriptItem{
+		{Kind: "user", Text: "leé y editá"},
+		{Kind: "tool.call", ToolID: "t1", ToolName: "Read", ToolInput: `{"file_path":"x"}`},
+		{Kind: "tool.result", ToolID: "t1", Text: "contenido"},
+		{Kind: "assistant", Text: "listo"},
+	}
+	agent := &scriptAgent{
+		evs:  []ports.AgentEvent{{Kind: ports.EventInit, ClaudeSessionID: "cc-xyz"}, {Kind: ports.EventResult, Text: "listo"}},
+		hist: hist,
+	}
+	svc, id := runClosedTurn(t, agent, "hola")
+	got, err := svc.Transcript(id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != len(hist) {
+		t.Fatalf("esperaba %d ítems del History, hubo %d: %+v", len(hist), len(got), got)
+	}
+	if got[1].Kind != "tool.call" || got[1].ToolName != "Read" || got[2].Kind != "tool.result" {
+		t.Errorf("orden/tool-cards mal reconstruidos: %+v", got)
+	}
+}
+
+// TestTranscriptFallbackConv (R1.5): si el adapter no tiene historial rico (History vacío), el
+// transcript cae al conv persistido solo-texto — mejor que una pantalla en blanco.
+func TestTranscriptFallbackConv(t *testing.T) {
+	agent := &scriptAgent{ // hist nil → History devuelve vacío
+		evs: []ports.AgentEvent{{Kind: ports.EventInit, ClaudeSessionID: "cc-a"}, {Kind: ports.EventResult, Text: "hey"}},
+	}
+	svc, id := runClosedTurn(t, agent, "hola")
+	got, err := svc.Transcript(id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// conv = [user "hola", assistant "hey"]
+	if len(got) != 2 || got[0].Kind != "user" || got[0].Text != "hola" || got[1].Kind != "assistant" || got[1].Text != "hey" {
+		t.Fatalf("fallback conv esperado [user hola, assistant hey], hubo %+v", got)
 	}
 }
 

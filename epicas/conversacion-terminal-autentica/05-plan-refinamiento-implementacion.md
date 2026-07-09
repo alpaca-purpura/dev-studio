@@ -67,6 +67,37 @@ El slicing R0–R5 de abajo se escribió asumiendo «Claude primero». Con B fir
 - AC: un turno que usa Read+Edit muestra 2 tool-cards con input + output/diff reales. **Datos ✅ probados
   en vivo; render in-app = Chris-verify.**
 
+**R1.5 · Transcript persistente + reconstrucción en re-entry** (ruta A · firmado Chris 2026-07-09) — ✅ **IMPLEMENTADA + verificada en vivo**
+- **Problema:** las tool-cards de R1 son **live-only** (mueren al salir/recargar). Lo persistido (`domain.Session.
+  Conv []Turn{role,text}`) es **solo texto** → al reentrar, las cards no vuelven a su lugar en el transcript.
+- **Ruta A (firmada):** al reentrar/abrir una sesión con `ClaudeSessionID`, el **adapter reconstruye el
+  transcript ordenado** (texto + tool.call/tool.result **en su lugar**) desde **su propia fuente** — para
+  Claude = su JSONL `~/.claude/projects/<cwd-encoded>/<session_id>.jsonl` (transcript completo que claude
+  ya escribe para `--resume`). Simétrico con la rehidratación del resume (`02` §A.5).
+- **Diseño (provider-agnóstico, decisión B):**
+  - Puerto: `History(ctx) ([]Envelope, error)` en `AgentSession` + flag `Capabilities.Replay` — cada adapter
+    reconstruye del suyo (Claude JSONL · OpenCode API history · Aider degrada a texto vía Capabilities).
+  - Adapter `claudecode`: **único parser del JSONL** (boundary `conductor-no-parsea-jsonl` INTACTO) — localiza
+    el archivo por `~/.claude/projects/*/{ClaudeSessionID}.jsonl` (el session_id es único), parsea líneas
+    `user`/`assistant` (content[] → text · tool_use · tool_result) → `[]Envelope` ordenado. Archivo nuevo
+    (ej. `transcript.go`), NO toca el pump del stream vivo.
+  - Usecase + HTTP: `GET /api/sessions/{id}/transcript` → ítems ordenados `{kind, role, text, tool_*}`.
+  - FE: al activar una sesión con `claude_session_id` → fetch transcript → render rico (texto + tool-cards
+    en orden) reemplazando el `conv` solo-texto; re-fetch al cerrar un turno (`result`) para plegar las
+    cards vivas al historial persistido. `session.transcript` en el store.
+- **Verificación REAL (piso HARD):** sesión con turnos que usaron tools → **salir de la sesión / recargar la
+  app / reabrir** → las tool-cards reaparecen **en su lugar** en el transcript (reconstruidas del JSONL),
+  no solo el texto. Leer el JSONL real + confirmar el orden.
+- **Liga con:** R4 (la capability `Replay` vive con `Capabilities`/`ProviderSessionID`/resume — decisión B ya
+  los adelantó) · `02` §A.5 (rehidratar tras restart) · `06` P4 (el transcript del mock ya muestra cards inline).
+- **Verificado en vivo (2026-07-09, CDP sobre la app real):** turno Read+Edit → **recarga dura (= salir/
+  reentrar)** → reactivar la sesión → el transcript se **reconstruyó del JSONL** con las 2 cards EN SU LUGAR
+  (Read ✓ + output `1 alpha…`, Edit diff `+// reentry OK` ✕), no solo texto. Screenshot `r15-reentry.png`.
+  Entregado: puerto `TranscriptItem`/`History` · adapter `transcript.go` (parser JSONL, único parser) ·
+  usecase `Transcript` (History con fallback a conv) · `GET /api/sessions/{id}/transcript` · FE store
+  `transcript` + `loadTranscript` (switchTo/init/post-result) + render `foldTranscript` (pliega call+result
+  en una card). TDD: `transcript_test.go` (fixture shape real) + `session_toolcards_test.go` (History + fallback).
+
 **R2 · Permisos + modal de rama** (hueco 2 · depende de R0) — ⚠️ **RE-SCOPEADA por R0** (ver `07` §2/§4)
 - **PRIMERO (spike A→C, continuación de R0):** pinear cómo el CLI enruta `can_use_tool` al cliente sobre
   stdio + capturar UNA transacción viva (allow Y deny) ANTES de la UI. `--permission-prompt-tool stdio`

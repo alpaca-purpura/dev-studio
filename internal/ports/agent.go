@@ -49,6 +49,18 @@ type SpawnOpts struct {
 	SystemPrompt string   // --append-system-prompt (preámbulo del rol + banda Base)
 }
 
+// TranscriptItem es un ítem del transcript reconstruido de una sesión (R1.5, ruta A): el
+// historial ordenado (texto + tool-cards en su lugar) que sobrevive al salir/reentrar. Cada
+// adapter lo reconstruye de SU propia fuente — Claude de su JSONL; el usecase solo ve esto.
+type TranscriptItem struct {
+	Kind        string `json:"kind"`                     // "user" | "assistant" | "tool.call" | "tool.result"
+	Text        string `json:"text,omitempty"`           // user/assistant: el texto · tool.result: el output
+	ToolID      string `json:"tool_id,omitempty"`        // tool.call/tool.result: parea la llamada con su resultado
+	ToolName    string `json:"tool_name,omitempty"`      // tool.call: nombre de la herramienta
+	ToolInput   string `json:"tool_input,omitempty"`     // tool.call: input como JSON (para la card/diff)
+	ToolIsError bool   `json:"tool_is_error,omitempty"`  // tool.result
+}
+
 // AgentSession es una conversación viva con un agente (un proceso, un canal de eventos).
 type AgentSession interface {
 	Send(ctx context.Context, text string) error
@@ -60,4 +72,9 @@ type AgentSession interface {
 // mañana podría entrar otro agente sin tocar el caso de uso.
 type AgentPort interface {
 	Spawn(ctx context.Context, opts SpawnOpts) (AgentSession, error)
+
+	// History reconstruye el transcript ordenado de una sesión ya existente (R1.5, ruta A) SIN
+	// proceso vivo — el adapter lee su propia fuente (Claude: el JSONL de ~/.claude/projects).
+	// providerSessionID vacío o sin fuente → (nil, nil): la sesión aún no tiene historial rico.
+	History(ctx context.Context, providerSessionID, cwd string) ([]TranscriptItem, error)
 }

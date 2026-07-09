@@ -202,9 +202,10 @@ type rawFrame struct {
 	IsError bool   `json:"is_error"`
 }
 
-// rawContentBlk es un bloque de message.content — cubre tool_use (assistant) y tool_result (user).
+// rawContentBlk es un bloque de message.content — cubre text, tool_use (assistant) y tool_result (user).
 type rawContentBlk struct {
 	Type string `json:"type"`
+	Text string `json:"text"` // bloque text (usado por el replay del transcript, R1.5)
 	// tool_use (en frames assistant)
 	ID    string          `json:"id"`
 	Name  string          `json:"name"`

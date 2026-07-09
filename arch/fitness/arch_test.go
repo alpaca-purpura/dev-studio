@@ -35,6 +35,10 @@ func (blockingAgent) Spawn(context.Context, ports.SpawnOpts) (ports.AgentSession
 	return &blockingSession{events: make(chan ports.AgentEvent)}, nil
 }
 
+func (blockingAgent) History(context.Context, string, string) ([]ports.TranscriptItem, error) {
+	return nil, nil
+}
+
 type blockingSession struct{ events chan ports.AgentEvent }
 
 func (b *blockingSession) Send(context.Context, string) error { return nil }

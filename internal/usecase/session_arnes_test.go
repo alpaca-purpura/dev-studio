@@ -16,6 +16,10 @@ func (a *spyAgent) Spawn(_ context.Context, opts ports.SpawnOpts) (ports.AgentSe
 	return &nullSession{events: make(chan ports.AgentEvent)}, nil
 }
 
+func (a *spyAgent) History(context.Context, string, string) ([]ports.TranscriptItem, error) {
+	return nil, nil
+}
+
 type nullSession struct{ events chan ports.AgentEvent }
 
 func (n *nullSession) Send(context.Context, string) error { return nil }

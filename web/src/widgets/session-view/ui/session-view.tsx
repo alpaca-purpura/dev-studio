@@ -1,8 +1,41 @@
 import { useEffect, useRef, useState } from "react";
 import { useSessions } from "../../../shared/store/sessions-store";
 import { Avatar, Chip, ModalShell, ToolCard } from "../../../shared/ui";
-import type { ToolCall } from "../../../shared/api/types";
+import type { ToolCall, TranscriptItem, Turn } from "../../../shared/api/types";
 import { cn } from "../../../shared/lib/cn";
+
+/** Nodo renderizable del transcript: burbuja de texto o tarjeta de herramienta. */
+type RenderNode =
+  | { type: "text"; role: "user" | "assistant"; text: string; key: string }
+  | { type: "tool"; call: ToolCall; key: string };
+
+/** foldTranscript pliega los ítems (texto + tool.call/tool.result) en nodos: la llamada y su
+ *  resultado se unen en UNA card (pareo por tool_id), en su lugar dentro del historial. */
+function foldTranscript(items: TranscriptItem[]): RenderNode[] {
+  const out: RenderNode[] = [];
+  const callAt: Record<string, number> = {};
+  items.forEach((it, i) => {
+    if (it.kind === "user" || it.kind === "assistant") {
+      out.push({ type: "text", role: it.kind, text: it.text ?? "", key: `t${i}` });
+    } else if (it.kind === "tool.call") {
+      const id = it.tool_id ?? `c${i}`;
+      callAt[id] = out.length;
+      out.push({ type: "tool", key: `c${i}`, call: { tool_id: id, name: it.tool_name ?? "", input: it.tool_input ?? "", status: "running" } });
+    } else if (it.kind === "tool.result") {
+      const idx = it.tool_id != null ? callAt[it.tool_id] : undefined;
+      const node = idx != null ? out[idx] : undefined;
+      if (node && node.type === "tool") {
+        node.call = { ...node.call, status: it.tool_is_error ? "error" : "ok", output: it.text };
+      } else {
+        out.push({ type: "tool", key: `r${i}`, call: { tool_id: it.tool_id ?? `r${i}`, name: "", input: "", status: it.tool_is_error ? "error" : "ok", output: it.text } });
+      }
+    }
+  });
+  return out;
+}
+
+const convNodes = (conv: Turn[]): RenderNode[] =>
+  conv.map((t, i) => ({ type: "text", role: t.role, text: t.text, key: `conv${i}` }));
 
 /** Modales stub del composer (spec §3.3, RN-7): presentes, honestos, con destino. */
 type StubKey = "boceto" | "captura" | "html" | "movil" | "prompts" | "voz" | "dictar" | "comandos" | "ssh";
@@ -36,6 +69,7 @@ export function SessionView() {
   const session = useSessions((s) => s.sessions.find((x) => x.id === s.activeId));
   const streamBuffer = useSessions((s) => (s.activeId ? s.streamBuffer[s.activeId] : undefined));
   const toolCalls = useSessions((s) => (s.activeId ? (s.toolCalls[s.activeId] ?? SIN_TOOLS) : SIN_TOOLS));
+  const transcript = useSessions((s) => (s.activeId ? s.transcript[s.activeId] : undefined));
   const queued = useSessions((s) => (s.activeId ? (s.queue[s.activeId] ?? SIN_COLA) : SIN_COLA));
   const sendTurn = useSessions((s) => s.sendTurn);
   const enqueue = useSessions((s) => s.enqueue);
@@ -47,7 +81,7 @@ export function SessionView() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [session?.conv.length, streamBuffer, toolCalls.length]);
+  }, [session?.conv.length, streamBuffer, toolCalls.length, transcript?.length]);
 
   if (!session) {
     return (
@@ -59,6 +93,9 @@ export function SessionView() {
 
   const streaming = session.status === "streaming";
   const canSend = text.trim().length > 0;
+  // historial: el transcript reconstruido (R1.5, con tool-cards en su lugar) si ya cargó;
+  // si no, el conv solo-texto como fallback. El turno vivo va como overlay debajo.
+  const historyNodes = transcript !== undefined ? foldTranscript(transcript) : convNodes(session.conv ?? []);
 
   const doSend = () => {
     const t = text.trim();
@@ -118,23 +155,29 @@ export function SessionView() {
 
       {/* conversación */}
       <div ref={scrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
-        {(session.conv ?? []).map((t, i) => (
-          <div key={i} className={cn("max-w-[75%]", t.role === "user" ? "ml-auto" : "mr-auto")}>
-            <div className="mb-1 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
-              {t.role === "user" ? "Tú" : (session.rol ?? "Asistente")}
+        {historyNodes.map((n) =>
+          n.type === "text" ? (
+            <div key={n.key} className={cn("max-w-[75%]", n.role === "user" ? "ml-auto" : "mr-auto")}>
+              <div className="mb-1 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+                {n.role === "user" ? "Tú" : (session.rol ?? "Asistente")}
+              </div>
+              <div
+                className={cn(
+                  "whitespace-pre-wrap rounded-md border px-3 py-2 text-sm leading-relaxed",
+                  n.role === "user"
+                    ? "border-primary/30 bg-accent-soft text-foreground"
+                    : "border-border bg-card text-card-foreground",
+                )}
+              >
+                {n.text}
+              </div>
             </div>
-            <div
-              className={cn(
-                "whitespace-pre-wrap rounded-md border px-3 py-2 text-sm leading-relaxed",
-                t.role === "user"
-                  ? "border-primary/30 bg-accent-soft text-foreground"
-                  : "border-border bg-card text-card-foreground",
-              )}
-            >
-              {t.text}
+          ) : (
+            <div key={n.key} className="mr-auto max-w-[85%]">
+              <ToolCard call={n.call} />
             </div>
-          </div>
-        ))}
+          ),
+        )}
         {(toolCalls.length > 0 || streamBuffer !== undefined) && (
           <div className="mr-auto max-w-[85%] space-y-2">
             <div className="mb-1 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">

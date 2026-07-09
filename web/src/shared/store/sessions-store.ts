@@ -1,7 +1,10 @@
 import { create } from "zustand";
 import { api } from "../api/client";
 import { connectDock } from "../api/sse";
-import type { CloseSessionResp, DockFrame, Historia, Session, ToolCall } from "../api/types";
+import type { CloseSessionResp, DockFrame, Historia, Session, ToolCall, TranscriptItem, Turn } from "../api/types";
+
+/** conv (solo texto) → ítems del transcript, para sembrar el optimista antes de que cargue el rico. */
+const convToItems = (conv: Turn[]): TranscriptItem[] => conv.map((t) => ({ kind: t.role, text: t.text }));
 import { useRepos } from "./repos-store";
 
 interface SessionsState {
@@ -11,6 +14,9 @@ interface SessionsState {
   /** Tarjetas de herramienta del turno en curso por sesión (R1). Se reinician al enviar un
    *  turno nuevo; la llamada y su resultado se parean por tool_id. */
   toolCalls: Record<string, ToolCall[]>;
+  /** Transcript reconstruido por sesión (R1.5): historial ordenado (texto + tool-cards en su
+   *  lugar) que sobrevive al reentrar. Fuente única de render; el turno vivo va como overlay. */
+  transcript: Record<string, TranscriptItem[]>;
   /** Cola de mensajes por sesión (Encolar ⇒). Client-side, respeta un-turno-a-la-vez (RN-8):
    *  el siguiente mensaje se despacha recién cuando llega result/error del turno en curso. */
   queue: Record<string, string[]>;
@@ -27,6 +33,7 @@ interface SessionsState {
   closeSession: (id: string, workspace?: "keep" | "remove") => Promise<CloseSessionResp>;
   rename: (id: string, nombre: string) => Promise<void>;
   switchTo: (id: string) => void;
+  loadTranscript: (id: string) => Promise<void>;
   sendTurn: (id: string, text: string) => Promise<void>;
   enqueue: (id: string, text: string) => void;
   onDock: (f: DockFrame) => void;
@@ -39,13 +46,16 @@ export const useSessions = create<SessionsState>((set, get) => ({
   activeId: null,
   streamBuffer: {},
   toolCalls: {},
+  transcript: {},
   queue: {},
 
   init: async () => {
     const sessions = await api.list();
-    set({ sessions, activeId: sessions[0]?.id ?? null });
+    const activeId = sessions[0]?.id ?? null;
+    set({ sessions, activeId });
     disconnect?.();
     disconnect = connectDock((f) => get().onDock(f));
+    if (activeId) void get().loadTranscript(activeId);
   },
 
   create: async (p) => {
@@ -71,18 +81,37 @@ export const useSessions = create<SessionsState>((set, get) => ({
     await api.rename(id, nombre);
   },
 
-  switchTo: (id: string) => set({ activeId: id }),
+  switchTo: (id: string) => {
+    set({ activeId: id });
+    void get().loadTranscript(id);
+  },
+
+  // loadTranscript trae el historial reconstruido (R1.5) y limpia el overlay vivo — las cards
+  // que estaban en vivo ahora viven en el transcript, en su lugar.
+  loadTranscript: async (id: string) => {
+    try {
+      const items = await api.transcript(id);
+      set((st) => ({
+        transcript: { ...st.transcript, [id]: items },
+        toolCalls: { ...st.toolCalls, [id]: [] },
+      }));
+    } catch {
+      /* sin transcript (sesión nueva / offline): el render cae al conv */
+    }
+  },
 
   sendTurn: async (id: string, text: string) => {
-    set((st) => ({
-      // turno nuevo ⇒ las tarjetas de herramienta del turno anterior se limpian
-      toolCalls: { ...st.toolCalls, [id]: [] },
-      sessions: st.sessions.map((s) =>
-        s.id === id
-          ? { ...s, status: "streaming", conv: [...s.conv, { role: "user", text }] }
-          : s,
-      ),
-    }));
+    set((st) => {
+      const base = st.transcript[id] ?? convToItems(st.sessions.find((s) => s.id === id)?.conv ?? []);
+      return {
+        // turno nuevo ⇒ overlay de tool-cards limpio; el prompt entra optimista al transcript
+        toolCalls: { ...st.toolCalls, [id]: [] },
+        transcript: { ...st.transcript, [id]: [...base, { kind: "user", text }] },
+        sessions: st.sessions.map((s) =>
+          s.id === id ? { ...s, status: "streaming", conv: [...s.conv, { role: "user", text }] } : s,
+        ),
+      };
+    });
     try {
       await api.turn(id, text);
     } catch (e) {
@@ -193,6 +222,10 @@ export const useSessions = create<SessionsState>((set, get) => ({
     // turno terminado → refrescar el status git del workspace (branch/±N del rail y Cambios)
     if (f.kind === "result" || f.kind === "error") {
       void useRepos.getState().refreshSessionStatus(f.session_id);
+      // …y recargar el transcript (R1.5): el turno recién cerrado ya está en el JSONL → las
+      // tool-cards vivas se pliegan a su lugar en el historial. Pequeño respiro para que asiente.
+      const sid = f.session_id;
+      setTimeout(() => void get().loadTranscript(sid), 300);
     }
     // turno terminado → despachar el siguiente de la cola (RN-8: nunca en paralelo)
     if (f.kind === "result" || f.kind === "error") {

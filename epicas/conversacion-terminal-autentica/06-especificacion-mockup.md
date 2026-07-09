@@ -66,7 +66,12 @@ Mapa evento→UI (referencia rápida, de `02` §A.2 / `03` §8): `system/init` �
 - **Rebanada:** ya existe parcialmente (R1 lo alimenta de `init` en vez de props).
 
 ## P4 · Transcript (stream chat-log)
-Contenedor scrolleable, `scrollback` cap ~5000 (de `02` §A.3). Sub-elementos:
+Contenedor scrolleable, `scrollback` cap ~5000 (de `02` §A.3). **Persistencia (R1.5, ruta A):** el
+transcript NO es solo el turno vivo — al reentrar/abrir una sesión se **reconstruye completo y ordenado**
+(texto + tool-cards en su lugar) desde el JSONL que claude escribe (`~/.claude/projects/…/<session_id>.jsonl`),
+vía el adapter (único parser). Las tool-cards de R1 dejan de ser efímeras: se ven donde corresponden al
+volver a entrar. Render de historial cerrado = instantáneo (typewriter off; `02`/`06` «replay de transcript
+cerrado»). Sub-elementos:
 
 ### P4.a · Turno del usuario (TÚ)
 - **Qué:** bullet `❯` + `Tú` + cuerpo del prompt. Alineado como en el mock (izquierda, atenuado).

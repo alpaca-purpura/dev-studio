@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alpacapurpura/dev-studio/internal/domain"
+	"github.com/alpacapurpura/dev-studio/internal/ports"
 	"github.com/alpacapurpura/dev-studio/internal/usecase"
 )
 
@@ -228,6 +229,25 @@ func deleteSession(svc *usecase.SessionService, repos *usecase.RepoService, git 
 
 type turnReq struct {
 	Text string `json:"text"`
+}
+
+// sessionTranscript reconstruye el historial ordenado (texto + tool-cards en su lugar) de una
+// sesión — R1.5: sobrevive al salir/reentrar (el adapter lee su JSONL). [] si no hay nada aún.
+func sessionTranscript(svc *usecase.SessionService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		items, err := svc.Transcript(r.PathValue("id"))
+		switch {
+		case errors.Is(err, usecase.ErrNotFound):
+			http.Error(w, "not found", http.StatusNotFound)
+		case err != nil:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		default:
+			if items == nil {
+				items = []ports.TranscriptItem{}
+			}
+			writeJSON(w, http.StatusOK, items)
+		}
+	}
 }
 
 func sessionTurn(svc *usecase.SessionService) http.HandlerFunc {

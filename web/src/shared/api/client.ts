@@ -1,4 +1,4 @@
-import type { Arnes, CloseSessionResp, GitDiff, GitLogEntry, GitStatus, Historia, RegistryEstado, Repo, Session, VersionInfo } from "./types";
+import type { Arnes, CloseSessionResp, GitDiff, GitLogEntry, GitStatus, Historia, RegistryEstado, Repo, Session, TranscriptItem, VersionInfo } from "./types";
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
@@ -44,6 +44,10 @@ export const api = {
     post(`/api/sessions/${id}/turn`, { text }).then((r) => {
       if (!r.ok) throw new Error(`${r.status}`);
     }),
+
+  // transcript reconstruido (R1.5): historial ordenado con tool-cards en su lugar
+  transcript: (id: string): Promise<TranscriptItem[]> =>
+    fetch(`/api/sessions/${id}/transcript`).then((r) => json<TranscriptItem[]>(r)),
 
   // --- repos ---
   repos: (): Promise<Repo[]> => fetch("/api/repos").then((r) => json<Repo[]>(r)),

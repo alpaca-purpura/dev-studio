@@ -32,6 +32,7 @@ func NewRouter(sessions *usecase.SessionService, repos *usecase.RepoService, git
 	mux.HandleFunc("PATCH /api/sessions/{id}", patchSession(sessions))
 	mux.HandleFunc("DELETE /api/sessions/{id}", deleteSession(sessions, repos, git))
 	mux.HandleFunc("POST /api/sessions/{id}/turn", sessionTurn(sessions))
+	mux.HandleFunc("GET /api/sessions/{id}/transcript", sessionTranscript(sessions))
 
 	mux.HandleFunc("GET /api/version", getVersion(deps))
 	mux.HandleFunc("POST /api/update", postUpdate(deps))

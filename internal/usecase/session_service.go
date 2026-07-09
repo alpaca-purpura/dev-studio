@@ -289,6 +289,33 @@ func (s *SessionService) consume(id string, live ports.AgentSession) {
 	s.mu.Unlock()
 }
 
+// Transcript reconstruye el historial ordenado de una sesión (R1.5, ruta A): del adapter
+// (History, ej. el JSONL de Claude) si la sesión ya corrió (tiene ProviderSessionID); si no,
+// cae al conv persistido (solo texto) para que una sesión sin historial rico igual muestre algo.
+func (s *SessionService) Transcript(id string) ([]ports.TranscriptItem, error) {
+	s.mu.Lock()
+	r, ok := s.rt[id]
+	if !ok {
+		s.mu.Unlock()
+		return nil, ErrNotFound
+	}
+	ccID, cwd := r.meta.ClaudeSessionID, r.meta.Cwd
+	conv := append([]domain.Turn(nil), r.meta.Conv...)
+	s.mu.Unlock()
+
+	if ccID != "" {
+		if items, err := s.agent.History(s.baseCtx, ccID, cwd); err == nil && len(items) > 0 {
+			return items, nil
+		}
+	}
+	// fallback: el conv solo-texto (sin tool-cards) — mejor que nada.
+	out := make([]ports.TranscriptItem, 0, len(conv))
+	for _, t := range conv {
+		out = append(out, ports.TranscriptItem{Kind: t.Role, Text: t.Text})
+	}
+	return out, nil
+}
+
 func (s *SessionService) publish(f dockFrame) {
 	if s.pub == nil {
 		return

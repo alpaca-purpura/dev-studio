@@ -113,3 +113,13 @@ export interface ToolCall {
   status: "running" | "ok" | "error";
   output?: string; // llega con el tool.result
 }
+
+/** Ítem del transcript reconstruido (R1.5): historial ordenado que sobrevive al reentrar. */
+export interface TranscriptItem {
+  kind: "user" | "assistant" | "tool.call" | "tool.result";
+  text?: string;
+  tool_id?: string;
+  tool_name?: string;
+  tool_input?: string;
+  tool_is_error?: boolean;
+}
