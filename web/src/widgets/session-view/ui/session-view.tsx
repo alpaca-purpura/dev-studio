@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSessions } from "../../../shared/store/sessions-store";
-import { Avatar, Chip, ModalShell } from "../../../shared/ui";
+import { Avatar, Chip, ModalShell, ToolCard } from "../../../shared/ui";
+import type { ToolCall } from "../../../shared/api/types";
 import { cn } from "../../../shared/lib/cn";
 
 /** Modales stub del composer (spec §3.3, RN-7): presentes, honestos, con destino. */
@@ -29,10 +30,12 @@ const COMPOSER_ICONS: { key: StubKey; title: string; path: string }[] = [
 ];
 
 const SIN_COLA: string[] = []; // referencia estable — un selector que fabrica [] nuevo por snapshot loopea React (#185)
+const SIN_TOOLS: ToolCall[] = []; // ídem referencia estable para las tarjetas de herramienta
 
 export function SessionView() {
   const session = useSessions((s) => s.sessions.find((x) => x.id === s.activeId));
   const streamBuffer = useSessions((s) => (s.activeId ? s.streamBuffer[s.activeId] : undefined));
+  const toolCalls = useSessions((s) => (s.activeId ? (s.toolCalls[s.activeId] ?? SIN_TOOLS) : SIN_TOOLS));
   const queued = useSessions((s) => (s.activeId ? (s.queue[s.activeId] ?? SIN_COLA) : SIN_COLA));
   const sendTurn = useSessions((s) => s.sendTurn);
   const enqueue = useSessions((s) => s.enqueue);
@@ -44,7 +47,7 @@ export function SessionView() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [session?.conv.length, streamBuffer]);
+  }, [session?.conv.length, streamBuffer, toolCalls.length]);
 
   if (!session) {
     return (
@@ -132,14 +135,23 @@ export function SessionView() {
             </div>
           </div>
         ))}
-        {streamBuffer !== undefined && (
-          <div className="mr-auto max-w-[75%]">
+        {(toolCalls.length > 0 || streamBuffer !== undefined) && (
+          <div className="mr-auto max-w-[85%] space-y-2">
             <div className="mb-1 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
               {session.rol ?? "Asistente"}
             </div>
-            <div className="whitespace-pre-wrap rounded-md border border-border bg-card px-3 py-2 text-sm leading-relaxed">
-              {streamBuffer || "…"}
-            </div>
+            {toolCalls.length > 0 && (
+              <div className="space-y-1.5">
+                {toolCalls.map((c) => (
+                  <ToolCard key={c.tool_id} call={c} />
+                ))}
+              </div>
+            )}
+            {streamBuffer !== undefined && (
+              <div className="whitespace-pre-wrap rounded-md border border-border bg-card px-3 py-2 text-sm leading-relaxed">
+                {streamBuffer || "…"}
+              </div>
+            )}
           </div>
         )}
       </div>

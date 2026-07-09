@@ -51,11 +51,21 @@ El slicing R0–R5 de abajo se escribió asumiendo «Claude primero». Con B fir
   capturados EN VIVO (R1 des-riesgado); (5) el «ask» es `control_request{subtype:can_use_tool}` ⇄
   `control_response{behavior:allow|deny}` — falta pinear el disparador (primera tarea de R2).
 
-**R1 · Tool-cards** (hueco 1 · `conductor.go`)
-- `translate()`: parsear bloques `tool_use` (en `assistant`) + `tool_result` (en `user`) → nuevos
-  `AgentEventKind` (tool.call / tool.result). Propagar por `dockFrame` → `onDock` → nuevas cards en
-  `session-view.tsx`. Render estilo mock (tarjeta con `⎿ Read path · OK`, diff add/del).
-- AC: un turno que usa Read+Edit muestra 2 tool-cards con input + output/diff reales.
+**R1 · Tool-cards** (hueco 1 · `conductor.go`) — 🔨 **IMPLEMENTADA · pendiente Chris-verify in-app (G)**
+- Hecho (TDD RED→GREEN): `translate()` → `[]AgentEvent`, parsea `tool_use` (assistant) + `tool_result`
+  (user) → `EventToolCall`/`EventToolResult` (nombres ACP-flavored, decisión B). `dockFrame` gana campos
+  tool; `consume()` publica `tool.call`/`tool.result` (inline, sin tocar estado del turno). FE: `ToolCall`
+  type + `toolCalls` en el store (parea por tool_id, reset por turno) + átomo `ToolCard` (`⎿ Name arg ·
+  estado`, diff +/− con `DiffStat`, output colapsable, teal/mono) + story (RN-9) + wiring en `session-view`.
+- Tests: `conductor_test.go` (TestTranslateToolUse/ToolResult con frames REALES del probe R0) +
+  `session_toolcards_test.go` (consume→frames pareados). `go test ./...` verde + `go vet` + `tsc+vite` build.
+- **Live-verify (claude REAL, pipeline aislado):** un turno Read+Edit produjo las 2 tool-cards con datos
+  reales — Read (verde, output `1\tline one\n…`), Edit (diff real `old_string`→`new_string`); el
+  `tool.result` del Edit vino `is_error:true` («requested permissions to write») = write auto-denegado
+  headless (card roja honesta; el write-success es de **R2**, tal como R0 predijo). El chequeo visual en la
+  app INSTALADA queda para tu G (dogfooding «Actualizar» → mandar un turno con tools → ver las cards).
+- AC: un turno que usa Read+Edit muestra 2 tool-cards con input + output/diff reales. **Datos ✅ probados
+  en vivo; render in-app = Chris-verify.**
 
 **R2 · Permisos + modal de rama** (hueco 2 · depende de R0) — ⚠️ **RE-SCOPEADA por R0** (ver `07` §2/§4)
 - **PRIMERO (spike A→C, continuación de R0):** pinear cómo el CLI enruta `can_use_tool` al cliente sobre

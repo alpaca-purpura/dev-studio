@@ -93,9 +93,23 @@ export interface GitLogEntry {
 
 export interface DockFrame {
   session_id: string;
-  kind: "status" | "init" | "delta" | "result" | "error";
+  kind: "status" | "init" | "delta" | "result" | "error" | "tool.call" | "tool.result";
   text?: string;
   status?: SessionStatus;
   claude_session_id?: string;
   model?: string;
+  // herramientas (R1 tool-cards) — tool_id parea la llamada con su resultado
+  tool_id?: string;
+  tool_name?: string;
+  tool_input?: string; // JSON crudo del input de la herramienta
+  tool_is_error?: boolean;
+}
+
+/** Una invocación de herramienta del agente + su resultado (R1 tool-cards). */
+export interface ToolCall {
+  tool_id: string;
+  name: string; // "Bash" | "Read" | "Edit" | …
+  input: string; // JSON crudo del input
+  status: "running" | "ok" | "error";
+  output?: string; // llega con el tool.result
 }

@@ -11,15 +11,27 @@ const (
 	EventDelta  AgentEventKind = "delta"
 	EventResult AgentEventKind = "result"
 	EventError  AgentEventKind = "error"
+
+	// Eventos de herramienta — normalizados y provider-agnósticos (análogos a `tool_call` /
+	// `tool_call_update` de ACP, decisión B de la épica conversación-terminal-auténtica). El
+	// adaptador traduce sus frames crudos a estos; ningún otro paquete conoce `tool_use`/`tool_result`.
+	EventToolCall   AgentEventKind = "tool.call"   // el agente invoca una herramienta (con su input)
+	EventToolResult AgentEventKind = "tool.result" // el resultado de una herramienta ya invocada
 )
 
 // AgentEvent es el evento normalizado que cruza el puerto — ningún adaptador expone su JSON crudo.
 type AgentEvent struct {
 	Kind            AgentEventKind
-	Text            string
+	Text            string // delta/result: texto · tool.result: el output de la herramienta
 	ClaudeSessionID string
 	Model           string
 	Err             string
+
+	// Campos de herramienta (tool.call / tool.result). ToolID parea la llamada con su resultado.
+	ToolID      string // id de la invocación (tool_use id) — parea call↔result
+	ToolName    string // tool.call: nombre de la herramienta ("Bash", "Read", "Edit", …)
+	ToolInput   string // tool.call: input de la herramienta como JSON (para render de la card/diff)
+	ToolIsError bool   // tool.result: la herramienta terminó en error
 }
 
 // SpawnOpts parametriza el arranque de un agente para una sesión.

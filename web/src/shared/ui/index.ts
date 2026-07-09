@@ -6,6 +6,7 @@ export { StatusDot, statusLabel, type WorkspaceState } from "./status-dot";
 export { Avatar } from "./avatar";
 export { Kbd } from "./kbd";
 export { DiffStat } from "./diff-stat";
+export { ToolCard } from "./tool-card";
 export { Input, Textarea, Select, FieldLabel } from "./field";
 export { Toggle } from "./toggle";
 export { Tabs, FilterChip, type TabItem } from "./tabs";

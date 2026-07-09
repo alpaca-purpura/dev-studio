@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/alpacapurpura/dev-studio/internal/ports"
@@ -191,9 +192,53 @@ type rawFrame struct {
 			Text string `json:"text"`
 		} `json:"delta"`
 	} `json:"event"`
+	// assistant (tool_use) / user (tool_result): ambos viven en message.content[]
+	Message struct {
+		Role    string          `json:"role"`
+		Content []rawContentBlk `json:"content"`
+	} `json:"message"`
 	// result
 	Result  string `json:"result"`
 	IsError bool   `json:"is_error"`
+}
+
+// rawContentBlk es un bloque de message.content — cubre tool_use (assistant) y tool_result (user).
+type rawContentBlk struct {
+	Type string `json:"type"`
+	// tool_use (en frames assistant)
+	ID    string          `json:"id"`
+	Name  string          `json:"name"`
+	Input json.RawMessage `json:"input"`
+	// tool_result (en frames user)
+	ToolUseID string          `json:"tool_use_id"`
+	Content   json.RawMessage `json:"content"`
+	IsError   bool            `json:"is_error"`
+}
+
+// extractContent normaliza el `content` de un tool_result: puede venir como string suelto
+// o como array de bloques {type,text} (p. ej. Read). Devuelve el texto plano concatenado.
+func extractContent(raw json.RawMessage) string {
+	if len(raw) == 0 {
+		return ""
+	}
+	var s string
+	if json.Unmarshal(raw, &s) == nil {
+		return s
+	}
+	var blocks []struct {
+		Type string `json:"type"`
+		Text string `json:"text"`
+	}
+	if json.Unmarshal(raw, &blocks) == nil {
+		var b strings.Builder
+		for _, bl := range blocks {
+			if bl.Type == "text" {
+				b.WriteString(bl.Text)
+			}
+		}
+		return b.String()
+	}
+	return string(raw)
 }
 
 // pump lee stdout NDJSON y traduce cada línea a un ports.AgentEvent normalizado.
@@ -205,8 +250,10 @@ func (s *ccSession) pump(stdout io.Reader) {
 	for {
 		line, err := r.ReadBytes('\n')
 		if len(line) > 0 {
-			if ev, ok := translate(line); ok {
-				s.events <- ev // send bloqueante a propósito: perder un `result` cuelga la UI en streaming
+			if evs, ok := translate(line); ok {
+				for _, ev := range evs {
+					s.events <- ev // send bloqueante a propósito: perder un `result` cuelga la UI en streaming
+				}
 			}
 		}
 		if err != nil {
@@ -215,22 +262,54 @@ func (s *ccSession) pump(stdout io.Reader) {
 	}
 }
 
-func translate(line []byte) (ports.AgentEvent, bool) {
+// translate mapea una línea NDJSON a 0..N eventos normalizados. Devuelve slice porque un frame
+// `assistant`/`user` puede traer varios bloques tool_use/tool_result. ok=false ⇒ frame ignorado.
+func translate(line []byte) ([]ports.AgentEvent, bool) {
 	var f rawFrame
 	if err := json.Unmarshal(line, &f); err != nil {
-		return ports.AgentEvent{}, false
+		return nil, false
 	}
 	switch {
 	case f.Type == "system" && f.Subtype == "init":
-		return ports.AgentEvent{Kind: ports.EventInit, ClaudeSessionID: f.SessionID, Model: f.Model}, true
+		return []ports.AgentEvent{{Kind: ports.EventInit, ClaudeSessionID: f.SessionID, Model: f.Model}}, true
 	case f.Type == "stream_event" && f.Event.Type == "content_block_delta" && f.Event.Delta.Type == "text_delta":
-		return ports.AgentEvent{Kind: ports.EventDelta, Text: f.Event.Delta.Text}, true
+		return []ports.AgentEvent{{Kind: ports.EventDelta, Text: f.Event.Delta.Text}}, true
+	case f.Type == "assistant":
+		// bloques tool_use → cards (hueco #1). El texto del asistente ya llega por text_delta,
+		// así que acá SOLO nos interesan las herramientas; el resto del frame se ignora.
+		var evs []ports.AgentEvent
+		for _, b := range f.Message.Content {
+			if b.Type == "tool_use" {
+				evs = append(evs, ports.AgentEvent{
+					Kind: ports.EventToolCall, ToolID: b.ID, ToolName: b.Name, ToolInput: string(b.Input),
+				})
+			}
+		}
+		if len(evs) > 0 {
+			return evs, true
+		}
+		return nil, false
+	case f.Type == "user":
+		// bloques tool_result → output de las cards. Parea por tool_use_id con la llamada.
+		var evs []ports.AgentEvent
+		for _, b := range f.Message.Content {
+			if b.Type == "tool_result" {
+				evs = append(evs, ports.AgentEvent{
+					Kind: ports.EventToolResult, ToolID: b.ToolUseID,
+					Text: extractContent(b.Content), ToolIsError: b.IsError,
+				})
+			}
+		}
+		if len(evs) > 0 {
+			return evs, true
+		}
+		return nil, false
 	case f.Type == "result":
 		if f.IsError {
-			return ports.AgentEvent{Kind: ports.EventError, Err: f.Result}, true
+			return []ports.AgentEvent{{Kind: ports.EventError, Err: f.Result}}, true
 		}
-		return ports.AgentEvent{Kind: ports.EventResult, Text: f.Result}, true
+		return []ports.AgentEvent{{Kind: ports.EventResult, Text: f.Result}}, true
 	default:
-		return ports.AgentEvent{}, false // system/status, rate_limit_event, hooks, assistant-completo: ignorados a propósito
+		return nil, false // system/status, rate_limit_event, hooks: ignorados a propósito
 	}
 }

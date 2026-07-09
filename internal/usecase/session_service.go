@@ -29,11 +29,17 @@ type EventPublisher interface {
 // dockFrame es lo que viaja por el canal realtime hacia el frontend — un evento por sesión/turno.
 type dockFrame struct {
 	SessionID       string `json:"session_id"`
-	Kind            string `json:"kind"` // status | init | delta | result | error
+	Kind            string `json:"kind"` // status | init | delta | result | error | tool.call | tool.result
 	Text            string `json:"text,omitempty"`
 	Status          string `json:"status,omitempty"`
 	ClaudeSessionID string `json:"claude_session_id,omitempty"`
 	Model           string `json:"model,omitempty"`
+
+	// Herramientas (tool.call / tool.result) — R1 tool-cards. ToolID parea la llamada con su output.
+	ToolID      string `json:"tool_id,omitempty"`
+	ToolName    string `json:"tool_name,omitempty"`
+	ToolInput   string `json:"tool_input,omitempty"`
+	ToolIsError bool   `json:"tool_is_error,omitempty"`
 }
 
 type sessionRuntime struct {
@@ -253,6 +259,11 @@ func (s *SessionService) consume(id string, live ports.AgentSession) {
 		case ports.EventDelta:
 			r.assembling.WriteString(ev.Text)
 			s.publish(dockFrame{SessionID: id, Kind: "delta", Text: ev.Text})
+		case ports.EventToolCall:
+			// tool-cards (R1): inline en el stream, NO tocan el buffer de texto ni el estado del turno.
+			s.publish(dockFrame{SessionID: id, Kind: "tool.call", ToolID: ev.ToolID, ToolName: ev.ToolName, ToolInput: ev.ToolInput})
+		case ports.EventToolResult:
+			s.publish(dockFrame{SessionID: id, Kind: "tool.result", ToolID: ev.ToolID, Text: ev.Text, ToolIsError: ev.ToolIsError})
 		case ports.EventResult:
 			text := r.assembling.String()
 			if text == "" {
