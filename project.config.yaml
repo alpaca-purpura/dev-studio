@@ -13,6 +13,10 @@
 #  Bootstrap: /harness:bootstrap 2026-07-04 · detection sweep: repo greenfield
 #  (cero manifests/lockfiles) → detectable slots quedaron __FILL_ME__ salvo
 #  los firmados por Chris en la sesión de bootstrap.
+#  Re-instalación 2026-07-09: plugin registrado a project-scope (dev-studio → 0.5.3),
+#  re-exposición REINSTALLING.md — backflow audit = cero deltas (core in-repo byte-idéntico
+#  a 0.5.3), agents/grep-bot re-copiado, hooks (SessionStart+telemetría) reactivados.
+#  Slots firmados INTACTOS (re-instanciación segura). Doctor: exit 0.
 # ════════════════════════════════════════════════════════════════════════
 
 meta:
